@@ -1,0 +1,251 @@
+.qibla-container {
+  padding: 20px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.permission-request {
+  text-align: center;
+  padding: 60px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.permission-icon {
+  font-size: 80px;
+  animation: bounce 2s ease-in-out infinite;
+}
+
+@keyframes bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.permission-request h3 {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--tg-theme-text-color);
+  margin: 0;
+}
+
+.permission-request p {
+  font-size: 15px;
+  color: var(--tg-theme-hint-color);
+  line-height: 1.6;
+  max-width: 400px;
+  margin: 0;
+}
+
+.btn-permission {
+  padding: 16px 32px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 16px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+  transition: all 0.3s ease;
+}
+
+.btn-permission:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(102, 126, 234, 0.5);
+}
+
+.btn-permission:active {
+  transform: translateY(0);
+}
+
+.qibla-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.qibla-header h2 {
+  margin-bottom: 20px;
+  color: var(--tg-theme-text-color);
+}
+
+.qibla-info {
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  gap: 15px;
+  padding: 15px;
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 12px;
+}
+
+.info-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+}
+
+.info-item .label {
+  font-size: 12px;
+  color: var(--tg-theme-hint-color);
+}
+
+.info-item .value {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--tg-theme-text-color);
+}
+
+.compass-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.compass-background {
+  position: relative;
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2),
+    inset 0 0 30px rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cardinal-marks {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+
+.mark {
+  position: absolute;
+  font-weight: 700;
+  font-size: 20px;
+  color: white;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.mark.north {
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.mark.east {
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.mark.south {
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.mark.west {
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.compass-needle {
+  position: relative;
+  width: 200px;
+  height: 200px;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.needle-pointer {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 40px;
+  color: #4caf50;
+  text-shadow: 0 2px 8px rgba(76, 175, 80, 0.5);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    transform: translateX(-50%) scale(1);
+  }
+  50% {
+    transform: translateX(-50%) scale(1.1);
+  }
+}
+
+.kaaba-icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 48px;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+}
+
+.compass-center {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: white;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+.device-heading {
+  text-align: center;
+  padding: 10px 20px;
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 20px;
+  font-size: 14px;
+  color: var(--tg-theme-hint-color);
+}
+
+.qibla-instructions {
+  margin-top: 30px;
+  padding: 15px;
+  background: rgba(76, 175, 80, 0.1);
+  border-left: 4px solid #4caf50;
+  border-radius: 8px;
+  font-size: 14px;
+  color: var(--tg-theme-text-color);
+  line-height: 1.6;
+}
+
+.qibla-error,
+.qibla-loading {
+  text-align: center;
+  padding: 40px 20px;
+  font-size: 16px;
+  color: var(--tg-theme-hint-color);
+}
+
+.qibla-error p {
+  color: #f44336;
+}
+
+/* Dark mode adjustments */
+@media (prefers-color-scheme: dark) {
+  .qibla-info {
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  .device-heading {
+    background: rgba(255, 255, 255, 0.05);
+  }
+}

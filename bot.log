@@ -1,0 +1,37 @@
+yarn run v1.22.22
+$ nodemon bot.js
+[33m[nodemon] 3.1.11[39m
+[33m[nodemon] to restart at any time, enter `rs`[39m
+[33m[nodemon] watching path(s): *.*[39m
+[33m[nodemon] watching extensions: js,mjs,cjs,json[39m
+[32m[nodemon] starting `node bot.js`[39m
+🚀 Starting bot...
+
+📦 Connecting to database...
+✅ Database connected
+⚙️ Initializing settings...
+✅ Superadmin set: 1551855614
+🤖 Launching bot...
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] starting `node bot.js`[39m
+🚀 Starting bot...
+
+📦 Connecting to database...
+✅ Database connected
+⚙️ Initializing settings...
+✅ Superadmin set: 1551855614
+🤖 Launching bot...
+🔔 Initializing prayer reminders...
+🔔 Initializing reminders for 1 users...
+✅ Scheduled 10 reminders for user 1551855614
+✅ Reminders initialized for all users
+🚀 Starting Admin API...
+
+🎉 Bot va Admin API tayyor!
+
+🚀 Admin API running on http://localhost:3001
+ℹ️  Web admin already exists
+⚠️ Bot launch error: 409: Conflict: terminated by other getUpdates request; make sure that only one bot instance is running
+[31m[nodemon] app crashed - waiting for file changes before starting...[39m
+[32m[nodemon] restarting child process[39m
+[32m[nodemon] starting `node bot.js`[39m

@@ -1,0 +1,101 @@
+.app {
+  width: 100%;
+  min-height: 100vh;
+  padding: 16px;
+  background: var(--tg-theme-bg-color);
+  color: var(--tg-theme-text-color);
+}
+
+.app.loading,
+.app.error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--tg-theme-hint-color, #999);
+  border-top-color: var(--tg-theme-button-color, #007aff);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.app-header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.app-header h1 {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.location {
+  font-size: 14px;
+  color: var(--tg-theme-hint-color, #999);
+  margin-bottom: 16px;
+}
+
+.view-tabs {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-top: 16px;
+}
+
+.view-tabs .tab {
+  flex: 1;
+  max-width: 150px;
+  padding: 10px 16px;
+  background: transparent;
+  border: 2px solid var(--tg-theme-button-color, #007aff);
+  color: var(--tg-theme-button-color, #007aff);
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.view-tabs .tab.active {
+  background: var(--tg-theme-button-color, #007aff);
+  color: var(--tg-theme-button-text-color, #fff);
+}
+
+.view-tabs .tab:hover {
+  opacity: 0.8;
+}
+
+.no-location {
+  text-align: center;
+  padding: 40px 20px;
+  background: var(--tg-theme-secondary-bg-color, #f5f5f5);
+  border-radius: 12px;
+  margin-top: 20px;
+}
+
+.no-location p {
+  font-size: 16px;
+  margin-bottom: 8px;
+}
+
+.no-location .hint {
+  font-size: 14px;
+  color: var(--tg-theme-hint-color, #999);
+}
+
+.error p {
+  color: #ff3b30;
+  font-size: 16px;
+}
