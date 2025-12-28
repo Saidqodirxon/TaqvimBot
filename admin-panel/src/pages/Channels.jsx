@@ -187,7 +187,10 @@ function Channels() {
         {channels.length === 0 ? (
           <div className="no-data">
             <p>Hozircha kanallar yo'q</p>
-            <p>Majburiy a'zolik kanallari qo'shish uchun yuqoridagi tugmani bosing</p>
+            <p>
+              Majburiy a'zolik kanallari qo'shish uchun yuqoridagi tugmani
+              bosing
+            </p>
           </div>
         ) : (
           channels.map((channel, index) => (
@@ -198,7 +201,11 @@ function Channels() {
               <div className="channel-info">
                 <div className="channel-title">
                   <h3>{channel.title}</h3>
-                  <span className={`status-badge ${channel.isActive ? "active" : "inactive"}`}>
+                  <span
+                    className={`status-badge ${
+                      channel.isActive ? "active" : "inactive"
+                    }`}
+                  >
                     {channel.isActive ? "✅ Faol" : "⏸️ Faol emas"}
                   </span>
                 </div>
@@ -240,7 +247,9 @@ function Channels() {
             <li>Bot barcha kanallarda admin bo'lishi kerak</li>
             <li>Faqat faol kanallar tekshiriladi</li>
             <li>Foydalanuvchi barcha faol kanallarga a'zo bo'lishi kerak</li>
-            <li>Kanallarni vaqtincha o'chirish uchun "O'chirish" tugmasini bosing</li>
+            <li>
+              Kanallarni vaqtincha o'chirish uchun "O'chirish" tugmasini bosing
+            </li>
           </ul>
         </div>
       )}

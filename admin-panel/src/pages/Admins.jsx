@@ -84,9 +84,7 @@ function Admins() {
       fetchAdmins();
     } catch (error) {
       console.error("Error adding admin:", error);
-      alert(
-        error.response?.data?.error || "Admin qo'shishda xatolik"
-      );
+      alert(error.response?.data?.error || "Admin qo'shishda xatolik");
     }
   };
 
@@ -165,9 +163,7 @@ function Admins() {
         viewAdmins: true,
         viewLogs: true,
       },
-      superadmin: Object.fromEntries(
-        ALL_PERMISSIONS.map((p) => [p.key, true])
-      ),
+      superadmin: Object.fromEntries(ALL_PERMISSIONS.map((p) => [p.key, true])),
     };
 
     if (editingAdmin) {
