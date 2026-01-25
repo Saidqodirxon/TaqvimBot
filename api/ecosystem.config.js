@@ -1,16 +1,18 @@
 module.exports = {
   apps: [
     {
-      name: "ramazonbot-api",
+      name: "ramazonbot-api-9999",
       script: "./bot.js",
+      cwd: "/root/ramazonbot/api",
       instances: 1,
       exec_mode: "fork",
       env: {
         NODE_ENV: "production",
         TZ: "Asia/Tashkent",
+        PORT: "9999",
       },
-      error_file: "./logs/pm2-error.log",
-      out_file: "./logs/pm2-out.log",
+      error_file: "./logs/pm2-api-error.log",
+      out_file: "./logs/pm2-api-out.log",
       log_date_format: "YYYY-MM-DD HH:mm:ss Z",
       merge_logs: true,
       max_memory_restart: "500M",
@@ -19,6 +21,7 @@ module.exports = {
     {
       name: "ramazonbot-cache-refresh",
       script: "./cache-refresh-scheduler.js",
+      cwd: "/root/ramazonbot/api",
       instances: 1,
       exec_mode: "fork",
       env: {
@@ -31,6 +34,40 @@ module.exports = {
       merge_logs: true,
       max_memory_restart: "200M",
       restart_delay: 5000,
+    },
+    {
+      name: "ramazonbot-admin-9998",
+      script: "./nginx/server.main.js",
+      cwd: "/root/ramazonbot/admin-panel",
+      instances: 1,
+      exec_mode: "fork",
+      env: {
+        NODE_ENV: "production",
+        PORT: "9998",
+      },
+      error_file: "./logs/pm2-admin-error.log",
+      out_file: "./logs/pm2-admin-out.log",
+      log_date_format: "YYYY-MM-DD HH:mm:ss Z",
+      merge_logs: true,
+      max_memory_restart: "300M",
+      restart_delay: 3000,
+    },
+    {
+      name: "ramazonbot-webapp-9997",
+      script: "./nginx/server.main.js",
+      cwd: "/root/ramazonbot/mini-app",
+      instances: 1,
+      exec_mode: "fork",
+      env: {
+        NODE_ENV: "production",
+        PORT: "9997",
+      },
+      error_file: "./logs/pm2-webapp-error.log",
+      out_file: "./logs/pm2-webapp-out.log",
+      log_date_format: "YYYY-MM-DD HH:mm:ss Z",
+      merge_logs: true,
+      max_memory_restart: "300M",
+      restart_delay: 3000,
     },
   ],
 };
