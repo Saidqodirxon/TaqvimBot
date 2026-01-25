@@ -30,7 +30,7 @@ async function getPrayerTimes(
 
     // Create location key and date string for cache
     const locationKey = `${latitude.toFixed(4)}_${longitude.toFixed(4)}`;
-    const dateStr = targetDate.toISOString().split('T')[0]; // YYYY-MM-DD
+    const dateStr = targetDate.toISOString().split("T")[0]; // YYYY-MM-DD
 
     // Priority 0: Check cache first (fast and reliable)
     try {
@@ -44,11 +44,13 @@ async function getPrayerTimes(
         console.log(`✅ Cache hit for ${locationKey} on ${dateStr}`);
         return {
           success: true,
-          date: cachedData.date || targetDate.toLocaleDateString("en-GB", {
-            day: "2-digit",
-            month: "short",
-            year: "numeric",
-          }),
+          date:
+            cachedData.date ||
+            targetDate.toLocaleDateString("en-GB", {
+              day: "2-digit",
+              month: "short",
+              year: "numeric",
+            }),
           hijri: cachedData.hijri?.date || "Unknown",
           timings: cachedData.timings,
           meta: cachedData.meta || {
@@ -193,20 +195,26 @@ async function getPrayerTimes(
       };
 
       // Save to cache (non-blocking)
-      savePrayerTimeToCache(locationKey, dateStr, result, {
-        latitude,
-        longitude,
-        method,
-        school,
-        midnightMode,
-        latitudeAdjustment,
-      }, 'aladhan-api').catch(err => {
+      savePrayerTimeToCache(
+        locationKey,
+        dateStr,
+        result,
+        {
+          latitude,
+          longitude,
+          method,
+          school,
+          midnightMode,
+          latitudeAdjustment,
+        },
+        "aladhan-api"
+      ).catch((err) => {
         console.error("Cache save error:", err.message);
       });
 
       return result;
     } else {
-      const errorMsg = `Aladhan API error: ${response.data.status || 'Unknown error'}`;
+      const errorMsg = `Aladhan API error: ${response.data.status || "Unknown error"}`;
       console.error(errorMsg, response.data);
       return {
         success: false,
@@ -214,29 +222,32 @@ async function getPrayerTimes(
       };
     }
   } catch (error) {
-    const errorMsg = error.response?.data?.status || error.message || "API connection failed";
+    const errorMsg =
+      error.response?.data?.status || error.message || "API connection failed";
     console.error("Aladhan API xatosi:", errorMsg);
     console.error("Full error:", error);
-    
+
     // FALLBACK STRATEGY when API fails:
-    
+
     // 1. Try to get cached data for this location (any date)
     try {
       const locationKey = `${latitude.toFixed(4)}_${longitude.toFixed(4)}`;
       const lastCache = await PrayerTimeCache.findOne({
         locationKey,
-        source: 'aladhan-api',
+        source: "aladhan-api",
       }).sort({ fetchedAt: -1 });
 
       if (lastCache) {
         console.log(`⚠️ API failed, using cached data from ${lastCache.date}`);
         return {
           success: true,
-          date: lastCache.date || new Date().toLocaleDateString("en-GB", {
-            day: "2-digit",
-            month: "short",
-            year: "numeric",
-          }),
+          date:
+            lastCache.date ||
+            new Date().toLocaleDateString("en-GB", {
+              day: "2-digit",
+              month: "short",
+              year: "numeric",
+            }),
           hijri: lastCache.hijri?.date || "Unknown",
           timings: lastCache.timings,
           meta: lastCache.meta || {
@@ -259,18 +270,22 @@ async function getPrayerTimes(
       const nearbyCache = await PrayerTimeCache.findOne({
         latitude: { $gte: latitude - 0.5, $lte: latitude + 0.5 },
         longitude: { $gte: longitude - 0.5, $lte: longitude + 0.5 },
-        source: 'aladhan-api',
+        source: "aladhan-api",
       }).sort({ fetchedAt: -1 });
 
       if (nearbyCache) {
-        console.log(`⚠️ Using nearby location cache: ${nearbyCache.locationKey}`);
+        console.log(
+          `⚠️ Using nearby location cache: ${nearbyCache.locationKey}`
+        );
         return {
           success: true,
-          date: nearbyCache.date || new Date().toLocaleDateString("en-GB", {
-            day: "2-digit",
-            month: "short",
-            year: "numeric",
-          }),
+          date:
+            nearbyCache.date ||
+            new Date().toLocaleDateString("en-GB", {
+              day: "2-digit",
+              month: "short",
+              year: "numeric",
+            }),
           hijri: nearbyCache.hijri?.date || "Unknown",
           timings: nearbyCache.timings,
           meta: nearbyCache.meta || {
@@ -581,10 +596,16 @@ const CALCULATION_METHODS = {
  * @param {Object} settings - Calculation settings
  * @param {string} source - Data source (aladhan-api, monthly, manual)
  */
-async function savePrayerTimeToCache(locationKey, dateStr, prayerData, settings, source = 'aladhan-api') {
+async function savePrayerTimeToCache(
+  locationKey,
+  dateStr,
+  prayerData,
+  settings,
+  source = "aladhan-api"
+) {
   try {
-    const [lat, lon] = locationKey.split('_').map(Number);
-    
+    const [lat, lon] = locationKey.split("_").map(Number);
+
     // Set expiration to end of day + 1 day (cache valid for 24+ hours)
     const expiresAt = new Date(dateStr);
     expiresAt.setHours(23, 59, 59, 999);
@@ -598,8 +619,8 @@ async function savePrayerTimeToCache(locationKey, dateStr, prayerData, settings,
       timings: prayerData.timings,
       hijri: {
         date: prayerData.hijri,
-        month: { en: prayerData.hijri?.split(' ')[0] || '', uz: '' },
-        year: prayerData.hijri?.split(', ')[1] || '',
+        month: { en: prayerData.hijri?.split(" ")[0] || "", uz: "" },
+        year: prayerData.hijri?.split(", ")[1] || "",
       },
       meta: prayerData.meta,
       settings,

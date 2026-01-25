@@ -188,7 +188,9 @@ function App() {
           <>
             {prayerTimes.outdated && (
               <div className="warning-banner">
-                ⚠️ {prayerTimes.warning || "API ishlamadi, oxirgi ma'lumot ko'rsatilmoqda"}
+                ⚠️{" "}
+                {prayerTimes.warning ||
+                  "API ishlamadi, oxirgi ma'lumot ko'rsatilmoqda"}
               </div>
             )}
             <Calendar prayerTimes={prayerTimes} userData={userData} />

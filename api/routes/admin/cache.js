@@ -2,7 +2,10 @@ const express = require("express");
 const router = express.Router();
 const PrayerTimeCache = require("../../models/PrayerTimeCache");
 const adminAuth = require("../../middleware/adminAuth");
-const { getPrayerTimes, savePrayerTimeToCache } = require("../../utils/aladhan");
+const {
+  getPrayerTimes,
+  savePrayerTimeToCache,
+} = require("../../utils/aladhan");
 
 /**
  * Get all cached prayer times with pagination
@@ -40,15 +43,19 @@ router.get("/", adminAuth, async (req, res) => {
 router.get("/stats", adminAuth, async (req, res) => {
   try {
     const now = new Date();
-    
+
     const stats = {
       total: await PrayerTimeCache.countDocuments(),
       active: await PrayerTimeCache.countDocuments({ expiresAt: { $gt: now } }),
-      expired: await PrayerTimeCache.countDocuments({ expiresAt: { $lte: now } }),
+      expired: await PrayerTimeCache.countDocuments({
+        expiresAt: { $lte: now },
+      }),
       bySource: await PrayerTimeCache.aggregate([
         { $group: { _id: "$source", count: { $sum: 1 } } },
       ]),
-      uniqueLocations: await PrayerTimeCache.distinct("locationKey").then(arr => arr.length),
+      uniqueLocations: await PrayerTimeCache.distinct("locationKey").then(
+        (arr) => arr.length
+      ),
       oldestCache: await PrayerTimeCache.findOne().sort({ fetchedAt: 1 }),
       newestCache: await PrayerTimeCache.findOne().sort({ fetchedAt: -1 }),
     };
@@ -88,9 +95,9 @@ router.post("/refresh", adminAuth, async (req, res) => {
         data: prayerData,
       });
     } else {
-      res.status(500).json({ 
+      res.status(500).json({
         error: "Failed to fetch prayer times",
-        details: prayerData.error
+        details: prayerData.error,
       });
     }
   } catch (error) {

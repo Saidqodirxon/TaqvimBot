@@ -85,7 +85,8 @@ function Cache() {
   };
 
   const handleClearExpired = async () => {
-    if (!confirm("Barcha muddati o'tgan cache'larni o'chirmoqchimisiz?")) return;
+    if (!confirm("Barcha muddati o'tgan cache'larni o'chirmoqchimisiz?"))
+      return;
 
     try {
       const token = localStorage.getItem("adminToken");
@@ -104,7 +105,12 @@ function Cache() {
   };
 
   const handleBulkRefresh = async () => {
-    if (!confirm("Barcha joylashuvlar uchun cache'ni yangilamoqchimisiz? Bu biroz vaqt olishi mumkin.")) return;
+    if (
+      !confirm(
+        "Barcha joylashuvlar uchun cache'ni yangilamoqchimisiz? Bu biroz vaqt olishi mumkin."
+      )
+    )
+      return;
 
     try {
       setRefreshing(true);
@@ -114,7 +120,9 @@ function Cache() {
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      alert(`Tugadi!\nMuvaffaqiyatli: ${response.data.success}\nXato: ${response.data.failed}`);
+      alert(
+        `Tugadi!\nMuvaffaqiyatli: ${response.data.success}\nXato: ${response.data.failed}`
+      );
       fetchCaches();
       fetchStats();
     } catch (error) {
@@ -142,7 +150,11 @@ function Cache() {
       <div className="page-header">
         <h1>💾 Cache Boshqaruvi</h1>
         <div className="header-actions">
-          <button onClick={handleBulkRefresh} disabled={refreshing} className="btn-refresh">
+          <button
+            onClick={handleBulkRefresh}
+            disabled={refreshing}
+            className="btn-refresh"
+          >
             {refreshing ? "⏳ Yangilanmoqda..." : "🔄 Barchasini Yangilash"}
           </button>
           <button onClick={handleClearExpired} className="btn-clear">
@@ -187,7 +199,10 @@ function Cache() {
           </thead>
           <tbody>
             {caches.map((cache) => (
-              <tr key={cache._id} className={isExpired(cache.expiresAt) ? "expired" : ""}>
+              <tr
+                key={cache._id}
+                className={isExpired(cache.expiresAt) ? "expired" : ""}
+              >
                 <td>
                   <div className="location-info">
                     <div className="location-key">{cache.locationKey}</div>
@@ -199,8 +214,11 @@ function Cache() {
                 <td>{cache.date}</td>
                 <td>
                   <span className={`badge badge-${cache.source}`}>
-                    {cache.source === "aladhan-api" ? "🌐 API" : 
-                     cache.source === "monthly" ? "📅 Oylik" : "✍️ Manual"}
+                    {cache.source === "aladhan-api"
+                      ? "🌐 API"
+                      : cache.source === "monthly"
+                        ? "📅 Oylik"
+                        : "✍️ Manual"}
                   </span>
                 </td>
                 <td>{formatDate(cache.fetchedAt)}</td>
@@ -215,7 +233,9 @@ function Cache() {
                 <td>
                   <div className="actions">
                     <button
-                      onClick={() => handleRefresh(cache.latitude, cache.longitude)}
+                      onClick={() =>
+                        handleRefresh(cache.latitude, cache.longitude)
+                      }
                       disabled={refreshing}
                       className="btn-sm btn-refresh-sm"
                       title="Yangilash"

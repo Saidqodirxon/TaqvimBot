@@ -95,7 +95,7 @@ router.post("/prayer-times", async (req, res) => {
       midnightMode,
       latitudeAdjustment
     );
-    
+
     if (!prayerData || !prayerData.success) {
       const errorMsg = prayerData?.error || "Failed to fetch prayer times";
       logger.error("Prayer times fetch failed", {
@@ -105,12 +105,12 @@ router.post("/prayer-times", async (req, res) => {
         errorMsg,
         prayerData,
       });
-      return res.status(500).json({ 
-        error: "Namoz vaqtlarini yuklashda xatolik", 
-        details: errorMsg 
+      return res.status(500).json({
+        error: "Namoz vaqtlarini yuklashda xatolik",
+        details: errorMsg,
       });
     }
-    
+
     res.json(prayerData);
   } catch (error) {
     logger.error("Prayer times error", {

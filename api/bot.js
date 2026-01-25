@@ -1151,7 +1151,7 @@ async function startBot() {
         console.log("\n✅ Bot started successfully!");
         console.log(`📱 Bot username: @${botUser}`);
         console.log(`👨‍💼 Admin ID: ${adminId}`);
-        
+
         // Set default menu button for ALL users after bot starts
         try {
           const miniAppUrl = process.env.MINI_APP_URL;
