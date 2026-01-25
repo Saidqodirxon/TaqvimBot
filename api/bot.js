@@ -1305,6 +1305,7 @@ async function startAdminAPI() {
   const prayerDefaultsRoutes = require("./routes/admin/prayerDefaults");
   const locationsRoutes = require("./routes/admin/locations");
   const monthlyPrayerTimesRoutes = require("./routes/admin/monthlyPrayerTimes");
+  const cacheRoutes = require("./routes/admin/cache");
 
   app.use("/api/auth", authRoutes);
   app.use("/api/users", usersRoutes);
@@ -1319,6 +1320,7 @@ async function startAdminAPI() {
   app.use("/api/prayer-defaults", prayerDefaultsRoutes);
   app.use("/api/locations", locationsRoutes);
   app.use("/api/monthly-prayer-times", monthlyPrayerTimesRoutes);
+  app.use("/api/cache", cacheRoutes);
 
   // Health check
   app.get("/", (req, res) => {

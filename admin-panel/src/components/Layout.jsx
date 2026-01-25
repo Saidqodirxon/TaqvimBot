@@ -13,6 +13,7 @@ import {
   Clock,
   Shield,
   MapPin,
+  Database,
 } from "lucide-react";
 import "./Layout.css";
 
@@ -119,6 +120,16 @@ function Layout({ children, setAuth }) {
           >
             <MapPin size={20} />
             <span>Joylashuvlar</span>
+          </NavLink>
+
+          <NavLink
+            to="/cache"
+            className={({ isActive }) =>
+              isActive ? "nav-item active" : "nav-item"
+            }
+          >
+            <Database size={20} />
+            <span>Cache</span>
           </NavLink>
 
           <NavLink

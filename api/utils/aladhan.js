@@ -218,10 +218,13 @@ async function getPrayerTimes(
     console.error("Aladhan API xatosi:", errorMsg);
     console.error("Full error:", error);
     
-    // Try to get last successful cache as fallback (any date)
+    // FALLBACK STRATEGY when API fails:
+    
+    // 1. Try to get cached data for this location (any date)
     try {
+      const locationKey = `${latitude.toFixed(4)}_${longitude.toFixed(4)}`;
       const lastCache = await PrayerTimeCache.findOne({
-        locationKey: `${latitude.toFixed(4)}_${longitude.toFixed(4)}`,
+        locationKey,
         source: 'aladhan-api',
       }).sort({ fetchedAt: -1 });
 
@@ -251,9 +254,71 @@ async function getPrayerTimes(
       console.error("Fallback cache error:", cacheError.message);
     }
 
+    // 2. Try to get nearby location's cache (within 50km)
+    try {
+      const nearbyCache = await PrayerTimeCache.findOne({
+        latitude: { $gte: latitude - 0.5, $lte: latitude + 0.5 },
+        longitude: { $gte: longitude - 0.5, $lte: longitude + 0.5 },
+        source: 'aladhan-api',
+      }).sort({ fetchedAt: -1 });
+
+      if (nearbyCache) {
+        console.log(`⚠️ Using nearby location cache: ${nearbyCache.locationKey}`);
+        return {
+          success: true,
+          date: nearbyCache.date || new Date().toLocaleDateString("en-GB", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+          }),
+          hijri: nearbyCache.hijri?.date || "Unknown",
+          timings: nearbyCache.timings,
+          meta: nearbyCache.meta || {
+            latitude,
+            longitude,
+            timezone: "Asia/Tashkent",
+          },
+          manual: false,
+          cached: true,
+          outdated: true,
+          warning: "API ishlamadi, yaqin joylashuv ma'lumotlari ko'rsatilmoqda",
+        };
+      }
+    } catch (nearbyError) {
+      console.error("Nearby cache error:", nearbyError.message);
+    }
+
+    // 3. Use default Tashkent times as last resort
+    const targetDate = date ? new Date(date.getTime()) : new Date();
+    console.log(`⚠️ All fallbacks failed, using default Tashkent times`);
     return {
-      success: false,
-      error: `Namoz vaqtlarini olishda xatolik: ${errorMsg}`,
+      success: true,
+      date: targetDate.toLocaleDateString("en-GB", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+      }),
+      hijri: "Shaʿbān 6, 1447",
+      timings: {
+        fajr: "06:05",
+        sunrise: "07:41",
+        dhuhr: "12:35",
+        asr: "15:49",
+        maghrib: "17:30",
+        isha: "19:01",
+        midnight: "00:00",
+        imsak: "05:55",
+      },
+      meta: {
+        latitude,
+        longitude,
+        timezone: "Asia/Tashkent",
+        method: { id: 99, name: "Default Tashkent" },
+        school: { id: 1, name: "Hanafi" },
+      },
+      manual: true,
+      default: true,
+      warning: "API ishlamadi, standart Toshkent vaqtlari ko'rsatilmoqda",
     };
   }
 }

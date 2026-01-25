@@ -13,6 +13,7 @@ import PrayerDefaults from "./pages/PrayerDefaults";
 import Admins from "./pages/Admins";
 import Locations from "./pages/Locations";
 import MonthlyPrayerTimes from "./pages/MonthlyPrayerTimes";
+import Cache from "./pages/Cache";
 import Layout from "./components/Layout";
 
 function App() {
@@ -58,6 +59,7 @@ function App() {
           path="/locations/:locationId/monthly-times"
           element={<MonthlyPrayerTimes />}
         />
+        <Route path="/cache" element={<Cache />} />
         <Route path="/broadcast" element={<Broadcast />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="*" element={<Navigate to="/" replace />} />
