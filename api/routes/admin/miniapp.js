@@ -47,7 +47,7 @@ router.get("/user/:userId", async (req, res) => {
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
-    
+
     // Return user data in format expected by frontend
     res.json({
       userId: user.userId,
