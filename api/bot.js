@@ -1153,36 +1153,40 @@ async function startBot() {
         console.log(`👨‍💼 Admin ID: ${adminId}`);
 
         // Set default menu button for ALL users after bot starts
+        console.log("\n🔧 Setting menu button...");
         try {
           const miniAppUrl = process.env.MINI_APP_URL;
           if (miniAppUrl && miniAppUrl.startsWith("https://")) {
+            // Set default menu button for all users
             await bot.telegram.setChatMenuButton({
               menu_button: {
                 type: "web_app",
                 text: "📅 Taqvim",
                 web_app: {
-                  url: miniAppUrl + "?source=menu",
+                  url: miniAppUrl,
                 },
               },
             });
-            console.log("✅ Default menu button set for all users");
+            console.log("✅ Default menu button set: " + miniAppUrl);
+            
+            // Also set for admin user specifically
+            await bot.telegram.setChatMenuButton({
+              chat_id: parseInt(adminId),
+              menu_button: {
+                type: "web_app",
+                text: "📅 Taqvim",
+                web_app: {
+                  url: miniAppUrl,
+                },
+              },
+            });
+            console.log(`✅ Menu button set for admin: ${adminId}`);
+          } else {
+            console.log("⚠️ MINI_APP_URL not configured or invalid");
           }
         } catch (menuError) {
-          console.log("⚠️ Menu button error:", menuError.message);
-        }
-      })
-      .catch((launchError) => {
-        console.error("⚠️ Bot launch error:", launchError.message);
-      });
-
-    console.log("\n🎉 Backend API va Bot tayyor!\n");
-  } catch (error) {
-    console.error("\n❌ Error starting bot:", error.message);
-    console.error("\n💡 Mumkin sabablari:");
-    console.error("   1. MongoDB ishlamayapti");
-    console.error("   2. .env fayl noto'g'ri to'ldirilgan");
-    console.error("   3. Internet ulanishi yo'q");
-    console.error("   4. BOT_TOKEN noto'g'ri\n");
+          console.error("❌ Menu button error:", menuError.message);
+          console.error("Full error:", menuError);
 
     // Agar faqat bot ishlamasa ham, backend API ni ishga tushir
     console.log("⏭️ Trying to start Admin API anyway...");
