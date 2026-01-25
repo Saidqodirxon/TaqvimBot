@@ -119,6 +119,14 @@ module.exports = {
     btn_send_phone: "📱 Raqamni yuborish",
     phone_saved: "✅ Telefon raqamingiz saqlandi!",
 
+    // Terms and Conditions
+    terms_message:
+      "📋 Botdan foydalanishdan oldin Foydalanish shartlari bilan tanishib chiqing va roziliging bering:",
+    btn_read_terms: "📄 Shartlarni o'qish",
+    btn_accept_terms: "✅ Roziman",
+    terms_accepted:
+      "✅ Rahmat! Endi botning barcha imkoniyatlaridan foydalanishingiz mumkin.",
+
     // Calendar options
     btn_daily: "📆 Kunlik",
     btn_weekly: "📅 Haftalik",
@@ -320,6 +328,14 @@ module.exports = {
     request_phone: "📱 Илтимос, телефон рақамингизни юборинг:",
     btn_send_phone: "📱 Рақамни юбориш",
     phone_saved: "✅ Телефон рақамингиз сақланди!",
+
+    // Terms and Conditions
+    terms_message:
+      "📋 Ботдан фойдаланишдан олдин Фойдаланиш шартлари билан танишиб чиқинг ва розилигинг беринг:",
+    btn_read_terms: "📄 Шартларни ўқиш",
+    btn_accept_terms: "✅ Розиман",
+    terms_accepted:
+      "✅ Раҳмат! Энди ботнинг барча имкониятларидан фойдаланишингиз мумкин.",
 
     // Calendar options
     btn_daily: "📆 Кунлик",
@@ -526,6 +542,14 @@ module.exports = {
     request_phone: "📱 Пожалуйста, отправьте ваш номер телефона:",
     btn_send_phone: "📱 Отправить номер",
     phone_saved: "✅ Ваш номер телефона сохранен!",
+
+    // Terms and Conditions
+    terms_message:
+      "📋 Перед использованием бота ознакомьтесь с Условиями использования и дайте согласие:",
+    btn_read_terms: "📄 Прочитать условия",
+    btn_accept_terms: "✅ Согласен",
+    terms_accepted:
+      "✅ Спасибо! Теперь вы можете использовать все возможности бота.",
 
     // Calendar options
     btn_daily: "📆 Ежедневно",

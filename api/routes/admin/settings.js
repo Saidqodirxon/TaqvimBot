@@ -382,4 +382,53 @@ router.post("/bot-token", authMiddleware, superAdminOnly, async (req, res) => {
   }
 });
 
+// Set terms settings
+router.post("/terms", authMiddleware, superAdminOnly, async (req, res) => {
+  try {
+    const { enabled, url, recheckDays } = req.body;
+
+    await Settings.setSetting("terms_enabled", enabled);
+    await Settings.setSetting("terms_url", url);
+    await Settings.setSetting("terms_recheck_days", recheckDays);
+
+    await logger.logAdminAction(
+      req.user,
+      "Terms sozlamalari yangilandi",
+      `enabled: ${enabled}, url: ${url}, recheckDays: ${recheckDays}`
+    );
+
+    res.json({
+      message: "Terms sozlamalari saqlandi!",
+      settings: { enabled, url, recheckDays },
+    });
+  } catch (error) {
+    logger.error("Set terms settings error:", error);
+    res.status(500).json({ error: "Server xatosi" });
+  }
+});
+
+// Set phone request settings
+router.post("/phone", authMiddleware, superAdminOnly, async (req, res) => {
+  try {
+    const { enabled, recheckDays } = req.body;
+
+    await Settings.setSetting("phone_request_enabled", enabled);
+    await Settings.setSetting("phone_recheck_days", recheckDays);
+
+    await logger.logAdminAction(
+      req.user,
+      "Telefon so'rash sozlamalari yangilandi",
+      `enabled: ${enabled}, recheckDays: ${recheckDays}`
+    );
+
+    res.json({
+      message: "Telefon sozlamalari saqlandi!",
+      settings: { enabled, recheckDays },
+    });
+  } catch (error) {
+    logger.error("Set phone settings error:", error);
+    res.status(500).json({ error: "Server xatosi" });
+  }
+});
+
 module.exports = router;

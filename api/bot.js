@@ -95,6 +95,26 @@ bot.use(async (ctx, next) => {
         await ctx.reply(await t(lang, "user_blocked"));
         return; // Keyingi middleware'larga o'tmaslik
       }
+
+      // Set menu button for user if not set recently (1 time per session)
+      if (!ctx.session.menuButtonSet && ctx.chat?.type === "private") {
+        const miniAppUrl = process.env.MINI_APP_URL;
+        if (miniAppUrl && miniAppUrl.startsWith("https://")) {
+          try {
+            await ctx.telegram.setChatMenuButton({
+              chat_id: ctx.chat.id,
+              menu_button: {
+                type: "web_app",
+                text: "📅 Taqvim",
+                web_app: { url: miniAppUrl },
+              },
+            });
+            ctx.session.menuButtonSet = true;
+          } catch (e) {
+            // Ignore menu button errors
+          }
+        }
+      }
     }
     await next();
   } catch (error) {
@@ -108,13 +128,100 @@ bot.use(async (ctx, next) => {
   if (
     ctx.message?.text === "/start" ||
     (ctx.updateType === "callback_query" &&
-      ctx.callbackQuery.data === "check_subscription")
+      (ctx.callbackQuery.data === "check_subscription" ||
+        ctx.callbackQuery.data === "accept_terms" ||
+        ctx.callbackQuery.data.startsWith("lang_")))
   ) {
     return next();
   }
 
   if (ctx.from && !isAdmin(ctx.from.id)) {
     return checkChannelMembership(ctx, next);
+  }
+
+  return next();
+});
+
+// Terms and Phone Request middleware
+bot.use(async (ctx, next) => {
+  // Skip for admin, callbacks, and /start
+  if (
+    isAdmin(ctx.from?.id) ||
+    ctx.updateType === "callback_query" ||
+    ctx.message?.text === "/start" ||
+    !ctx.session?.user?.language
+  ) {
+    return next();
+  }
+
+  const user = ctx.session.user;
+  const lang = getUserLanguage(user);
+
+  // Check terms
+  const termsEnabled = await Settings.getSetting("terms_enabled", false);
+  const termsUrl = await Settings.getSetting("terms_url", "");
+  const termsRecheckDays = await Settings.getSetting("terms_recheck_days", 90);
+
+  if (termsEnabled && termsUrl) {
+    const shouldAskTerms =
+      !user.termsAccepted ||
+      (user.termsAcceptedAt &&
+        (Date.now() - new Date(user.termsAcceptedAt).getTime()) /
+          (1000 * 60 * 60 * 24) >
+          termsRecheckDays);
+
+    if (shouldAskTerms) {
+      const termsMessage = await t(lang, "terms_message");
+      await ctx.reply(termsMessage, {
+        reply_markup: {
+          inline_keyboard: [
+            [
+              {
+                text: await t(lang, "btn_read_terms"),
+                url: termsUrl,
+              },
+            ],
+            [
+              {
+                text: await t(lang, "btn_accept_terms"),
+                callback_data: "accept_terms",
+              },
+            ],
+          ],
+        },
+      });
+      return;
+    }
+  }
+
+  // Check phone request
+  const phoneEnabled = await Settings.getSetting(
+    "phone_request_enabled",
+    false
+  );
+  const phoneRecheckDays = await Settings.getSetting("phone_recheck_days", 180);
+
+  if (phoneEnabled && !user.phoneNumber) {
+    const shouldAskPhone =
+      !user.phoneRequestedAt ||
+      (user.phoneRequestedAt &&
+        (Date.now() - new Date(user.phoneRequestedAt).getTime()) /
+          (1000 * 60 * 60 * 24) >
+          phoneRecheckDays);
+
+    if (shouldAskPhone) {
+      await ctx.reply(
+        await t(lang, "request_phone"),
+        await getPhoneRequestKeyboard(lang)
+      );
+      // Update phoneRequestedAt to not spam user
+      await User.findOneAndUpdate(
+        { userId: ctx.from.id },
+        { phoneRequestedAt: new Date() }
+      );
+      ctx.session.user.phoneRequestedAt = new Date();
+      return;
+    }
   }
 
   return next();
@@ -225,7 +332,36 @@ bot.action("lang_uz", async (ctx) => {
     await updateUserLanguage(ctx.from.id, "uz");
     ctx.session.user.language = "uz";
 
-    await ctx.editMessageText(`✅ ${await t("uz", "language_set")}`);
+    const languageSet = await t("uz", "language_set");
+    await ctx.editMessageText(`✅ ${languageSet}`);
+
+    // Check if terms are enabled and show terms
+    const termsEnabled = await Settings.getSetting("terms_enabled", false);
+    const termsUrl = await Settings.getSetting("terms_url", "");
+
+    if (termsEnabled && termsUrl && !ctx.session.user.termsAccepted) {
+      const termsMessage = await t("uz", "terms_message");
+      await ctx.reply(termsMessage, {
+        reply_markup: {
+          inline_keyboard: [
+            [
+              {
+                text: await t("uz", "btn_read_terms"),
+                url: termsUrl,
+              },
+            ],
+            [
+              {
+                text: await t("uz", "btn_accept_terms"),
+                callback_data: "accept_terms",
+              },
+            ],
+          ],
+        },
+      });
+      return;
+    }
+
     await ctx.reply(
       await t("uz", "main_menu"),
       await getMainMenuKeyboard("uz")
@@ -241,7 +377,36 @@ bot.action("lang_cr", async (ctx) => {
     await updateUserLanguage(ctx.from.id, "cr");
     ctx.session.user.language = "cr";
 
-    await ctx.editMessageText(`✅ ${await t("cr", "language_set")}`);
+    const languageSet = await t("cr", "language_set");
+    await ctx.editMessageText(`✅ ${languageSet}`);
+
+    // Check if terms are enabled and show terms
+    const termsEnabled = await Settings.getSetting("terms_enabled", false);
+    const termsUrl = await Settings.getSetting("terms_url", "");
+
+    if (termsEnabled && termsUrl && !ctx.session.user.termsAccepted) {
+      const termsMessage = await t("cr", "terms_message");
+      await ctx.reply(termsMessage, {
+        reply_markup: {
+          inline_keyboard: [
+            [
+              {
+                text: await t("cr", "btn_read_terms"),
+                url: termsUrl,
+              },
+            ],
+            [
+              {
+                text: await t("cr", "btn_accept_terms"),
+                callback_data: "accept_terms",
+              },
+            ],
+          ],
+        },
+      });
+      return;
+    }
+
     await ctx.reply(
       await t("cr", "main_menu"),
       await getMainMenuKeyboard("cr")
@@ -257,13 +422,72 @@ bot.action("lang_ru", async (ctx) => {
     await updateUserLanguage(ctx.from.id, "ru");
     ctx.session.user.language = "ru";
 
-    await ctx.editMessageText(`✅ ${await t("ru", "language_set")}`);
+    const languageSet = await t("ru", "language_set");
+    await ctx.editMessageText(`✅ ${languageSet}`);
+
+    // Check if terms are enabled and show terms
+    const termsEnabled = await Settings.getSetting("terms_enabled", false);
+    const termsUrl = await Settings.getSetting("terms_url", "");
+
+    if (termsEnabled && termsUrl && !ctx.session.user.termsAccepted) {
+      const termsMessage = await t("ru", "terms_message");
+      await ctx.reply(termsMessage, {
+        reply_markup: {
+          inline_keyboard: [
+            [
+              {
+                text: await t("ru", "btn_read_terms"),
+                url: termsUrl,
+              },
+            ],
+            [
+              {
+                text: await t("ru", "btn_accept_terms"),
+                callback_data: "accept_terms",
+              },
+            ],
+          ],
+        },
+      });
+      return;
+    }
+
     await ctx.reply(
       await t("ru", "main_menu"),
       await getMainMenuKeyboard("ru")
     );
   } catch (error) {
     logger.error("Language change error", error);
+  }
+});
+
+// ========== TERMS ACCEPTANCE ==========
+
+bot.action("accept_terms", async (ctx) => {
+  try {
+    await ctx.answerCbQuery("✅");
+    const lang = getUserLanguage(ctx.session.user);
+
+    // Update user terms acceptance
+    await User.findOneAndUpdate(
+      { userId: ctx.from.id },
+      {
+        termsAccepted: true,
+        termsAcceptedAt: new Date(),
+        phoneRequestedAt: new Date(), // Track when phone can be requested
+      }
+    );
+    ctx.session.user.termsAccepted = true;
+    ctx.session.user.termsAcceptedAt = new Date();
+    ctx.session.user.phoneRequestedAt = new Date();
+
+    await ctx.editMessageText(await t(lang, "terms_accepted"));
+    await ctx.reply(
+      await t(lang, "main_menu"),
+      await getMainMenuKeyboard(lang)
+    );
+  } catch (error) {
+    logger.error("Accept terms error", error);
   }
 });
 
@@ -1240,6 +1464,16 @@ async function startBot() {
         try {
           const miniAppUrl = process.env.MINI_APP_URL;
           if (miniAppUrl && miniAppUrl.startsWith("https://")) {
+            // First, delete any existing menu button to force refresh
+            try {
+              await bot.telegram.setChatMenuButton({
+                menu_button: { type: "default" },
+              });
+              console.log("✅ Default menu button reset");
+            } catch (e) {
+              console.log("⚠️ Could not reset default menu button");
+            }
+
             // Set default menu button for all users
             await bot.telegram.setChatMenuButton({
               menu_button: {

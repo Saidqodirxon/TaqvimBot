@@ -182,10 +182,7 @@ async function getCalendarViewKeyboard(lang = "uz") {
   // Add WebApp button if HTTPS URL is configured
   if (webAppUrl && webAppUrl.startsWith("https://")) {
     buttons.push([
-      Markup.button.webApp(
-        "📱 " + (await t(lang, "btn_calendar_webapp")),
-        webAppUrl
-      ),
+      Markup.button.webApp(await t(lang, "btn_calendar_webapp"), webAppUrl),
     ]);
   }
 

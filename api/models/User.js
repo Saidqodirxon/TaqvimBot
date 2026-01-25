@@ -55,6 +55,18 @@ const UserSchema = new mongoose.Schema(
       type: mongoose.SchemaTypes.Boolean,
       default: false,
     },
+    termsAccepted: {
+      type: mongoose.SchemaTypes.Boolean,
+      default: false,
+    },
+    termsAcceptedAt: {
+      type: mongoose.SchemaTypes.Date,
+      default: null,
+    },
+    phoneRequestedAt: {
+      type: mongoose.SchemaTypes.Date,
+      default: null,
+    },
     isAdmin: {
       type: mongoose.SchemaTypes.Boolean,
       default: false,
