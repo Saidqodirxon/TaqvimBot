@@ -67,6 +67,30 @@ const stage = new Scenes.Stage([
   settingsScene,
 ]);
 
+// Helper function to set menu button
+async function setMenuButton(userId) {
+  try {
+    const miniAppUrl = process.env.MINI_APP_URL;
+    if (miniAppUrl && miniAppUrl.startsWith("https://")) {
+      await bot.telegram.setChatMenuButton({
+        chat_id: userId,
+        menu_button: {
+          type: "web_app",
+          text: "📅 Taqvim",
+          web_app: {
+            url: `${miniAppUrl}?userId=${userId}`,
+          },
+        },
+      });
+      return true;
+    }
+    return false;
+  } catch (error) {
+    console.log(`⚠️ Menu button error for user ${userId}:`, error.message);
+    return false;
+  }
+}
+
 // Middleware
 bot.use(session());
 bot.use(stage.middleware());
@@ -83,25 +107,6 @@ bot.use(async (ctx, next) => {
         const lang = getUserLanguage(user);
         await ctx.reply(t(lang, "user_blocked"));
         return; // Keyingi middleware'larga o'tmaslik
-      }
-
-      // Dynamic menu button o'rnatish har safar
-      const miniAppUrl = process.env.MINI_APP_URL;
-      if (miniAppUrl && miniAppUrl.startsWith("https://")) {
-        try {
-          await bot.telegram.setChatMenuButton({
-            chat_id: ctx.from.id,
-            menu_button: {
-              type: "web_app",
-              text: "📅 Taqvim",
-              web_app: {
-                url: `${miniAppUrl}?userId=${ctx.from.id}`,
-              },
-            },
-          });
-        } catch (menuError) {
-          // Menu button error'ni log qilmaslik - juda ko'p spam
-        }
       }
     }
     await next();
@@ -191,6 +196,9 @@ bot.command("start", async (ctx) => {
       return;
     }
 
+    // Set menu button with web app URL
+    await setMenuButton(ctx.from.id);
+
     // Asosiy menyuni ko'rsatish
     await ctx.reply(t(lang, "main_menu"), {
       ...getMainMenuKeyboard(lang),
@@ -226,6 +234,7 @@ bot.action("lang_uz", async (ctx) => {
     await updateUserLanguage(ctx.from.id, "uz");
     ctx.session.user.language = "uz";
 
+    await setMenuButton(ctx.from.id);
     await ctx.editMessageText(`✅ ${t("uz", "language_set")}`);
     await ctx.reply(t("uz", "main_menu"), {
       ...getMainMenuKeyboard("uz"),
@@ -241,6 +250,7 @@ bot.action("lang_cr", async (ctx) => {
     await updateUserLanguage(ctx.from.id, "cr");
     ctx.session.user.language = "cr";
 
+    await setMenuButton(ctx.from.id);
     await ctx.editMessageText(`✅ ${t("cr", "language_set")}`);
     await ctx.reply(t("cr", "main_menu"), {
       ...getMainMenuKeyboard("cr"),
@@ -256,6 +266,7 @@ bot.action("lang_ru", async (ctx) => {
     await updateUserLanguage(ctx.from.id, "ru");
     ctx.session.user.language = "ru";
 
+    await setMenuButton(ctx.from.id);
     await ctx.editMessageText(`✅ ${t("ru", "language_set")}`);
     await ctx.reply(t("ru", "main_menu"), {
       ...getMainMenuKeyboard("ru"),
