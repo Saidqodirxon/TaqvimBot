@@ -27,7 +27,7 @@ function Prayers() {
     order: 0,
     isActive: true,
   });
-  
+
   const formRef = useRef(null);
 
   const queryClient = useQueryClient();
@@ -81,7 +81,11 @@ function Prayers() {
     onSuccess: () => {
       queryClient.invalidateQueries(["prayers"]);
       resetForm();
-      alert(editingId ? "Dua muvaffaqiyatli yangilandi!" : "Dua muvaffaqiyatli qo'shildi!");
+      alert(
+        editingId
+          ? "Dua muvaffaqiyatli yangilandi!"
+          : "Dua muvaffaqiyatli qo'shildi!"
+      );
     },
     onError: (error) => {
       console.error("Save prayer error:", error);
@@ -121,10 +125,10 @@ function Prayers() {
       order: prayer.order,
       isActive: prayer.isActive,
     });
-    
+
     // Scroll to form
     setTimeout(() => {
-      formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     }, 100);
   };
 
@@ -161,7 +165,7 @@ function Prayers() {
             <p>Dua nomini va matnini 3 tilda kiriting</p>
           </div>
           {editingId && (
-            <button 
+            <button
               className="btn-icon btn-close"
               onClick={resetForm}
               title="Bekor qilish"
