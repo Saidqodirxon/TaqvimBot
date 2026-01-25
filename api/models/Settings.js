@@ -15,6 +15,20 @@ const SettingsSchema = new mongoose.Schema(
     description: {
       type: String,
     },
+    backupSchedule: {
+      enabled: {
+        type: Boolean,
+        default: true,
+      },
+      cronTime: {
+        type: String,
+        default: "0 3 * * *", // Daily at 3:00 AM
+      },
+      keepDays: {
+        type: Number,
+        default: 7,
+      },
+    },
   },
   {
     versionKey: false,

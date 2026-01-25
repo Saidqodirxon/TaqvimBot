@@ -121,4 +121,10 @@ export const translations = {
   delete: (key) => api.delete(`/translations/${key}`),
 };
 
+// Resources
+export const resources = {
+  getSystem: () => api.get("/resources"),
+  getMongoDB: () => api.get("/resources/mongodb"),
+};
+
 export default api;

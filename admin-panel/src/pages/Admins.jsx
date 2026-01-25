@@ -336,11 +336,38 @@ function Admins() {
         <div className="modal-overlay" onClick={() => setEditingAdmin(null)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <h3>Admin tahrirlash</h3>
-            <p>
-              <strong>
-                {editingAdmin.firstName} (@{editingAdmin.username})
-              </strong>
-            </p>
+
+            <div className="form-grid">
+              <div className="form-group">
+                <label>Ism</label>
+                <input
+                  type="text"
+                  value={editingAdmin.firstName}
+                  onChange={(e) =>
+                    setEditingAdmin({
+                      ...editingAdmin,
+                      firstName: e.target.value,
+                    })
+                  }
+                  placeholder="Ism"
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Username</label>
+                <input
+                  type="text"
+                  value={editingAdmin.username}
+                  onChange={(e) =>
+                    setEditingAdmin({
+                      ...editingAdmin,
+                      username: e.target.value,
+                    })
+                  }
+                  placeholder="username"
+                />
+              </div>
+            </div>
 
             <div className="form-group">
               <label>Rol</label>

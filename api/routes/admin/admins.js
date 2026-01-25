@@ -77,7 +77,7 @@ router.post("/", async (req, res) => {
 router.put("/:userId", async (req, res) => {
   try {
     const { userId } = req.params;
-    const { role, permissions, isActive } = req.body;
+    const { role, permissions, isActive, username, firstName } = req.body;
     const admin = await Admin.findOne({ userId: parseInt(userId) });
     if (!admin) {
       return res.status(404).json({ error: "Admin not found" });
@@ -86,11 +86,13 @@ router.put("/:userId", async (req, res) => {
     if (role !== undefined) admin.role = role;
     if (permissions !== undefined) admin.permissions = permissions;
     if (isActive !== undefined) admin.isActive = isActive;
+    if (username !== undefined) admin.username = username;
+    if (firstName !== undefined) admin.firstName = firstName;
     await admin.save();
     await logger.logAdminAction(
       req.user,
       "Admin tahrirlandi",
-      `${admin.firstName} - yangi rol: ${role}`
+      `${admin.firstName} (@${admin.username}) - rol: ${admin.role}`
     );
     res.json(admin);
   } catch (error) {

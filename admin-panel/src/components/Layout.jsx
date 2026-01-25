@@ -18,6 +18,9 @@ import {
   Heart,
   Languages,
   User,
+  Activity,
+  TestTube2,
+  HardDrive,
 } from "lucide-react";
 import "./Layout.css";
 
@@ -184,6 +187,36 @@ function Layout({ children, setAuth }) {
           >
             <Languages size={20} />
             <span>Tarjimalar</span>
+          </NavLink>
+
+          <NavLink
+            to="/resources"
+            className={({ isActive }) =>
+              isActive ? "nav-item active" : "nav-item"
+            }
+          >
+            <Activity size={20} />
+            <span>Resurslar</span>
+          </NavLink>
+
+          <NavLink
+            to="/backups"
+            className={({ isActive }) =>
+              isActive ? "nav-item active" : "nav-item"
+            }
+          >
+            <HardDrive size={20} />
+            <span>Backuplar</span>
+          </NavLink>
+
+          <NavLink
+            to="/test"
+            className={({ isActive }) =>
+              isActive ? "nav-item active" : "nav-item"
+            }
+          >
+            <TestTube2 size={20} />
+            <span>Testlar</span>
           </NavLink>
         </nav>
 
