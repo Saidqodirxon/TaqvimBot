@@ -12,7 +12,7 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentView, setCurrentView] = useState("calendar"); // "calendar" or "qibla"
-  
+
   useEffect(() => {
     // Initialize Telegram WebApp
     const tg = window.Telegram.WebApp;
@@ -43,7 +43,9 @@ function App() {
       fetchUserData(initDataUnsafe.user.id);
     } else {
       // No Telegram user data available
-      setError("Telegram user data not found. Please open this app from Telegram.");
+      setError(
+        "Telegram user data not found. Please open this app from Telegram."
+      );
       setLoading(false);
     }
   }, []);

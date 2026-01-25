@@ -15,9 +15,9 @@ router.get("/test", async (req, res) => {
     const user = await User.findOne({ userId: testUserId });
 
     if (!user) {
-      return res.status(404).json({ 
+      return res.status(404).json({
         error: "Test user not found",
-        userId: testUserId 
+        userId: testUserId,
       });
     }
 
@@ -28,7 +28,7 @@ router.get("/test", async (req, res) => {
       location: user.location,
       prayerSettings: user.prayerSettings,
       reminderSettings: user.reminderSettings,
-      isTestMode: true
+      isTestMode: true,
     });
   } catch (error) {
     logger.error("Test endpoint error", error);
@@ -42,7 +42,7 @@ router.get("/test", async (req, res) => {
 router.get("/user/:userId", async (req, res) => {
   try {
     const { userId } = req.params;
-    
+
     // Validate userId
     if (!userId || isNaN(userId)) {
       return res.status(400).json({ error: "Invalid user ID" });
@@ -77,9 +77,9 @@ router.post("/prayer-times", async (req, res) => {
 
     // Validate required parameters
     if (!userId || !latitude || !longitude) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         error: "Missing required parameters",
-        required: ["userId", "latitude", "longitude"]
+        required: ["userId", "latitude", "longitude"],
       });
     }
 
@@ -106,14 +106,23 @@ router.post("/prayer-times", async (req, res) => {
     );
 
     if (!prayerData || !prayerData.success) {
-      logger.error("Prayer times fetch failed", { userId, latitude, longitude });
+      logger.error("Prayer times fetch failed", {
+        userId,
+        latitude,
+        longitude,
+      });
       return res.status(500).json({ error: "Failed to fetch prayer times" });
     }
 
     res.json(prayerData);
   } catch (error) {
-    logger.error("Prayer times error", { error: error.message, stack: error.stack });
-    res.status(500).json({ error: "Internal server error", message: error.message });
+    logger.error("Prayer times error", {
+      error: error.message,
+      stack: error.stack,
+    });
+    res
+      .status(500)
+      .json({ error: "Internal server error", message: error.message });
   }
 });
 

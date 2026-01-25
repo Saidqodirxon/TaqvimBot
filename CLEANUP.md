@@ -5,16 +5,19 @@
 ### 1. ✅ Mini App API Tuzatishlari
 
 #### `/api/miniapp/user/:userId`
+
 - ❌ **Eski**: Default test ID ishlatilardi (1551855614)
 - ✅ **Yangi**: Faqat haqiqiy Telegram user ID bilan ishlaydi
 - ✅ Validatsiya: userId bo'sh yoki noto'g'ri bo'lsa → 400 error
 
 #### `/api/miniapp/test` (Yangi)
+
 - ✅ **Test endpoint** qo'shildi
 - ✅ Sizning ID (1551855614) bilan test qilish uchun
 - ✅ Test mode flag bilan qaytadi
 
 #### `/api/miniapp/prayer-times`
+
 - ✅ **500 error** tuzatildi
 - ✅ Yaxshilangan error handling
 - ✅ To'liq logging qo'shildi
@@ -29,6 +32,7 @@
 ### 3. 🧹 Cleanup Scripts
 
 Serverdan keraksiz fayllarni o'chirish uchun:
+
 - `cleanup-production.sh` - Linux/Mac
 - `cleanup-production.bat` - Windows
 
@@ -67,6 +71,7 @@ curl -X POST https://ramazonbot-api.saidqodirxon.uz/api/miniapp/prayer-times \
 ### Cleanup Script (Server)
 
 #### Linux/Mac:
+
 ```bash
 # Upload script to server
 scp cleanup-production.sh user@server:/path/to/ramazonbot/
@@ -78,6 +83,7 @@ bash cleanup-production.sh
 ```
 
 #### Windows Server:
+
 ```powershell
 # Upload cleanup-production.bat to server
 # Double-click or run:
@@ -89,6 +95,7 @@ cleanup-production.bat
 ## 📋 Cleanup Script Nima O'chiradi?
 
 ### ✅ O'chiriladigan fayllar:
+
 - `*.log` - Barcha log fayllar
 - `*-old.js` - Eski backup fayllar
 - `*-backup.js` - Backup fayllar
@@ -102,6 +109,7 @@ cleanup-production.bat
 - `dist/*.map` - Source maps (production uchun kerak emas)
 
 ### ⚠️ Saqlanadi:
+
 - `.env` - Environment variables
 - `node_modules/` - Dependencies
 - `dist/` - Build fayllar (map'siz)
@@ -129,12 +137,12 @@ cleanup-production.bat
 // api/bot.js da
 bot.setChatMenuButton({
   menu_button: {
-    type: 'web_app',
-    text: '📅 Taqvim',
+    type: "web_app",
+    text: "📅 Taqvim",
     web_app: {
-      url: process.env.MINI_APP_URL || 'https://ramazonbot.saidqodirxon.uz'
-    }
-  }
+      url: process.env.MINI_APP_URL || "https://ramazonbot.saidqodirxon.uz",
+    },
+  },
 });
 ```
 
@@ -146,8 +154,8 @@ bot.setChatMenuButton({
 
 ```javascript
 // Browser console da tekshiring:
-console.log('Telegram WebApp:', window.Telegram?.WebApp);
-console.log('User:', window.Telegram?.WebApp?.initDataUnsafe?.user);
+console.log("Telegram WebApp:", window.Telegram?.WebApp);
+console.log("User:", window.Telegram?.WebApp?.initDataUnsafe?.user);
 ```
 
 ### API error'larni tekshirish:
@@ -185,6 +193,7 @@ curl -X POST https://ramazonbot-api.saidqodirxon.uz/api/miniapp/prayer-times \
 ## 📝 Response Format
 
 ### Success (200):
+
 ```json
 {
   "userId": 1551855614,
@@ -201,6 +210,7 @@ curl -X POST https://ramazonbot-api.saidqodirxon.uz/api/miniapp/prayer-times \
 ```
 
 ### Error (400 - Bad Request):
+
 ```json
 {
   "error": "Invalid user ID"
@@ -208,6 +218,7 @@ curl -X POST https://ramazonbot-api.saidqodirxon.uz/api/miniapp/prayer-times \
 ```
 
 ### Error (404 - Not Found):
+
 ```json
 {
   "error": "User not found"
@@ -215,6 +226,7 @@ curl -X POST https://ramazonbot-api.saidqodirxon.uz/api/miniapp/prayer-times \
 ```
 
 ### Error (500 - Server Error):
+
 ```json
 {
   "error": "Internal server error",
@@ -242,16 +254,19 @@ curl -X POST https://ramazonbot-api.saidqodirxon.uz/api/miniapp/prayer-times \
 ## 🆘 Muammolar?
 
 ### Mini app ochilmasa:
+
 1. Telegram Menu Button to'g'ri sozlanganmi?
 2. HTTPS ishlamoqdami?
 3. CORS sozlamalari to'g'rimi?
 
 ### 500 error:
+
 1. Server loglarni tekshiring: `pm2 logs ramazonbot`
 2. Database connection bormi?
 3. User database'da mavjudmi?
 
 ### Test endpoint ishlamasa:
+
 1. User ID (1551855614) database'da bormi?
 2. Server restart qiling: `pm2 restart ramazonbot`
 3. Logs tekshiring
