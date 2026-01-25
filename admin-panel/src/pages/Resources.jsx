@@ -224,10 +224,10 @@ function Resources() {
                   <td>
                     <code>{col.name}</code>
                   </td>
-                  <td>{col.count?.toLocaleString()}</td>
-                  <td>{(col.size / 1024 / 1024).toFixed(2)} MB</td>
-                  <td>{(col.storageSize / 1024 / 1024).toFixed(2)} MB</td>
-                  <td>{col.indexes}</td>
+                  <td>{col.count?.toLocaleString() || 0}</td>
+                  <td>{col.sizeMB || "0.00"} MB</td>
+                  <td>{col.storageSizeMB || "0.00"} MB</td>
+                  <td>{col.indexes || 0}</td>
                 </tr>
               ))}
             </tbody>

@@ -47,6 +47,7 @@ export const users = {
   sendMessage: (userId, message) =>
     api.post(`/users/${userId}/message`, { message }),
   reset: (userId) => api.delete(`/users/${userId}/reset`),
+  delete: (userId) => api.delete(`/users/${userId}`),
 };
 
 // Settings
@@ -73,6 +74,7 @@ export const settings = {
     api.post("/settings/reminder-settings", reminderSettings),
   setAboutBot: (aboutText) => api.post("/settings/about-text", { aboutText }),
   setRamadanDate: (date) => api.post("/settings/ramadan-date", { date }),
+  setBotToken: (token) => api.post("/settings/bot-token", { token }),
   setPrayers: (prayers) => api.post("/settings/prayers", { prayers }),
 };
 

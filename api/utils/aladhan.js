@@ -37,11 +37,14 @@ async function getPrayerTimes(
       const cachedData = await PrayerTimeCache.findOne({
         locationKey,
         date: dateStr,
-        expiresAt: { $gt: new Date() }, // Not expired
       });
 
+      // Use cache even if expired (for reliability)
       if (cachedData) {
-        console.log(`✅ Cache hit for ${locationKey} on ${dateStr}`);
+        const isExpired = cachedData.expiresAt < new Date();
+        console.log(
+          `✅ Cache ${isExpired ? "(expired, but using)" : "hit"} for ${locationKey} on ${dateStr}`
+        );
         return {
           success: true,
           date:
@@ -61,6 +64,7 @@ async function getPrayerTimes(
           manual: false,
           cached: true,
           source: cachedData.source,
+          expired: isExpired,
         };
       }
     } catch (cacheError) {
@@ -636,10 +640,10 @@ async function savePrayerTimeToCache(
   try {
     const [lat, lon] = locationKey.split("_").map(Number);
 
-    // Set expiration to end of day + 1 day (cache valid for 24+ hours)
+    // Set expiration to end of day + 7 days (cache valid for longer period)
     const expiresAt = new Date(dateStr);
     expiresAt.setHours(23, 59, 59, 999);
-    expiresAt.setDate(expiresAt.getDate() + 1);
+    expiresAt.setDate(expiresAt.getDate() + 7); // Extended to 7 days
 
     const cacheData = {
       locationKey,

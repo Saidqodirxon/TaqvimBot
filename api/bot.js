@@ -1,5 +1,9 @@
 const { Telegraf, Scenes, session, Markup } = require("telegraf");
 require("dotenv/config");
+
+// Set timezone to Uzbekistan
+process.env.TZ = "Asia/Tashkent";
+
 const db = require("./modules/db");
 
 // Models
@@ -1350,7 +1354,6 @@ async function startAdminAPI() {
   const monthlyPrayerTimesRoutes = require("./routes/admin/monthlyPrayerTimes");
   const cacheRoutes = require("./routes/admin/cache");
   const suggestionsRoutes = require("./routes/admin/suggestions");
-  const greetingLogsRoutes = require("./routes/admin/greetingLogs");
   const translationsRoutes = require("./routes/admin/translations");
   const resourcesRoutes = require("./routes/admin/resources");
   const testRoutes = require("./routes/admin/test");
@@ -1372,7 +1375,6 @@ async function startAdminAPI() {
   app.use("/api/monthly-prayer-times", monthlyPrayerTimesRoutes);
   app.use("/api/cache", cacheRoutes);
   app.use("/api/suggestions", suggestionsRoutes);
-  app.use("/api/greeting-logs", greetingLogsRoutes);
   app.use("/api/translations", translationsRoutes);
   app.use("/api/resources", resourcesRoutes);
   app.use("/api/test", testRoutes);

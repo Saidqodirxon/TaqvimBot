@@ -127,15 +127,27 @@ router.get("/mongodb", adminAuth, async (req, res) => {
           const colStats = await db.collection(col.name).stats();
           return {
             name: col.name,
-            count: colStats.count,
-            size: colStats.size,
-            avgObjSize: colStats.avgObjSize,
-            storageSize: colStats.storageSize,
-            indexes: colStats.nindexes,
+            count: colStats.count || 0,
+            size: colStats.size || 0,
+            sizeMB: ((colStats.size || 0) / 1024 / 1024).toFixed(2),
+            avgObjSize: colStats.avgObjSize || 0,
+            storageSize: colStats.storageSize || 0,
+            storageSizeMB: ((colStats.storageSize || 0) / 1024 / 1024).toFixed(
+              2
+            ),
+            indexes: colStats.nindexes || 0,
           };
         } catch (error) {
+          console.error(`Stats error for ${col.name}:`, error.message);
           return {
             name: col.name,
+            count: 0,
+            size: 0,
+            sizeMB: "0.00",
+            avgObjSize: 0,
+            storageSize: 0,
+            storageSizeMB: "0.00",
+            indexes: 0,
             error: error.message,
           };
         }
@@ -145,20 +157,20 @@ router.get("/mongodb", adminAuth, async (req, res) => {
     res.json({
       database: {
         name: db.databaseName,
-        collections: stats.collections,
-        dataSize: stats.dataSize,
-        storageSize: stats.storageSize,
-        indexes: stats.indexes,
-        indexSize: stats.indexSize,
-        dataSizeMB: (stats.dataSize / 1024 / 1024).toFixed(2),
-        storageSizeMB: (stats.storageSize / 1024 / 1024).toFixed(2),
-        indexSizeMB: (stats.indexSize / 1024 / 1024).toFixed(2),
+        collections: stats.collections || 0,
+        dataSize: stats.dataSize || 0,
+        storageSize: stats.storageSize || 0,
+        indexes: stats.indexes || 0,
+        indexSize: stats.indexSize || 0,
+        dataSizeMB: ((stats.dataSize || 0) / 1024 / 1024).toFixed(2),
+        storageSizeMB: ((stats.storageSize || 0) / 1024 / 1024).toFixed(2),
+        indexSizeMB: ((stats.indexSize || 0) / 1024 / 1024).toFixed(2),
       },
       collections: collectionStats,
     });
   } catch (error) {
     logger.error("Get MongoDB stats error:", error);
-    res.status(500).json({ error: "Server xatosi" });
+    res.status(500).json({ error: "Server xatosi", details: error.message });
   }
 });
 

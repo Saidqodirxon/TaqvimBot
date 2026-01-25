@@ -101,9 +101,30 @@ router.post("/create", adminAuth, async (req, res) => {
 });
 
 // Download backup
-router.get("/download/:filename", adminAuth, async (req, res) => {
+router.get("/download/:filename", async (req, res) => {
   try {
     const { filename } = req.params;
+    const token =
+      req.query.token || req.header("Authorization")?.replace("Bearer ", "");
+
+    // Verify token
+    if (!token) {
+      return res.status(401).json({
+        success: false,
+        error: "Token yo'q",
+      });
+    }
+
+    const jwt = require("jsonwebtoken");
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      req.user = decoded;
+    } catch (err) {
+      return res.status(401).json({
+        success: false,
+        error: "Noto'g'ri token",
+      });
+    }
 
     // Security: prevent directory traversal
     if (

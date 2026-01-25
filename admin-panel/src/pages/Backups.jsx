@@ -108,7 +108,14 @@ function Backups() {
   });
 
   const handleDownload = (filename) => {
-    window.open(`${API_URL}/backups/download/${filename}`, "_blank");
+    const token = localStorage.getItem("token");
+    const link = document.createElement("a");
+    link.href = `${API_URL}/backups/download/${filename}?token=${token}`;
+    link.download = filename;
+    link.target = "_blank";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   const handleDelete = (filename) => {

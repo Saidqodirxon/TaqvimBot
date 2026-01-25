@@ -87,7 +87,7 @@ router.post("/register", async (req, res) => {
 // Get current admin profile
 router.get("/profile", authMiddleware, async (req, res) => {
   try {
-    const admin = await Admin.findOne({ userId: req.user.id }).select(
+    const admin = await Admin.findOne({ userId: req.user.userId }).select(
       "-password"
     );
     if (!admin) {
@@ -115,7 +115,7 @@ router.put("/profile", authMiddleware, async (req, res) => {
     }
 
     const admin = await Admin.findOneAndUpdate(
-      { userId: req.user.id },
+      { userId: req.user.userId },
       updateData,
       { new: true }
     ).select("-password");
@@ -125,7 +125,7 @@ router.put("/profile", authMiddleware, async (req, res) => {
     }
 
     await logger.logAdminAction(
-      { userId: req.user.id, firstName: admin.firstName },
+      { userId: req.user.userId, firstName: admin.firstName },
       "Profil yangilandi",
       `Username: ${username}`
     );

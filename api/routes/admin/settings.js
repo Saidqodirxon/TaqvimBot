@@ -311,4 +311,75 @@ router.post(
   }
 );
 
+// Update bot token (superadmin only)
+router.post("/bot-token", authMiddleware, superAdminOnly, async (req, res) => {
+  try {
+    const { token } = req.body;
+    if (!token || !token.trim()) {
+      return res.status(400).json({ error: "Token kiritilishi kerak" });
+    }
+
+    // Validate token format
+    if (!token.match(/^\d+:[A-Za-z0-9_-]{35}$/)) {
+      return res.status(400).json({ error: "Noto'g'ri token formati" });
+    }
+
+    // Test token by calling getMe
+    const { Telegraf } = require("telegraf");
+    const testBot = new Telegraf(token);
+
+    try {
+      const botInfo = await testBot.telegram.getMe();
+      console.log("New bot token validated:", botInfo.username);
+    } catch (error) {
+      return res.status(400).json({ error: "Token ishlamayapti. Tekshiring!" });
+    }
+
+    // Update .env file
+    const fs = require("fs");
+    const path = require("path");
+    const envPath = path.join(__dirname, "../../.env");
+
+    let envContent = fs.readFileSync(envPath, "utf8");
+
+    // Replace BOT_TOKEN
+    if (envContent.includes("BOT_TOKEN=")) {
+      envContent = envContent.replace(/BOT_TOKEN=.*/, `BOT_TOKEN=${token}`);
+    } else {
+      envContent += `\nBOT_TOKEN=${token}\n`;
+    }
+
+    fs.writeFileSync(envPath, envContent, "utf8");
+
+    await logger.logAdminAction(
+      { userId: req.user.userId, firstName: "Admin" },
+      "Bot token yangilandi",
+      "Token o'zgartirildi va saqlandi"
+    );
+
+    // Auto restart PM2
+    try {
+      const { exec } = require("child_process");
+      exec("pm2 restart ramazonbot-api", (error, stdout, stderr) => {
+        if (error) {
+          console.error("PM2 restart error:", error);
+        } else {
+          console.log("PM2 restarted successfully:", stdout);
+        }
+      });
+    } catch (restartError) {
+      console.error("PM2 restart failed:", restartError);
+    }
+
+    res.json({
+      message: "Token yangilandi va bot avtomatik qayta ishga tushirildi!",
+      requiresRestart: false,
+      autoRestarted: true,
+    });
+  } catch (error) {
+    logger.error("Update bot token error:", error);
+    res.status(500).json({ error: "Server xatosi" });
+  }
+});
+
 module.exports = router;

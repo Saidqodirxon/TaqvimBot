@@ -5,11 +5,17 @@
  */
 
 require("dotenv").config();
+
+// Set timezone to Uzbekistan
+process.env.TZ = "Asia/Tashkent";
+
 const { exec } = require("child_process");
 const fs = require("fs");
 const path = require("path");
 const { Telegraf } = require("telegraf");
 const logger = require("./utils/logger");
+const moment = require("moment-timezone");
+const moment = require("moment-timezone");
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
 const BACKUP_DIR = path.join(__dirname, "backups");
@@ -24,7 +30,9 @@ async function createBackup() {
       fs.mkdirSync(BACKUP_DIR, { recursive: true });
     }
 
-    const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+    const timestamp = moment()
+      .tz("Asia/Tashkent")
+      .format("YYYY-MM-DD-HH-mm-ss");
     const backupName = `backup-${timestamp}`;
     const backupPath = path.join(BACKUP_DIR, backupName);
 
@@ -85,7 +93,13 @@ async function createBackup() {
     await cleanOldBackups();
 
     // Send notification to log channel
-    await sendBackupNotification(dbName, sizeMB, archiveSizeMB, backupName);
+    await sendBackupNotification(
+      dbName,
+      sizeMB,
+      archiveSizeMB,
+      backupName,
+      archivePath
+    );
 
     console.log("✅ Backup completed successfully!");
     return { success: true, size: archiveSizeMB, name: archiveName };
@@ -143,7 +157,8 @@ async function sendBackupNotification(
   dbName,
   originalSize,
   compressedSize,
-  backupName
+  backupName,
+  archivePath
 ) {
   try {
     const Settings = require("./models/Settings");
@@ -154,12 +169,12 @@ async function sendBackupNotification(
       return;
     }
 
-    const now = new Date();
+    const now = moment().tz("Asia/Tashkent");
     const message = `
 🔐 <b>MongoDB Backup</b>
 
 📊 Database: <code>${dbName}</code>
-📅 Sana: ${now.toLocaleString("uz-UZ")}
+📅 Sana: ${now.format("DD.MM.YYYY HH:mm:ss")}
 📦 Original size: ${originalSize} MB
 🗜️ Compressed: ${compressedSize} MB
 📁 Fayl: <code>${backupName}.tar.gz</code>
@@ -167,11 +182,33 @@ async function sendBackupNotification(
 ✅ Backup muvaffaqiyatli yaratildi!
     `.trim();
 
-    await bot.telegram.sendMessage(logChannel, message, {
-      parse_mode: "HTML",
-    });
+    // Send backup file to Telegram
+    const fileSize = fs.statSync(archivePath).size;
+    const fileSizeMB = (fileSize / 1024 / 1024).toFixed(2);
 
-    console.log("📨 Backup notification sent to log channel");
+    // Telegram file size limit is 50MB for bots
+    if (fileSize < 50 * 1024 * 1024) {
+      await bot.telegram.sendDocument(
+        logChannel,
+        {
+          source: archivePath,
+          filename: `${backupName}.tar.gz`,
+        },
+        {
+          caption: message,
+          parse_mode: "HTML",
+        }
+      );
+      console.log(`📨 Backup file sent to log channel (${fileSizeMB} MB)`);
+    } else {
+      // If file is too large, just send notification without file
+      await bot.telegram.sendMessage(logChannel, message, {
+        parse_mode: "HTML",
+      });
+      console.log(
+        `📨 Backup notification sent (file too large: ${fileSizeMB} MB)`
+      );
+    }
   } catch (error) {
     console.error("Error sending notification:", error);
   }

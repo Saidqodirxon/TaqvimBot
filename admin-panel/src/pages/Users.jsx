@@ -46,6 +46,13 @@ function Users() {
     },
   });
 
+  const deleteMutation = useMutation({
+    mutationFn: (userId) => users.delete(userId),
+    onSuccess: () => {
+      queryClient.invalidateQueries(["users"]);
+    },
+  });
+
   const handleBlock = (userId, currentlyBlocked) => {
     if (
       confirm(currentlyBlocked ? "Blokdan chiqarilsinmi?" : "Bloklansinmi?")
@@ -67,6 +74,16 @@ function Users() {
         isAdmin: !currentlyAdmin,
         role: currentlyAdmin ? "user" : "admin",
       });
+    }
+  };
+
+  const handleDelete = (userId, userName) => {
+    if (
+      confirm(
+        `${userName} butunlay o'chirilsinmi?\n\n⚠️ Bu amalni bekor qilib bo'lmaydi!`
+      )
+    ) {
+      deleteMutation.mutate(userId);
     }
   };
 
@@ -280,6 +297,20 @@ function Users() {
                         }
                       >
                         <Shield size={16} />
+                      </button>
+
+                      <button
+                        className="btn-icon danger"
+                        onClick={() =>
+                          handleDelete(
+                            user.userId,
+                            user.firstName || user.username || "User"
+                          )
+                        }
+                        title="O'chirish"
+                        disabled={deleteMutation.isPending}
+                      >
+                        🗑️
                       </button>
                     </div>
                   </td>

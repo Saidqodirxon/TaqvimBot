@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { settings } from "../api";
-import { Save, Info } from "lucide-react";
+import { Save, Info, Eye, EyeOff, Key } from "lucide-react";
 import "./BotInfo.css";
 
 function BotInfo() {
@@ -9,6 +9,9 @@ function BotInfo() {
   const [aboutTextCr, setAboutTextCr] = useState("");
   const [aboutTextRu, setAboutTextRu] = useState("");
   const [ramadanDate, setRamadanDate] = useState("");
+  const [greetingChannelId, setGreetingChannelId] = useState("");
+  const [botToken, setBotToken] = useState("");
+  const [showToken, setShowToken] = useState(false);
 
   const queryClient = useQueryClient();
 
@@ -24,6 +27,7 @@ function BotInfo() {
     if (data) {
       const aboutBot = data?.find((s) => s.key === "about_bot_text");
       const ramadan = data?.find((s) => s.key === "ramadan_start_date");
+      const greetingChannel = data?.find((s) => s.key === "greeting_channel");
 
       if (aboutBot?.value) {
         setAboutTextUz(aboutBot.value.uz || "");
@@ -32,6 +36,9 @@ function BotInfo() {
       }
       if (ramadan?.value) {
         setRamadanDate(ramadan.value);
+      }
+      if (greetingChannel?.value) {
+        setGreetingChannelId(greetingChannel.value);
       }
     }
   }, [data]);
@@ -54,6 +61,31 @@ function BotInfo() {
     onSuccess: () => {
       queryClient.invalidateQueries(["settings"]);
       alert("Ramazon sanasi saqlandi!");
+    },
+  });
+
+  const greetingChannelMutation = useMutation({
+    mutationFn: () => settings.setGreetingChannel(greetingChannelId),
+    onSuccess: () => {
+      queryClient.invalidateQueries(["settings"]);
+      alert("Tabrik kanali saqlandi!");
+    },
+  });
+
+  const botTokenMutation = useMutation({
+    mutationFn: () => settings.setBotToken(botToken),
+    onSuccess: (response) => {
+      const message = response.data.autoRestarted
+        ? "Bot token yangilandi! ✅ Bot avtomatik qayta ishga tushirildi."
+        : "Bot token yangilandi! ⚠️ Botni qo'lda qayta ishga tushiring: pm2 restart ramazonbot-api";
+      alert(message);
+      setBotToken("");
+      setShowToken(false);
+    },
+    onError: (error) => {
+      alert(
+        error.response?.data?.error || "Xatolik yuz berdi. Token tekshiring!"
+      );
     },
   });
 
@@ -156,6 +188,110 @@ function BotInfo() {
           >
             <Save size={18} />
             {ramadanMutation.isLoading ? "Saqlanmoqda..." : "Saqlash"}
+          </button>
+        </div>
+      </div>
+
+      <div className="card">
+        <div className="setting-section">
+          <div className="setting-header">
+            <Info size={24} />
+            <div>
+              <h3>Tabrik Kanali</h3>
+              <p>
+                Tabriklar yuboriladigan kanal ID (botni kanalga admin qilishni
+                unutmang)
+              </p>
+            </div>
+          </div>
+
+          <div className="form-group">
+            <label>Kanal ID</label>
+            <input
+              type="text"
+              value={greetingChannelId}
+              onChange={(e) => setGreetingChannelId(e.target.value)}
+              placeholder="-1001234567890"
+            />
+            <small>
+              Kanal ID ni @userinfobot orqali olishingiz mumkin. Majburiy
+              ravishda -100 bilan boshlanishi kerak va bot kanal adminligida
+              bo'lishi kerak.
+            </small>
+          </div>
+
+          <button
+            className="btn-primary"
+            onClick={() => greetingChannelMutation.mutate()}
+            disabled={greetingChannelMutation.isLoading}
+          >
+            <Save size={18} />
+            {greetingChannelMutation.isLoading ? "Saqlanmoqda..." : "Saqlash"}
+          </button>
+        </div>
+      </div>
+
+      <div className="card">
+        <div className="setting-section">
+          <div className="setting-header">
+            <Key size={24} />
+            <div>
+              <h3>Bot Token (⚠️ Superadmin)</h3>
+              <p>
+                Telegram bot tokenini yangilash. DIQQAT: Token o'zgargandan
+                keyin botni qayta ishga tushirish kerak!
+              </p>
+            </div>
+          </div>
+
+          <div className="form-group">
+            <label>Bot Token</label>
+            <div style={{ position: "relative" }}>
+              <input
+                type={showToken ? "text" : "password"}
+                value={botToken}
+                onChange={(e) => setBotToken(e.target.value)}
+                placeholder="1234567890:ABCdefGHIjklMNOpqrsTUVwxyz"
+              />
+              <button
+                className="btn-icon"
+                onClick={() => setShowToken(!showToken)}
+                style={{
+                  position: "absolute",
+                  right: "10px",
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  background: "none",
+                  border: "none",
+                  cursor: "pointer",
+                }}
+              >
+                {showToken ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
+            </div>
+            <small>
+              Format: 1234567890:ABCdefGHIjklMNOpqrsTUVwxyz. Token @BotFather
+              dan olinadi. Token o'zgargandan keyin PM2 orqali botni restart
+              qiling: <code>pm2 restart ramazonbot-api</code>
+            </small>
+          </div>
+
+          <button
+            className="btn-primary"
+            onClick={() => {
+              if (
+                confirm(
+                  "Bot tokenini o'zgartirishga ishonchingiz komilmi? Botni qayta ishga tushirish kerak bo'ladi!"
+                )
+              ) {
+                botTokenMutation.mutate();
+              }
+            }}
+            disabled={botTokenMutation.isLoading || !botToken}
+            style={{ background: "#dc3545" }}
+          >
+            <Save size={18} />
+            {botTokenMutation.isLoading ? "Saqlanmoqda..." : "Tokenni Saqlash"}
           </button>
         </div>
       </div>

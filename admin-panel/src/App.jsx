@@ -15,7 +15,6 @@ import Locations from "./pages/Locations";
 import MonthlyPrayerTimes from "./pages/MonthlyPrayerTimes";
 import Cache from "./pages/Cache";
 import Suggestions from "./pages/Suggestions";
-import GreetingLogs from "./pages/GreetingLogs";
 import Translations from "./pages/Translations";
 import Profile from "./pages/Profile";
 import Resources from "./pages/Resources";
@@ -68,7 +67,6 @@ function App() {
         />
         <Route path="/cache" element={<Cache />} />
         <Route path="/suggestions" element={<Suggestions />} />
-        <Route path="/greeting-logs" element={<GreetingLogs />} />
         <Route path="/translations" element={<Translations />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/resources" element={<Resources />} />

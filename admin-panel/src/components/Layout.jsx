@@ -150,16 +150,6 @@ function Layout({ children, setAuth }) {
           </NavLink>
 
           <NavLink
-            to="/greeting-logs"
-            className={({ isActive }) =>
-              isActive ? "nav-item active" : "nav-item"
-            }
-          >
-            <Heart size={20} />
-            <span>Tabrik Tarixchasi</span>
-          </NavLink>
-
-          <NavLink
             to="/broadcast"
             className={({ isActive }) =>
               isActive ? "nav-item active" : "nav-item"

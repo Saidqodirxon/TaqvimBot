@@ -180,4 +180,37 @@ router.delete("/:userId/reset", authMiddleware, async (req, res) => {
   }
 });
 
+// Delete user permanently
+router.delete("/:userId", authMiddleware, async (req, res) => {
+  try {
+    const userId = parseInt(req.params.userId);
+    const user = await User.findOneAndDelete({ userId });
+
+    if (!user) {
+      return res.status(404).json({ error: "Foydalanuvchi topilmadi" });
+    }
+
+    await logger.logAdminAction(
+      {
+        userId: req.admin?.userId || req.user?.id,
+        firstName: req.admin?.firstName || "Admin",
+      },
+      "Foydalanuvchi butunlay o'chirildi",
+      `UserID: ${userId}, Ism: ${user.firstName}`
+    );
+
+    res.json({
+      message: "Foydalanuvchi butunlay o'chirildi",
+      user: {
+        userId: user.userId,
+        firstName: user.firstName,
+        username: user.username,
+      },
+    });
+  } catch (error) {
+    logger.error("Delete user error:", error);
+    res.status(500).json({ error: "Server xatosi" });
+  }
+});
+
 module.exports = router;
