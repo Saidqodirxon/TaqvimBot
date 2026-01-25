@@ -23,11 +23,11 @@ function getLanguageKeyboard(showBack = false) {
 /**
  * Create main menu keyboard based on user language
  */
-function getMainMenuKeyboard(lang = "uz") {
+async function getMainMenuKeyboard(lang = "uz") {
   const buttons = [
-    [t(lang, "btn_send_greeting"), t(lang, "btn_prayers")],
-    [t(lang, "btn_ramadan_countdown"), t(lang, "btn_suggest")],
-    [t(lang, "btn_settings"), t(lang, "btn_about")],
+    [await t(lang, "btn_send_greeting"), await t(lang, "btn_prayers")],
+    [await t(lang, "btn_ramadan_countdown"), await t(lang, "btn_suggest")],
+    [await t(lang, "btn_settings"), await t(lang, "btn_about")],
   ];
 
   return Markup.keyboard(buttons).resize().persistent(true);
@@ -36,30 +36,35 @@ function getMainMenuKeyboard(lang = "uz") {
 /**
  * Create inline settings keyboard (moved to inline for cleaner interface)
  */
-function getSettingsInlineKeyboard(lang = "uz") {
+async function getSettingsInlineKeyboard(lang = "uz") {
   return Markup.inlineKeyboard([
-    [Markup.button.callback(t(lang, "btn_location"), "open_location_settings")],
     [
       Markup.button.callback(
-        t(lang, "reminder_settings"),
+        await t(lang, "btn_location"),
+        "open_location_settings"
+      ),
+    ],
+    [
+      Markup.button.callback(
+        await t(lang, "reminder_settings"),
         "open_reminder_settings"
       ),
     ],
-    [Markup.button.callback(t(lang, "btn_back"), "back_to_about")],
+    [Markup.button.callback(await t(lang, "btn_back"), "back_to_about")],
   ]);
 }
 
 /**
  * Create prayers selection keyboard
  */
-function getPrayersKeyboard(lang = "uz") {
+async function getPrayersKeyboard(lang = "uz") {
   return Markup.inlineKeyboard([
     [
       Markup.button.callback("🇺🇿 O'zbek", "prayers_uz"),
       Markup.button.callback("🇺🇿 Ўзбек", "prayers_cr"),
     ],
     [Markup.button.callback("🇷🇺 Русский", "prayers_ru")],
-    [Markup.button.callback(t(lang, "btn_back"), "close_prayers")],
+    [Markup.button.callback(await t(lang, "btn_back"), "close_prayers")],
   ]);
 }
 
@@ -73,10 +78,10 @@ function getSettingsKeyboard(lang = "uz") {
 /**
  * Create location selection keyboard
  */
-function getLocationKeyboard(lang = "uz") {
+async function getLocationKeyboard(lang = "uz") {
   return Markup.keyboard([
-    [Markup.button.locationRequest(t(lang, "location_btn_send"))],
-    [t(lang, "btn_back")],
+    [Markup.button.locationRequest(await t(lang, "location_btn_send"))],
+    [await t(lang, "btn_back")],
   ]).resize();
 }
 
@@ -217,21 +222,26 @@ function getReminderSettingsKeyboard(lang = "uz", currentSettings) {
 /**
  * Create phone number request keyboard
  */
-function getPhoneRequestKeyboard(lang = "uz") {
+async function getPhoneRequestKeyboard(lang = "uz") {
   return Markup.keyboard([
-    [Markup.button.contactRequest(t(lang, "btn_send_phone"))],
-    [t(lang, "btn_back")],
+    [Markup.button.contactRequest(await t(lang, "btn_send_phone"))],
+    [await t(lang, "btn_back")],
   ]).resize();
 }
 
 /**
  * Create location settings keyboard
  */
-function getLocationSettingsKeyboard(lang = "uz") {
+async function getLocationSettingsKeyboard(lang = "uz") {
   return Markup.inlineKeyboard([
-    [Markup.button.callback(t(lang, "btn_change_language"), "change_lang")],
-    [Markup.button.callback(t(lang, "btn_location"), "change_location")],
-    [Markup.button.callback(t(lang, "btn_back"), "open_settings")],
+    [
+      Markup.button.callback(
+        await t(lang, "btn_change_language"),
+        "change_lang"
+      ),
+    ],
+    [Markup.button.callback(await t(lang, "btn_location"), "change_location")],
+    [Markup.button.callback(await t(lang, "btn_back"), "open_settings")],
   ]);
 }
 

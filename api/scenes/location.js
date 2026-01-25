@@ -14,19 +14,19 @@ locationScene.enter(async (ctx) => {
 
     // Show two main options: GPS or Manual selection
     const buttons = [
-      [Markup.button.callback(t(lang, "btn_gps_location"), "send_gps")],
-      [Markup.button.callback(t(lang, "btn_manual_select"), "manual_select")],
-      [Markup.button.callback(t(lang, "btn_back_menu"), "back_to_menu")],
+      [Markup.button.callback(await t(lang, "btn_gps_location"), "send_gps")],
+      [Markup.button.callback(await t(lang, "btn_manual_select"), "manual_select")],
+      [Markup.button.callback(await t(lang, "btn_back_menu"), "back_to_menu")],
     ];
 
     await ctx.reply(
-      t(lang, "select_location_method"),
+      await t(lang, "select_location_method"),
       Markup.inlineKeyboard(buttons)
     );
   } catch (error) {
     console.error("Error entering location scene:", error);
     const lang = getUserLanguage(ctx.session.user);
-    await ctx.reply(t(lang, "error_try_again"));
+    await ctx.reply(await t(lang, "error_try_again"));
   }
 });
 

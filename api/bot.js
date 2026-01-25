@@ -152,7 +152,7 @@ bot.command("start", async (ctx) => {
         title: "Bizning kanal",
       });
 
-      const message = t(lang, "must_join_channel", {
+      const message = await t(lang, "must_join_channel", {
         channel: channelInfo.title,
       });
 
@@ -161,13 +161,13 @@ bot.command("start", async (ctx) => {
           inline_keyboard: [
             [
               {
-                text: t(lang, "join_channel"),
+                text: await t(lang, "join_channel"),
                 url: `https://t.me/${channelInfo.username}`,
               },
             ],
             [
               {
-                text: t(lang, "check_subscription"),
+                text: await t(lang, "check_subscription"),
                 callback_data: "check_subscription",
               },
             ],
@@ -179,14 +179,18 @@ bot.command("start", async (ctx) => {
 
     // Agar telefon raqam kiritilmagan bo'lsa (kanal obunasidan keyin)
     if (!user.phoneNumber && user.hasJoinedChannel) {
-      await ctx.reply(t(lang, "request_phone"), getPhoneRequestKeyboard(lang));
+      await ctx.reply(
+        await t(lang, "request_phone"),
+        await getPhoneRequestKeyboard(lang)
+      );
       return;
     }
 
     // Asosiy menyuni ko'rsatish
-    await ctx.reply(t(lang, "main_menu"), {
-      ...getMainMenuKeyboard(lang),
-    });
+    await ctx.reply(
+      await t(lang, "main_menu"),
+      await getMainMenuKeyboard(lang)
+    );
   } catch (error) {
     logger.error("Start command error", error);
   }
@@ -218,10 +222,11 @@ bot.action("lang_uz", async (ctx) => {
     await updateUserLanguage(ctx.from.id, "uz");
     ctx.session.user.language = "uz";
 
-    await ctx.editMessageText(`✅ ${t("uz", "language_set")}`);
-    await ctx.reply(t("uz", "main_menu"), {
-      ...getMainMenuKeyboard("uz"),
-    });
+    await ctx.editMessageText(`✅ ${await t("uz", "language_set")}`);
+    await ctx.reply(
+      await t("uz", "main_menu"),
+      await getMainMenuKeyboard("uz")
+    );
   } catch (error) {
     logger.error("Language change error", error);
   }
@@ -233,10 +238,11 @@ bot.action("lang_cr", async (ctx) => {
     await updateUserLanguage(ctx.from.id, "cr");
     ctx.session.user.language = "cr";
 
-    await ctx.editMessageText(`✅ ${t("cr", "language_set")}`);
-    await ctx.reply(t("cr", "main_menu"), {
-      ...getMainMenuKeyboard("cr"),
-    });
+    await ctx.editMessageText(`✅ ${await t("cr", "language_set")}`);
+    await ctx.reply(
+      await t("cr", "main_menu"),
+      await getMainMenuKeyboard("cr")
+    );
   } catch (error) {
     logger.error("Language change error", error);
   }
@@ -248,10 +254,11 @@ bot.action("lang_ru", async (ctx) => {
     await updateUserLanguage(ctx.from.id, "ru");
     ctx.session.user.language = "ru";
 
-    await ctx.editMessageText(`✅ ${t("ru", "language_set")}`);
-    await ctx.reply(t("ru", "main_menu"), {
-      ...getMainMenuKeyboard("ru"),
-    });
+    await ctx.editMessageText(`✅ ${await t("ru", "language_set")}`);
+    await ctx.reply(
+      await t("ru", "main_menu"),
+      await getMainMenuKeyboard("ru")
+    );
   } catch (error) {
     logger.error("Language change error", error);
   }
@@ -394,9 +401,9 @@ bot.action("open_settings", async (ctx) => {
     await ctx.answerCbQuery();
     const lang = getUserLanguage(ctx.session.user);
 
-    const message = `⚙️ ${t(lang, "btn_settings")}`;
+    const message = `⚙️ ${await t(lang, "btn_settings")}`;
 
-    await ctx.editMessageText(message, getSettingsInlineKeyboard(lang));
+    await ctx.editMessageText(message, await getSettingsInlineKeyboard(lang));
   } catch (error) {
     logger.error("Open settings error", error);
   }
@@ -523,7 +530,7 @@ bot.action(/prayer_(.+)/, async (ctx) => {
         inline_keyboard: [
           [
             {
-              text: t(lang, "btn_back"),
+              text: await t(lang, "btn_back"),
               callback_data: "back_to_prayers_list",
             },
           ],
@@ -559,7 +566,7 @@ bot.action(/prayers_(uz|cr|ru)/, async (ctx) => {
         inline_keyboard: [
           [
             {
-              text: t(userLang, "btn_back"),
+              text: await t(userLang, "btn_back"),
               callback_data: "back_to_prayers_list",
             },
           ],
@@ -812,18 +819,18 @@ bot.action("show_qibla", async (ctx) => {
     const locationName = user.location?.name || "Tashkent";
 
     if (!latitude || !longitude) {
-      return ctx.reply(t(lang, "error_no_location"), {
+      return ctx.reply(await t(lang, "error_no_location"), {
         reply_markup: {
           inline_keyboard: [
             [
               {
-                text: t(lang, "btn_set_location"),
+                text: await t(lang, "btn_set_location"),
                 callback_data: "open_location_settings",
               },
             ],
             [
               {
-                text: t(lang, "btn_back"),
+                text: await t(lang, "btn_back"),
                 callback_data: "back_to_calendar_view",
               },
             ],
@@ -834,25 +841,25 @@ bot.action("show_qibla", async (ctx) => {
 
     const qibla = getQiblaDirection(latitude, longitude);
 
-    let message = `🧭 ${t(lang, "qibla_title")}\n\n`;
+    let message = `🧭 ${await t(lang, "qibla_title")}\n\n`;
     message += `📍 ${locationName}\n`;
-    message += `📐 ${t(lang, "qibla_bearing")}: ${qibla.bearing}°\n`;
-    message += `➡️ ${t(lang, "qibla_direction")}: ${qibla.direction}\n`;
-    message += `📏 ${t(
+    message += `📐 ${await t(lang, "qibla_bearing")}: ${qibla.bearing}°\n`;
+    message += `➡️ ${await t(lang, "qibla_direction")}: ${qibla.direction}\n`;
+    message += `📏 ${await t(
       lang,
       "qibla_distance"
     )}: ${qibla.distance.toLocaleString()} км\n\n`;
-    message += `🕋 ${t(lang, "qibla_kaaba")}: ${qibla.kaaba.latitude}°N, ${
+    message += `🕋 ${await t(lang, "qibla_kaaba")}: ${qibla.kaaba.latitude}°N, ${
       qibla.kaaba.longitude
     }°E\n`;
-    message += `\n${t(lang, "qibla_instruction")}`;
+    message += `\n${await t(lang, "qibla_instruction")}`;
 
     await ctx.editMessageText(message, {
       reply_markup: {
         inline_keyboard: [
           [
             {
-              text: t(lang, "btn_back"),
+              text: await t(lang, "btn_back"),
               callback_data: "back_to_calendar_view",
             },
           ],
@@ -882,7 +889,7 @@ bot.action("open_location_settings", async (ctx) => {
 
     const message = `📍 Joylashuv sozlamalari\n\n🌐 Til: ${languages[lang]}\n📍 Joylashuv: ${locationName}`;
 
-    await ctx.editMessageText(message, getLocationSettingsKeyboard(lang));
+    await ctx.editMessageText(message, await getLocationSettingsKeyboard(lang));
   } catch (error) {
     logger.error("Error in open_location_settings:", error);
   }
@@ -1038,7 +1045,10 @@ bot.on("contact", async (ctx) => {
 
     ctx.session.user.phoneNumber = phoneNumber;
 
-    await ctx.reply(t(lang, "phone_saved"), getMainMenuKeyboard(lang));
+    await ctx.reply(
+      await t(lang, "phone_saved"),
+      await getMainMenuKeyboard(lang)
+    );
   } catch (error) {
     logger.error("Error saving phone number:", error);
   }
