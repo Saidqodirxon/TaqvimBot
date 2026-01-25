@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
+import { API_URL } from "../api";
 import "./Admins.css";
 
-const API_BASE = "http://localhost:3001";
+// using global API_URL from src/api.js
 
 const ROLES = {
   superadmin: { name: "Superadmin", color: "#dc3545" },
@@ -49,7 +50,7 @@ function Admins() {
   const fetchAdmins = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.get(`${API_BASE}/api/admins`, {
+      const response = await axios.get(`${API_URL}/admins`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setAdmins(response.data);
@@ -69,7 +70,7 @@ function Admins() {
 
     try {
       const token = localStorage.getItem("token");
-      await axios.post(`${API_BASE}/api/admins`, newAdmin, {
+      await axios.post(`${API_URL}/admins`, newAdmin, {
         headers: { Authorization: `Bearer ${token}` },
       });
       alert("Admin muvaffaqiyatli qo'shildi");
@@ -92,7 +93,7 @@ function Admins() {
     try {
       const token = localStorage.getItem("token");
       await axios.put(
-        `${API_BASE}/api/admins/${editingAdmin.userId}`,
+        `${API_URL}/admins/${editingAdmin.userId}`,
         editingAdmin,
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -117,7 +118,7 @@ function Admins() {
 
     try {
       const token = localStorage.getItem("token");
-      await axios.delete(`${API_BASE}/api/admins/${userId}`, {
+      await axios.delete(`${API_URL}/admins/${userId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       alert("Admin o'chirildi");

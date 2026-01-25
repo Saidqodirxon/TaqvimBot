@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { API_URL } from "../api";
 import "./MonthlyPrayerTimes.css";
 
-const API_BASE = "http://localhost:3001";
+// using global API_URL from src/api.js
 
 const MonthlyPrayerTimes = () => {
   const { locationId } = useParams();
@@ -55,7 +56,7 @@ const MonthlyPrayerTimes = () => {
     try {
       const token = localStorage.getItem("token");
       const response = await axios.get(
-        `${API_BASE}/api/locations/${locationId}`,
+        `${API_URL}/locations/${locationId}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -71,7 +72,7 @@ const MonthlyPrayerTimes = () => {
     try {
       const token = localStorage.getItem("token");
       const response = await axios.get(
-        `${API_BASE}/api/monthly-prayer-times/${locationId}?month=${selectedMonth}&year=${selectedYear}`,
+        `${API_URL}/monthly-prayer-times/${locationId}?month=${selectedMonth}&year=${selectedYear}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -90,7 +91,7 @@ const MonthlyPrayerTimes = () => {
     try {
       const token = localStorage.getItem("token");
       await axios.post(
-        `${API_BASE}/api/monthly-prayer-times/${locationId}`,
+        `${API_URL}/monthly-prayer-times/${locationId}`,
         formData,
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -113,7 +114,7 @@ const MonthlyPrayerTimes = () => {
     try {
       const token = localStorage.getItem("token");
       await axios.delete(
-        `${API_BASE}/api/monthly-prayer-times/${locationId}/${date}`,
+        `${API_URL}/monthly-prayer-times/${locationId}/${date}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }

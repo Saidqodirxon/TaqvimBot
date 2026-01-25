@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { API_URL } from "../api";
 import "./Locations.css";
 
-const API_BASE = "http://localhost:3001";
+// using global API_URL from src/api.js
 
 const Locations = () => {
   const navigate = useNavigate();
@@ -39,7 +40,7 @@ const Locations = () => {
   const fetchLocations = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.get(`${API_BASE}/api/locations`, {
+      const response = await axios.get(`${API_URL}/locations`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setLocations(response.data);
@@ -95,13 +96,13 @@ const Locations = () => {
 
       if (editingLocation) {
         await axios.put(
-          `${API_BASE}/api/locations/${editingLocation._id}`,
+          `${API_URL}/locations/${editingLocation._id}`,
           formData,
           config
         );
         alert("Joylashuv yangilandi!");
       } else {
-        await axios.post(`${API_BASE}/api/locations`, formData, config);
+        await axios.post(`${API_URL}/locations`, formData, config);
         alert("Joylashuv qo'shildi!");
       }
 
@@ -145,7 +146,7 @@ const Locations = () => {
 
     try {
       const token = localStorage.getItem("token");
-      await axios.delete(`${API_BASE}/api/locations/${id}`, {
+      await axios.delete(`${API_URL}/locations/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       alert("Joylashuv o'chirildi!");

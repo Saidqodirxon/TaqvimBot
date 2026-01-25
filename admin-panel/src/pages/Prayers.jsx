@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
+import { API_URL } from "../api";
 import { Save, BookOpen, Plus, Trash2, Edit2, MoveUp, MoveDown, Eye, EyeOff } from "lucide-react";
 import "./Prayers.css";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001/api";
+// using global API_URL from src/api.js
 
 function Prayers() {
   const [prayers, setPrayers] = useState([]);

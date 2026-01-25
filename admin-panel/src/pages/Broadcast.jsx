@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import axios from "axios";
+import { API_URL } from "../api";
 import {
   Send,
   Users,
@@ -12,7 +13,7 @@ import {
 } from "lucide-react";
 import "./Broadcast.css";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001/api";
+// using global API_URL from src/api.js
 
 function Broadcast() {
   const [message, setMessage] = useState("");

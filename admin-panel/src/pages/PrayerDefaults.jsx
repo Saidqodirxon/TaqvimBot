@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
+import { API_URL } from "../api";
 import "./PrayerDefaults.css";
 
-const API_BASE = "http://localhost:3001";
+// using global API_URL from src/api.js
 
 const PrayerDefaults = () => {
   const [loading, setLoading] = useState(true);
@@ -23,7 +24,7 @@ const PrayerDefaults = () => {
     try {
       setLoading(true);
       const token = localStorage.getItem("adminToken");
-      const response = await axios.get(`${API_BASE}/api/prayer-defaults`, {
+      const response = await axios.get(`${API_URL}/prayer-defaults`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -42,7 +43,7 @@ const PrayerDefaults = () => {
     try {
       setSaving(true);
       const token = localStorage.getItem("adminToken");
-      await axios.post(`${API_BASE}/api/prayer-defaults`, defaults, {
+      await axios.post(`${API_URL}/prayer-defaults`, defaults, {
         headers: { Authorization: `Bearer ${token}` },
       });
 

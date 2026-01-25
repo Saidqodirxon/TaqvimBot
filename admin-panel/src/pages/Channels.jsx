@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
+import { API_URL } from "../api";
 import "./Channels.css";
 
-const API_BASE = "http://localhost:3001";
+// using global API_URL from src/api.js
 
 function Channels() {
   const [channels, setChannels] = useState([]);
@@ -23,7 +24,7 @@ function Channels() {
   const fetchChannels = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.get(`${API_BASE}/api/channels`, {
+      const response = await axios.get(`${API_URL}/channels`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setChannels(response.data);
@@ -82,7 +83,7 @@ function Channels() {
     try {
       const token = localStorage.getItem("token");
       await axios.post(
-        `${API_BASE}/api/channels`,
+        `${API_URL}/channels`,
         { channels: updatedChannels },
         {
           headers: { Authorization: `Bearer ${token}` },
