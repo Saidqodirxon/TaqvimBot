@@ -40,9 +40,9 @@ greetingScene.on("text", async (ctx) => {
 
     // Check if user wants to go back
     if (
-      message === await t(lang, "btn_back_menu") ||
-      message === await t(lang, "btn_back") ||
-      message === await t(lang, "btn_cancel")
+      message === (await t(lang, "btn_back_menu")) ||
+      message === (await t(lang, "btn_back")) ||
+      message === (await t(lang, "btn_cancel"))
     ) {
       await ctx.reply(await t(lang, "main_menu"), {
         parse_mode: "HTML",

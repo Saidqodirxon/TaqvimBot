@@ -74,7 +74,10 @@ locationScene.action("manual_select", async (ctx) => {
 
     // Add back button
     buttons.push([
-      Markup.button.callback(await t(lang, "btn_back"), "back_to_location_menu"),
+      Markup.button.callback(
+        await t(lang, "btn_back"),
+        "back_to_location_menu"
+      ),
     ]);
 
     await ctx.editMessageText(
@@ -145,9 +148,12 @@ locationScene.action(/^select_location_(.+)$/, async (ctx) => {
       // Ignore if message already deleted
     }
 
-    await ctx.reply(await t(lang, "location_saved", { location: locationName }), {
-      ...(await getMainMenuKeyboard(lang)),
-    });
+    await ctx.reply(
+      await t(lang, "location_saved", { location: locationName }),
+      {
+        ...(await getMainMenuKeyboard(lang)),
+      }
+    );
 
     await ctx.scene.leave();
   } catch (error) {
@@ -238,9 +244,12 @@ locationScene.on("location", async (ctx) => {
       longitude: location.longitude,
     };
 
-    await ctx.reply(await t(lang, "location_detected", { location: locationName }), {
-      ...(await getMainMenuKeyboard(lang)),
-    });
+    await ctx.reply(
+      await t(lang, "location_detected", { location: locationName }),
+      {
+        ...(await getMainMenuKeyboard(lang)),
+      }
+    );
 
     await ctx.scene.leave();
   } catch (error) {

@@ -11,7 +11,10 @@ settingsScene.enter(async (ctx) => {
 
   const text = await t(lang, "settings_menu");
   const keyboard = Markup.keyboard([
-    [await t(lang, "btn_prayer_reminders"), await t(lang, "btn_prayer_settings")],
+    [
+      await t(lang, "btn_prayer_reminders"),
+      await t(lang, "btn_prayer_settings"),
+    ],
     [await t(lang, "btn_location"), await t(lang, "btn_change_language")],
     [await t(lang, "btn_back_main")],
   ]).resize();
@@ -151,10 +154,12 @@ settingsScene.action(/set_minutes_(\d+)/, async (ctx) => {
     );
   }
 
-  buttons.push([Markup.button.callback(await t(lang, "btn_back"), "settings_back")]);
+  buttons.push([
+    Markup.button.callback(await t(lang, "btn_back"), "settings_back"),
+  ]);
 
   await ctx.editMessageText(
-    await t(lang, "configure_reminders") +
+    (await t(lang, "configure_reminders")) +
       `\n\n⏱ ${await t(lang, "current_reminder_time")}: ${minutes} ${await t(
         lang,
         "minutes"
