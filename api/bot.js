@@ -300,7 +300,7 @@ bot.hears(/⏰/, async (ctx) => {
     });
 
     const keyboard = Markup.inlineKeyboard([
-      [Markup.button.callback(t(lang, "btn_refresh"), "refresh_countdown")],
+      [Markup.button.callback(await t(lang, "btn_refresh"), "refresh_countdown")],
     ]);
 
     await ctx.reply(message, keyboard);
@@ -352,10 +352,10 @@ bot.hears(/🤲/, async (ctx) => {
           `prayer_${prayer._id}`
         ),
       ]),
-      [Markup.button.callback(t(lang, "btn_back"), "close_prayers")],
+      [Markup.button.callback(await t(lang, "btn_back"), "close_prayers")],
     ]);
 
-    await ctx.reply(t(lang, "prayers_select"), keyboard);
+    await ctx.reply(await t(lang, "prayers_select"), keyboard);
   } catch (error) {
     logger.error("Prayers handler error", error);
   }
@@ -507,7 +507,7 @@ bot.action("refresh_countdown", async (ctx) => {
     });
 
     const keyboard = Markup.inlineKeyboard([
-      [Markup.button.callback(t(lang, "btn_refresh"), "refresh_countdown")],
+      [Markup.button.callback(await t(lang, "btn_refresh"), "refresh_countdown")],
     ]);
 
     await ctx.editMessageText(message, keyboard);
@@ -616,10 +616,10 @@ bot.action("back_to_prayers_list", async (ctx) => {
           `prayer_${prayer._id}`
         ),
       ]),
-      [Markup.button.callback(t(lang, "btn_back"), "close_prayers")],
+      [Markup.button.callback(await t(lang, "btn_back"), "close_prayers")],
     ]);
 
-    await ctx.editMessageText(t(lang, "prayers_select"), keyboard);
+    await ctx.editMessageText(await t(lang, "prayers_select"), keyboard);
   } catch (error) {
     logger.error("Error in back_to_prayers_list:", error);
   }
@@ -685,26 +685,26 @@ bot.action("calendar_daily", async (ctx) => {
     );
 
     if (!prayerData.success) {
-      return ctx.reply(t(lang, "error_try_again"));
+      return ctx.reply(await t(lang, "error_try_again"));
     }
 
     const nextPrayer = getNextPrayer(prayerData.timings);
 
     let message =
-      t(lang, "calendar_daily_title") +
+      await t(lang, "calendar_daily_title") +
       `\n📍 ${locationName}\n📅 ${prayerData.date}\n📿 ${prayerData.hijri}\n\n`;
-    message += t(lang, "prayer_fajr", { time: prayerData.timings.fajr }) + "\n";
+    message += await t(lang, "prayer_fajr", { time: prayerData.timings.fajr }) + "\n";
     message +=
-      t(lang, "prayer_sunrise", { time: prayerData.timings.sunrise }) + "\n";
+      await t(lang, "prayer_sunrise", { time: prayerData.timings.sunrise }) + "\n";
     message +=
-      t(lang, "prayer_dhuhr", { time: prayerData.timings.dhuhr }) + "\n";
-    message += t(lang, "prayer_asr", { time: prayerData.timings.asr }) + "\n";
+      await t(lang, "prayer_dhuhr", { time: prayerData.timings.dhuhr }) + "\n";
+    message += await t(lang, "prayer_asr", { time: prayerData.timings.asr }) + "\n";
     message +=
-      t(lang, "prayer_maghrib", { time: prayerData.timings.maghrib }) + "\n";
-    message += t(lang, "prayer_isha", { time: prayerData.timings.isha });
+      await t(lang, "prayer_maghrib", { time: prayerData.timings.maghrib }) + "\n";
+    message += await t(lang, "prayer_isha", { time: prayerData.timings.isha });
 
     if (nextPrayer) {
-      message += t(lang, "prayer_next", {
+      message += await t(lang, "prayer_next", {
         prayer: nextPrayer.name,
         time: nextPrayer.time,
         remaining: nextPrayer.remaining,
@@ -716,7 +716,7 @@ bot.action("calendar_daily", async (ctx) => {
         inline_keyboard: [
           [
             {
-              text: t(lang, "btn_back"),
+              text: await t(lang, "btn_back"),
               callback_data: "back_to_calendar_view",
             },
           ],
@@ -748,7 +748,7 @@ bot.action("calendar_weekly", async (ctx) => {
     const latitudeAdjustment = user.prayerSettings?.latitudeAdjustment || 1;
 
     const moment = require("moment-timezone");
-    let message = t(lang, "calendar_weekly_title") + `\n📍 ${locationName}\n\n`;
+    let message = await t(lang, "calendar_weekly_title") + `\n📍 ${locationName}\n\n`;
 
     // Week day names
     const weekDays = {
@@ -808,7 +808,7 @@ bot.action("calendar_weekly", async (ctx) => {
         inline_keyboard: [
           [
             {
-              text: t(lang, "btn_back"),
+              text: await t(lang, "btn_back"),
               callback_data: "back_to_calendar_view",
             },
           ],
@@ -924,16 +924,16 @@ bot.action("open_reminder_settings", async (ctx) => {
       minutesBefore: 15,
     };
     const message =
-      t(lang, "reminder_settings") +
+      await t(lang, "reminder_settings") +
       `\n\n${reminderSettings.enabled ? "✅" : "❌"} ${
         reminderSettings.enabled
-          ? t(lang, "reminder_enabled")
-          : t(lang, "reminder_disabled")
+          ? await t(lang, "reminder_enabled")
+          : await t(lang, "reminder_disabled")
       }\n⏰ ${reminderSettings.minutesBefore} daqiqa oldin`;
 
     await ctx.editMessageText(
       message,
-      getReminderSettingsKeyboard(lang, reminderSettings)
+      await getReminderSettingsKeyboard(lang, reminderSettings)
     );
   } catch (error) {
     logger.error("Error in open_reminder_settings:", error);
@@ -960,16 +960,16 @@ bot.action("toggle_reminders", async (ctx) => {
     ctx.session.user.reminderSettings = newSettings;
 
     const message =
-      t(lang, "reminder_settings") +
+      await t(lang, "reminder_settings") +
       `\n\n${newSettings.enabled ? "✅" : "❌"} ${
         newSettings.enabled
-          ? t(lang, "reminder_enabled")
-          : t(lang, "reminder_disabled")
+          ? await t(lang, "reminder_enabled")
+          : await t(lang, "reminder_disabled")
       }\n⏰ ${newSettings.minutesBefore} daqiqa oldin`;
 
     await ctx.editMessageText(
       message,
-      getReminderSettingsKeyboard(lang, newSettings)
+      await getReminderSettingsKeyboard(lang, newSettings)
     );
   } catch (error) {
     logger.error("Error in toggle_reminders:", error);
@@ -995,19 +995,19 @@ bot.action(/reminder_time_(\d+)/, async (ctx) => {
     await updateUserReminders(bot, user.userId, newSettings);
     ctx.session.user.reminderSettings = newSettings;
 
-    await ctx.answerCbQuery(t(lang, "reminder_updated"));
+    await ctx.answerCbQuery(await t(lang, "reminder_updated"));
 
     const message =
-      t(lang, "reminder_settings") +
+      await t(lang, "reminder_settings") +
       `\n\n${newSettings.enabled ? "✅" : "❌"} ${
         newSettings.enabled
-          ? t(lang, "reminder_enabled")
-          : t(lang, "reminder_disabled")
+          ? await t(lang, "reminder_enabled")
+          : await t(lang, "reminder_disabled")
       }\n⏰ ${newSettings.minutesBefore} daqiqa oldin`;
 
     await ctx.editMessageText(
       message,
-      getReminderSettingsKeyboard(lang, newSettings)
+      await getReminderSettingsKeyboard(lang, newSettings)
     );
   } catch (error) {
     logger.error("Error in reminder_time:", error);
@@ -1101,7 +1101,7 @@ bot.catch(async (err, ctx) => {
   try {
     const user = ctx.session?.user;
     const lang = getUserLanguage(user);
-    ctx.reply(t(lang, "error_try_again"));
+    ctx.reply(await t(lang, "error_try_again"));
   } catch (e) {
     logger.error("Error sending error message:", e);
   }

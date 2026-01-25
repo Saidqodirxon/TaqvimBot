@@ -113,11 +113,11 @@ function getLocationInlineKeyboard(cities, lang = "uz") {
 /**
  * Create confirmation keyboard
  */
-function getConfirmKeyboard(lang = "uz") {
+async function getConfirmKeyboard(lang = "uz") {
   return Markup.inlineKeyboard([
     [
-      Markup.button.callback(t(lang, "btn_confirm"), "confirm"),
-      Markup.button.callback(t(lang, "btn_reject"), "reject"),
+      Markup.button.callback(await t(lang, "btn_confirm"), "confirm"),
+      Markup.button.callback(await t(lang, "btn_reject"), "reject"),
     ],
   ]);
 }
@@ -125,9 +125,9 @@ function getConfirmKeyboard(lang = "uz") {
 /**
  * Create back button
  */
-function getBackButton(lang = "uz") {
+async function getBackButton(lang = "uz") {
   return Markup.inlineKeyboard([
-    [Markup.button.callback(t(lang, "btn_back"), "back_main")],
+    [Markup.button.callback(await t(lang, "btn_back"), "back_main")],
   ]);
 }
 
@@ -157,10 +157,10 @@ function getAdminGreetingsKeyboard(greetingId) {
 /**
  * Create refresh button for countdown
  */
-function getRefreshKeyboard(lang = "uz") {
+async function getRefreshKeyboard(lang = "uz") {
   return Markup.inlineKeyboard([
     [
-      Markup.button.callback(t(lang, "btn_refresh"), "refresh_countdown"),
+      Markup.button.callback(await t(lang, "btn_refresh"), "refresh_countdown"),
       Markup.button.callback("🔄", "back_main"),
     ],
   ]);
@@ -189,7 +189,7 @@ async function getCalendarViewKeyboard(lang = "uz") {
     ]);
   }
 
-  buttons.push([Markup.button.callback(t(lang, "btn_back"), "back_main")]);
+  buttons.push([Markup.button.callback(await t(lang, "btn_back"), "back_main")]);
 
   return Markup.inlineKeyboard(buttons);
 }
