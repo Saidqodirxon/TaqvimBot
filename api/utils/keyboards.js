@@ -25,10 +25,9 @@ function getLanguageKeyboard(showBack = false) {
  */
 function getMainMenuKeyboard(lang = "uz") {
   const buttons = [
-    [t(lang, "btn_calendar"), t(lang, "btn_send_greeting")],
-    [t(lang, "btn_prayers"), t(lang, "btn_ramadan_countdown")],
-    [t(lang, "btn_settings"), t(lang, "btn_suggest")],
-    [t(lang, "btn_about")],
+    [t(lang, "btn_send_greeting"), t(lang, "btn_prayers")],
+    [t(lang, "btn_ramadan_countdown"), t(lang, "btn_suggest")],
+    [t(lang, "btn_settings"), t(lang, "btn_about")],
   ];
 
   return Markup.keyboard(buttons).resize().persistent(true);

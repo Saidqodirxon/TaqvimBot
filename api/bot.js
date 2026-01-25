@@ -254,33 +254,6 @@ bot.action("check_subscription", handleCheckSubscription);
 // ========== MAIN MENU HANDLERS ==========
 
 /**
- * Calendar / Prayer times
- */
-bot.hears(/📅/, async (ctx) => {
-  try {
-    const lang = getUserLanguage(ctx.session.user);
-    const user = ctx.session.user;
-
-    // Check if user has location
-    if (!user.location || !user.location.latitude || !user.location.longitude) {
-      await ctx.reply(
-        "📍 Avval joylashuvingizni kiriting:",
-        Markup.inlineKeyboard([
-          [Markup.button.callback(t(lang, "btn_location"), "change_location")],
-        ])
-      );
-      return;
-    }
-
-    await ctx.reply(t(lang, "calendar_title"), getCalendarViewKeyboard(lang));
-  } catch (error) {
-    logger.error("Calendar handler error", error);
-    const lang = getUserLanguage(ctx.session.user);
-    ctx.reply(t(lang, "error_try_again"));
-  }
-});
-
-/**
  * Send greeting
  */
 bot.hears(/💌/, async (ctx) => {
