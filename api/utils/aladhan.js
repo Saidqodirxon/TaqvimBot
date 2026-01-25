@@ -534,57 +534,87 @@ function getQiblaDirection(latitude, longitude) {
 const CALCULATION_METHODS = {
   0: {
     en: "Jafari (Shia Ithna Ashari)",
-    uz: "Jafari (Shia)",
-    cr: "Жафари (Шиа)",
+    uz: "Jafari mazhabi (Shia)",
+    cr: "Жафари мазҳаби (Шиа)",
+    ru: "Джафаритский мазхаб (Шииты)",
   },
   1: {
     en: "University of Islamic Sciences, Karachi",
     uz: "Karachi universiteti",
     cr: "Карачи университети",
+    ru: "Университет Карачи",
   },
   2: {
     en: "Islamic Society of North America (ISNA)",
-    uz: "ISNA (Shimoli Amerika)",
-    cr: "ИСНА (Шимолий Америка)",
+    uz: "Shimoliy Amerika islom jamiyati (ISNA)",
+    cr: "Шимолий Америка ислом жамияти (ИСНА)",
+    ru: "Исламское общество Северной Америки (ISNA)",
   },
   3: {
     en: "Muslim World League",
-    uz: "Musulmonlar dunyosi ligasi",
-    cr: "Муслимонлар дунёси лигаси",
+    uz: "Musulmon dunyosi ligasi",
+    cr: "Муслимон дунёси лигаси",
+    ru: "Мусульманская мировая лига",
   },
   4: {
     en: "Umm al-Qura, Makkah",
-    uz: "Umm al-Qura (Makka)",
-    cr: "Умм аль-Қура (Макка)",
+    uz: "Umm al-Qura universiteti (Makka)",
+    cr: "Умм аль-Қура университети (Макка)",
+    ru: "Университет Умм аль-Кура (Мекка)",
   },
   5: {
     en: "Egyptian General Authority of Survey",
-    uz: "Misr (Usul)",
-    cr: "Миср (Усул)",
+    uz: "Misr usuli",
+    cr: "Миср усули",
+    ru: "Египетский метод",
   },
   7: {
     en: "Institute of Geophysics, University of Tehran",
-    uz: "Tehran universiteti",
+    uz: "Tehron universiteti",
     cr: "Теҳрон университети",
+    ru: "Тегеранский университет",
   },
-  8: { en: "Gulf Region", uz: "Fors ko'rfazi", cr: "Форс кўрфази" },
-  9: { en: "Kuwait", uz: "Quvayt", cr: "Қувайт" },
-  10: { en: "Qatar", uz: "Qatar", cr: "Қатар" },
+  8: { 
+    en: "Gulf Region", 
+    uz: "Fors ko'rfazi mintaqasi", 
+    cr: "Форс кўрфази минтақаси",
+    ru: "Регион Персидского залива"
+  },
+  9: { 
+    en: "Kuwait", 
+    uz: "Quvayt", 
+    cr: "Қувайт",
+    ru: "Кувейт"
+  },
+  10: { 
+    en: "Qatar", 
+    uz: "Qatar", 
+    cr: "Қатар",
+    ru: "Катар"
+  },
   11: {
     en: "Majlis Ugama Islam Singapura, Singapore",
     uz: "Singapur",
     cr: "Сингапур",
+    ru: "Сингапур",
   },
   12: {
     en: "Union Organization islamic de France",
-    uz: "Frantsiya",
-    cr: "Франция",
+    uz: "Frantsiya islom tashkilotlari ittifoqi",
+    cr: "Франция ислом ташкилотлари иттифоқи",
+    ru: "Союз исламских организаций Франции",
   },
-  13: { en: "Diyanet İşleri Başkanlığı, Turkey", uz: "Turkiya", cr: "Туркия" },
+  13: { 
+    en: "Diyanet İşleri Başkanlığı, Turkey", 
+    uz: "Turkiya diniy ishlar boshqarmasi", 
+    cr: "Туркия диний ишлар бошқармаси",
+    ru: "Управление по делам религии Турции"
+  },
   14: {
     en: "Spiritual Administration of Muslims of Russia",
-    uz: "Rossiya",
-    cr: "Россия",
+    uz: "Rossiya musulmonlari ma'muriyati",
+    cr: "Россия мусулмонлари маъмурияти",
+    ru: "Духовное управление мусульман России",
   },
 };
 

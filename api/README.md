@@ -87,7 +87,11 @@ BOT_USER=your_bot_username
 ADMIN_USER=your_admin_username
 RAMADAN_DATE=2026-02-17
 MONGODB_URI=mongodb://localhost:27017/ramazonbot
+ERROR_LOG_CHAT_ID=-1001234567890
+MINI_APP_URL=https://ramazonbot.saidqodirxon.uz
 ```
+
+**ERROR_LOG_CHAT_ID:** Xatolar yuboriladi guruh yoki kanal ID'si. Botni guruhga qo'shing va ID'ni kiriting.
 
 ### .env fayl (Admin API)
 

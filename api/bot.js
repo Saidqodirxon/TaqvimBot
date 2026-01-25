@@ -747,6 +747,13 @@ bot.action("calendar_weekly", async (ctx) => {
     const moment = require("moment-timezone");
     let message = t(lang, "calendar_weekly_title") + `\n📍 ${locationName}\n\n`;
 
+    // Week day names
+    const weekDays = {
+      uz: ["yakshanba", "dushanba", "seshanba", "chorshanba", "payshanba", "juma", "shanba"],
+      cr: ["якшанба", "душанба", "сешанба", "чоршанба", "пайшанба", "жума", "шанба"],
+      ru: ["воскресенье", "понедельник", "вторник", "среда", "четверг", "пятница", "суббота"]
+    };
+
     // Get prayer times for next 7 days
     for (let i = 0; i < 7; i++) {
       const date = moment.tz("Asia/Tashkent").add(i, "days");
@@ -760,7 +767,9 @@ bot.action("calendar_weekly", async (ctx) => {
       );
 
       if (prayerData.success) {
-        message += `📅 ${date.format("DD.MM.YYYY")} (${date.format("dddd")})\n`;
+        const dayOfWeek = date.day();
+        const dayName = weekDays[lang]?.[dayOfWeek] || weekDays["uz"][dayOfWeek];
+        message += `📅 ${date.format("DD.MM.YYYY")} (${dayName})\n`;
         message += `🌅 ${prayerData.timings.fajr} | ☀️ ${prayerData.timings.dhuhr} | 🌤 ${prayerData.timings.asr}\n`;
         message += `🌇 ${prayerData.timings.maghrib} | 🌙 ${prayerData.timings.isha}\n\n`;
       }

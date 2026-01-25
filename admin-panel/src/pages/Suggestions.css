@@ -240,3 +240,53 @@
   border-radius: 5px;
   margin-bottom: 20px;
 }
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .suggestions-page {
+    padding: 15px;
+  }
+
+  .page-header h1 {
+    font-size: 24px;
+    margin-bottom: 15px;
+  }
+
+  .stats {
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 10px;
+  }
+
+  .stat-value {
+    font-size: 24px;
+  }
+
+  .stat-label {
+    font-size: 12px;
+  }
+
+  .filters {
+    gap: 8px;
+  }
+
+  .filters button {
+    padding: 6px 12px;
+    font-size: 13px;
+  }
+
+  .suggestion-card {
+    padding: 15px;
+  }
+
+  .suggestion-text {
+    font-size: 14px;
+  }
+
+  .suggestion-actions {
+    flex-direction: column;
+  }
+
+  .suggestion-actions button {
+    width: 100%;
+  }
+}
