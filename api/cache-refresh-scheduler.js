@@ -70,9 +70,7 @@ async function refreshExpiringCaches() {
 
         if (freshData.success && !freshData.cached) {
           refreshed++;
-          console.log(
-            `✅ Refreshed: ${cache.locationKey} (${cache.date})`
-          );
+          console.log(`✅ Refreshed: ${cache.locationKey} (${cache.date})`);
         }
 
         // Small delay to avoid API rate limits
@@ -253,4 +251,8 @@ if (require.main === module) {
   });
 }
 
-module.exports = { startScheduler, refreshExpiringCaches, preCacheForActiveUsers };
+module.exports = {
+  startScheduler,
+  refreshExpiringCaches,
+  preCacheForActiveUsers,
+};
