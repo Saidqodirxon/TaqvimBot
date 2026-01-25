@@ -26,7 +26,10 @@ function getLanguageKeyboard(showBack = false) {
 async function getMainMenuKeyboard(lang = "uz") {
   const buttons = [
     [await t(lang, "btn_calendar"), await t(lang, "btn_prayers")],
-    [await t(lang, "btn_send_greeting"), await t(lang, "btn_ramadan_countdown")],
+    [
+      await t(lang, "btn_send_greeting"),
+      await t(lang, "btn_ramadan_countdown"),
+    ],
     [await t(lang, "btn_suggest"), await t(lang, "btn_settings")],
     [await t(lang, "btn_about")],
   ];
@@ -179,7 +182,10 @@ async function getCalendarViewKeyboard(lang = "uz") {
   // Add WebApp button if HTTPS URL is configured
   if (webAppUrl && webAppUrl.startsWith("https://")) {
     buttons.push([
-      Markup.button.webApp("📱 " + await t(lang, "btn_calendar_webapp"), webAppUrl),
+      Markup.button.webApp(
+        "📱 " + (await t(lang, "btn_calendar_webapp")),
+        webAppUrl
+      ),
     ]);
   }
 
