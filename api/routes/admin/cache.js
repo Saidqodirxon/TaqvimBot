@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const PrayerTimeCache = require("../../models/PrayerTimeCache");
-const adminAuth = require("../../middleware/adminAuth");
+const { authMiddleware } = require("../../middleware/adminAuth");
 const {
   getPrayerTimes,
   savePrayerTimeToCache,
@@ -10,7 +10,7 @@ const {
 /**
  * Get all cached prayer times with pagination
  */
-router.get("/", adminAuth, async (req, res) => {
+router.get("/", authMiddleware, async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 20;
@@ -40,7 +40,7 @@ router.get("/", adminAuth, async (req, res) => {
 /**
  * Get cache statistics
  */
-router.get("/stats", adminAuth, async (req, res) => {
+router.get("/stats", authMiddleware, async (req, res) => {
   try {
     const now = new Date();
 
@@ -70,7 +70,7 @@ router.get("/stats", adminAuth, async (req, res) => {
 /**
  * Refresh cache for specific location
  */
-router.post("/refresh", adminAuth, async (req, res) => {
+router.post("/refresh", authMiddleware, async (req, res) => {
   try {
     const { latitude, longitude, method = 3, school = 1, date } = req.body;
 
@@ -109,7 +109,7 @@ router.post("/refresh", adminAuth, async (req, res) => {
 /**
  * Update cache expiration time
  */
-router.patch("/:id/expiration", adminAuth, async (req, res) => {
+router.patch("/:id/expiration", authMiddleware, async (req, res) => {
   try {
     const { id } = req.params;
     const { expiresAt } = req.body;
@@ -141,7 +141,7 @@ router.patch("/:id/expiration", adminAuth, async (req, res) => {
 /**
  * Delete specific cache
  */
-router.delete("/:id", adminAuth, async (req, res) => {
+router.delete("/:id", authMiddleware, async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -164,7 +164,7 @@ router.delete("/:id", adminAuth, async (req, res) => {
 /**
  * Clear all expired caches
  */
-router.post("/clear-expired", adminAuth, async (req, res) => {
+router.post("/clear-expired", authMiddleware, async (req, res) => {
   try {
     const result = await PrayerTimeCache.deleteMany({
       expiresAt: { $lte: new Date() },
@@ -183,7 +183,7 @@ router.post("/clear-expired", adminAuth, async (req, res) => {
 /**
  * Clear all caches
  */
-router.post("/clear-all", adminAuth, async (req, res) => {
+router.post("/clear-all", authMiddleware, async (req, res) => {
   try {
     const result = await PrayerTimeCache.deleteMany({});
 
@@ -200,7 +200,7 @@ router.post("/clear-all", adminAuth, async (req, res) => {
 /**
  * Bulk refresh - refresh caches for all active locations
  */
-router.post("/bulk-refresh", adminAuth, async (req, res) => {
+router.post("/bulk-refresh", authMiddleware, async (req, res) => {
   try {
     const Location = require("../../models/Location");
     const locations = await Location.find({ isActive: true });
