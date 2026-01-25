@@ -76,6 +76,10 @@ export const settings = {
   setRamadanDate: (date) => api.post("/settings/ramadan-date", { date }),
   setBotToken: (token) => api.post("/settings/bot-token", { token }),
   setPrayers: (prayers) => api.post("/settings/prayers", { prayers }),
+  setTermsSettings: (termsSettings) =>
+    api.post("/settings/terms", termsSettings),
+  setPhoneSettings: (phoneSettings) =>
+    api.post("/settings/phone", phoneSettings),
 };
 
 // Greetings

@@ -103,12 +103,16 @@ cd /root/ramazonbot/admin-panel/nginx
 npm install --silent
 # Remove old dist folder if exists
 if [ -d "dist" ]; then
+  echo -e "${YELLOW}🗑️  Removing old dist...${NC}"
   rm -rf dist
 fi
 # Copy new dist folder
 if [ -d "../dist" ]; then
-  cp -r ../dist .
-  echo -e "${GREEN}✓ Admin Panel dist copied${NC}"
+  mv ../dist .
+  echo -e "${GREEN}✓ Admin Panel dist moved${NC}"
+else
+  echo -e "${RED}✗ Admin Panel dist folder not found${NC}"
+  exit 1
 fi
 echo ""
 
@@ -127,12 +131,16 @@ cd /root/ramazonbot/mini-app/nginx
 npm install --silent
 # Remove old dist folder if exists
 if [ -d "dist" ]; then
+  echo -e "${YELLOW}🗑️  Removing old dist...${NC}"
   rm -rf dist
 fi
 # Copy new dist folder
 if [ -d "../dist" ]; then
-  cp -r ../dist .
-  echo -e "${GREEN}✓ WebApp dist copied${NC}"
+  mv ../dist .
+  echo -e "${GREEN}✓ WebApp dist moved${NC}"
+else
+  echo -e "${RED}✗ WebApp dist folder not found${NC}"
+  exit 1
 fi
 echo ""
 

@@ -17,6 +17,15 @@ function Settings() {
   const [channelJoinDelayDays, setChannelJoinDelayDays] = useState(0);
   const [channelJoinDelayHours, setChannelJoinDelayHours] = useState(0);
 
+  // Terms settings state
+  const [termsEnabled, setTermsEnabled] = useState(false);
+  const [termsUrl, setTermsUrl] = useState("");
+  const [termsRecheckDays, setTermsRecheckDays] = useState(90);
+
+  // Phone request settings state
+  const [phoneRequestEnabled, setPhoneRequestEnabled] = useState(false);
+  const [phoneRecheckDays, setPhoneRecheckDays] = useState(180);
+
   // Cache settings state
   const [cacheTtl, setCacheTtl] = useState(86400); // 24 hours default
   const [cacheMaxSize, setCacheMaxSize] = useState(1000);
@@ -72,6 +81,39 @@ function Settings() {
         setCacheTtl(cacheSettings.value.ttl ?? 86400);
         setCacheMaxSize(cacheSettings.value.maxSize ?? 1000);
         setCacheAutoClean(cacheSettings.value.autoClean ?? true);
+      }
+
+      // Terms settings
+      const termsEnabledSetting = data?.find((s) => s.key === "terms_enabled");
+      if (termsEnabledSetting) {
+        setTermsEnabled(termsEnabledSetting.value ?? false);
+      }
+
+      const termsUrlSetting = data?.find((s) => s.key === "terms_url");
+      if (termsUrlSetting) {
+        setTermsUrl(termsUrlSetting.value ?? "");
+      }
+
+      const termsRecheckSetting = data?.find(
+        (s) => s.key === "terms_recheck_days"
+      );
+      if (termsRecheckSetting) {
+        setTermsRecheckDays(termsRecheckSetting.value ?? 90);
+      }
+
+      // Phone request settings
+      const phoneEnabledSetting = data?.find(
+        (s) => s.key === "phone_request_enabled"
+      );
+      if (phoneEnabledSetting) {
+        setPhoneRequestEnabled(phoneEnabledSetting.value ?? false);
+      }
+
+      const phoneRecheckSetting = data?.find(
+        (s) => s.key === "phone_recheck_days"
+      );
+      if (phoneRecheckSetting) {
+        setPhoneRecheckDays(phoneRecheckSetting.value ?? 180);
       }
     }
   }, [data]);
@@ -137,6 +179,37 @@ function Settings() {
     onSuccess: () => {
       queryClient.invalidateQueries(["settings"]);
       alert("Cache sozlamalari saqlandi!");
+    },
+    onError: () => {
+      alert("Xatolik yuz berdi!");
+    },
+  });
+
+  const termsMutation = useMutation({
+    mutationFn: () =>
+      settings.setTermsSettings({
+        enabled: termsEnabled,
+        url: termsUrl,
+        recheckDays: parseInt(termsRecheckDays),
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries(["settings"]);
+      alert("Terms sozlamalari saqlandi!");
+    },
+    onError: () => {
+      alert("Xatolik yuz berdi!");
+    },
+  });
+
+  const phoneMutation = useMutation({
+    mutationFn: () =>
+      settings.setPhoneSettings({
+        enabled: phoneRequestEnabled,
+        recheckDays: parseInt(phoneRecheckDays),
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries(["settings"]);
+      alert("Telefon so'rash sozlamalari saqlandi!");
     },
     onError: () => {
       alert("Xatolik yuz berdi!");
@@ -440,6 +513,137 @@ function Settings() {
           >
             <Save size={18} />
             {cacheMutation.isLoading ? "Saqlanmoqda..." : "Cache Sozlamalari"}
+          </button>
+        </div>
+      </div>
+
+      {/* Terms Settings */}
+      <div className="card">
+        <div className="setting-section">
+          <div className="setting-header">
+            <FileText size={24} />
+            <div>
+              <h3>Foydalanish Shartlari</h3>
+              <p>
+                Foydalanuvchilar botga kirganda shartlarni qabul qilishini talab
+                qilish
+              </p>
+            </div>
+          </div>
+
+          <div className="toggle-group">
+            <label className="toggle-label">
+              <div>
+                <strong>Shartlarni majburiy qilish</strong>
+                <p className="toggle-desc">
+                  Foydalanuvchilar botdan foydalanishdan oldin shartlarni qabul
+                  qilishlari kerak
+                </p>
+              </div>
+              <label className="switch">
+                <input
+                  type="checkbox"
+                  checked={termsEnabled}
+                  onChange={(e) => setTermsEnabled(e.target.checked)}
+                />
+                <span className="slider"></span>
+              </label>
+            </label>
+          </div>
+
+          <div className="form-group">
+            <label>📄 Shartlar sahifasi URL</label>
+            <input
+              type="url"
+              value={termsUrl}
+              onChange={(e) => setTermsUrl(e.target.value)}
+              placeholder="https://example.com/terms"
+            />
+            <small className="help-text">
+              💡 Foydalanuvchilar bu havolaga borib shartlarni o'qiydilar
+            </small>
+          </div>
+
+          <div className="form-group">
+            <label>🔄 Qayta so'rash davri (kunlarda)</label>
+            <input
+              type="number"
+              value={termsRecheckDays}
+              onChange={(e) => setTermsRecheckDays(e.target.value)}
+              min="1"
+              max="365"
+            />
+            <small className="help-text">
+              💡 Necha kundan keyin foydalanuvchilardan qayta shartlarni qabul
+              qilishlarini so'rash (masalan: 90 kun)
+            </small>
+          </div>
+
+          <button
+            className="btn-primary"
+            onClick={() => termsMutation.mutate()}
+            disabled={termsMutation.isLoading}
+          >
+            <Save size={18} />
+            {termsMutation.isLoading ? "Saqlanmoqda..." : "Terms Sozlamalari"}
+          </button>
+        </div>
+      </div>
+
+      {/* Phone Request Settings */}
+      <div className="card">
+        <div className="setting-section">
+          <div className="setting-header">
+            <MessageSquare size={24} />
+            <div>
+              <h3>Telefon Raqam So'rash</h3>
+              <p>Foydalanuvchilardan telefon raqamlarini so'rash sozlamalari</p>
+            </div>
+          </div>
+
+          <div className="toggle-group">
+            <label className="toggle-label">
+              <div>
+                <strong>Telefon raqam so'rash</strong>
+                <p className="toggle-desc">
+                  Foydalanuvchilardan vaqti-vaqti bilan telefon raqamlarini
+                  so'rash
+                </p>
+              </div>
+              <label className="switch">
+                <input
+                  type="checkbox"
+                  checked={phoneRequestEnabled}
+                  onChange={(e) => setPhoneRequestEnabled(e.target.checked)}
+                />
+                <span className="slider"></span>
+              </label>
+            </label>
+          </div>
+
+          <div className="form-group">
+            <label>🔄 Qayta so'rash davri (kunlarda)</label>
+            <input
+              type="number"
+              value={phoneRecheckDays}
+              onChange={(e) => setPhoneRecheckDays(e.target.value)}
+              min="1"
+              max="365"
+            />
+            <small className="help-text">
+              💡 Necha kundan keyin foydalanuvchilardan qayta telefon raqamini
+              so'rash (masalan: 180 kun). Bu foydalanuvchilarni bezovta
+              qilmaydi.
+            </small>
+          </div>
+
+          <button
+            className="btn-primary"
+            onClick={() => phoneMutation.mutate()}
+            disabled={phoneMutation.isLoading}
+          >
+            <Save size={18} />
+            {phoneMutation.isLoading ? "Saqlanmoqda..." : "Telefon Sozlamalari"}
           </button>
         </div>
       </div>

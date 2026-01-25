@@ -119,11 +119,23 @@ function Prayers() {
 
   const handleEdit = (prayer) => {
     setEditingId(prayer._id);
+
+    // Normalize old data format to new format
+    const normalizedTitle =
+      typeof prayer.title === "object"
+        ? { ...prayer.title }
+        : { uz: prayer.title || "", cr: "", ru: "" };
+
+    const normalizedContent =
+      typeof prayer.content === "object"
+        ? { ...prayer.content }
+        : { uz: prayer.content || "", cr: "", ru: "" };
+
     setEditForm({
-      title: { ...prayer.title },
-      content: { ...prayer.content },
-      order: prayer.order,
-      isActive: prayer.isActive,
+      title: normalizedTitle,
+      content: normalizedContent,
+      order: prayer.order || 0,
+      isActive: prayer.isActive !== undefined ? prayer.isActive : true,
     });
 
     // Scroll to form
@@ -351,9 +363,9 @@ function Prayers() {
                       ) : (
                         <EyeOff size={18} className="icon-muted" />
                       )}
-                      {prayer.title.uz}
+                      {prayer.title?.uz || prayer.title || "No'malum dua"}
                     </h4>
-                    <span className="order-badge">#{prayer.order}</span>
+                    <span className="order-badge">#{prayer.order || 0}</span>
                   </div>
                   <div className="prayer-actions">
                     <button
@@ -374,18 +386,29 @@ function Prayers() {
                 </div>
 
                 <div className="prayer-content">
-                  <div className="prayer-lang">
-                    <strong>🇺🇿 Lotin:</strong>
-                    <p>{prayer.content.uz.substring(0, 100)}...</p>
-                  </div>
-                  <div className="prayer-lang">
-                    <strong>🇺🇿 Кирилл:</strong>
-                    <p>{prayer.content.cr.substring(0, 100)}...</p>
-                  </div>
-                  <div className="prayer-lang">
-                    <strong>🇷🇺 Русский:</strong>
-                    <p>{prayer.content.ru.substring(0, 100)}...</p>
-                  </div>
+                  {prayer.content?.uz && (
+                    <div className="prayer-lang">
+                      <strong>🇺🇿 Lotin:</strong>
+                      <p>{prayer.content.uz.substring(0, 100)}...</p>
+                    </div>
+                  )}
+                  {prayer.content?.cr && (
+                    <div className="prayer-lang">
+                      <strong>🇺🇿 Кирилл:</strong>
+                      <p>{prayer.content.cr.substring(0, 100)}...</p>
+                    </div>
+                  )}
+                  {prayer.content?.ru && (
+                    <div className="prayer-lang">
+                      <strong>🇷🇺 Русский:</strong>
+                      <p>{prayer.content.ru.substring(0, 100)}...</p>
+                    </div>
+                  )}
+                  {typeof prayer.content === "string" && (
+                    <div className="prayer-lang">
+                      <p>{prayer.content.substring(0, 200)}...</p>
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
