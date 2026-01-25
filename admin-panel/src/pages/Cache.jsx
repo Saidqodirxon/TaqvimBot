@@ -93,9 +93,7 @@ function Cache() {
     try {
       setRefreshing(true);
       const response = await cache.clearAll();
-      alert(
-        `Tugadi! ${response.data.deletedCount} ta cache o'chirildi!`
-      );
+      alert(`Tugadi! ${response.data.deletedCount} ta cache o'chirildi!`);
       fetchCaches();
       fetchStats();
     } catch (error) {
