@@ -14,6 +14,8 @@ import Admins from "./pages/Admins";
 import Locations from "./pages/Locations";
 import MonthlyPrayerTimes from "./pages/MonthlyPrayerTimes";
 import Cache from "./pages/Cache";
+import Suggestions from "./pages/Suggestions";
+import GreetingLogs from "./pages/GreetingLogs";
 import Layout from "./components/Layout";
 
 function App() {
@@ -60,6 +62,8 @@ function App() {
           element={<MonthlyPrayerTimes />}
         />
         <Route path="/cache" element={<Cache />} />
+        <Route path="/suggestions" element={<Suggestions />} />
+        <Route path="/greeting-logs" element={<GreetingLogs />} />
         <Route path="/broadcast" element={<Broadcast />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="*" element={<Navigate to="/" replace />} />

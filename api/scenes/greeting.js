@@ -5,6 +5,7 @@ const {
   getMainMenuKeyboard,
 } = require("../utils/keyboards");
 const { saveGreeting } = require("../utils/database");
+const GreetingLog = require("../models/GreetingLog");
 
 // Greeting Scene - for sending greetings
 const greetingScene = new Scenes.BaseScene("greeting");
@@ -151,6 +152,15 @@ greetingScene.action("confirm", async (ctx) => {
       messageType: greetingData.type,
       fileId: greetingData.fileId || null,
       caption: greetingData.caption || null,
+      status: "pending",
+    });
+
+    // Log to GreetingLog
+    await GreetingLog.create({
+      userId: greetingData.userId,
+      text: greetingData.message || greetingData.caption || "",
+      mediaType: greetingData.type,
+      fileId: greetingData.fileId || null,
       status: "pending",
     });
 

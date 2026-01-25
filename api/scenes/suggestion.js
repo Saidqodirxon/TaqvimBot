@@ -1,6 +1,7 @@
 const { Scenes } = require("telegraf");
 const { t, getUserLanguage } = require("../utils/translator");
 const { getMainMenuKeyboard } = require("../utils/keyboards");
+const Suggestion = require("../models/Suggestion");
 
 // Suggestion Scene
 const suggestionScene = new Scenes.BaseScene("suggestion");
@@ -34,6 +35,13 @@ suggestionScene.on("text", async (ctx) => {
 
     const user = ctx.session.user;
     const lang = getUserLanguage(user);
+
+    // Save to database
+    await Suggestion.create({
+      userId: ctx.from.id,
+      text: suggestion,
+      status: "pending",
+    });
 
     // Send to admin
     const adminId = process.env.ADMIN_ID;

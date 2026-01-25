@@ -43,6 +43,7 @@ const {
   updateUserReminders,
 } = require("./utils/prayerReminders");
 const logger = require("./utils/logger");
+const { initErrorLogger, logError } = require("./utils/errorLogger");
 
 // Scenes
 const greetingScene = require("./scenes/greeting");
@@ -1051,8 +1052,12 @@ bot.hears("📊 Statistika", async (ctx) => {
 
 // ========== ERROR HANDLER ==========
 
-bot.catch((err, ctx) => {
+bot.catch(async (err, ctx) => {
   logger.error(`Error for ${ctx.updateType}:`, err);
+  
+  // Log to Telegram group
+  await logError(err, ctx, `Bot Error - ${ctx.updateType}`);
+  
   try {
     const user = ctx.session?.user;
     const lang = getUserLanguage(user);
@@ -1152,6 +1157,10 @@ async function startBot() {
         console.log(`📱 Bot username: @${botUser}`);
         console.log(`👨‍💼 Admin ID: ${adminId}`);
 
+        // Initialize error logger
+        initErrorLogger(bot);
+        console.log("✅ Error logger initialized");
+
         // Set default menu button for ALL users after bot starts
         console.log("\n🔧 Setting menu button...");
         try {
@@ -1187,6 +1196,22 @@ async function startBot() {
         } catch (menuError) {
           console.error("❌ Menu button error:", menuError.message);
           console.error("Full error:", menuError);
+          await logError(menuError, null, "Menu Button Setup");
+        }
+      })
+      .catch(async (launchError) => {
+        console.error("⚠️ Bot launch error:", launchError.message);
+        await logError(launchError, null, "Bot Launch");
+      });
+
+    console.log("\n🎉 Backend API va Bot tayyor!\n");
+  } catch (error) {
+    console.error("\n❌ Error starting bot:", error.message);
+    console.error("\n💡 Mumkin sabablari:");
+    console.error("   1. MongoDB ishlamayapti");
+    console.error("   2. .env fayl noto'g'ri to'ldirilgan");
+    console.error("   3. Internet ulanishi yo'q");
+    console.error("   4. BOT_TOKEN noto'g'ri\n");
 
     // Agar faqat bot ishlamasa ham, backend API ni ishga tushir
     console.log("⏭️ Trying to start Admin API anyway...");
@@ -1298,6 +1323,8 @@ async function startAdminAPI() {
   const locationsRoutes = require("./routes/admin/locations");
   const monthlyPrayerTimesRoutes = require("./routes/admin/monthlyPrayerTimes");
   const cacheRoutes = require("./routes/admin/cache");
+  const suggestionsRoutes = require("./routes/admin/suggestions");
+  const greetingLogsRoutes = require("./routes/admin/greetingLogs");
 
   app.use("/api/auth", authRoutes);
   app.use("/api/users", usersRoutes);
@@ -1313,6 +1340,8 @@ async function startAdminAPI() {
   app.use("/api/locations", locationsRoutes);
   app.use("/api/monthly-prayer-times", monthlyPrayerTimesRoutes);
   app.use("/api/cache", cacheRoutes);
+  app.use("/api/suggestions", suggestionsRoutes);
+  app.use("/api/greeting-logs", greetingLogsRoutes);
 
   // Health check
   app.get("/", (req, res) => {
