@@ -228,4 +228,59 @@ router.post("/prayers", authMiddleware, superAdminOnly, async (req, res) => {
     res.status(500).json({ error: "Server xatosi" });
   }
 });
+
+// Set cache settings
+router.post(
+  "/cache-settings",
+  authMiddleware,
+  superAdminOnly,
+  async (req, res) => {
+    try {
+      const { ttl, maxSize, autoClean } = req.body;
+      const cacheSettings = {
+        ttl: typeof ttl === "number" ? ttl : 86400, // 24 hours default
+        maxSize: typeof maxSize === "number" ? maxSize : 1000, // 1000 entries default
+        autoClean:
+          typeof autoClean === "boolean"
+            ? autoClean
+            : ((await Settings.getSetting("cache_settings"))?.autoClean ??
+              true),
+      };
+      await Settings.setSetting(
+        "cache_settings",
+        cacheSettings,
+        "Cache sozlamalari (TTL, max size, auto clean)"
+      );
+      res.json({ message: "Cache sozlamalari saqlandi", cacheSettings });
+    } catch (error) {
+      logger.error("Set cache settings error:", error);
+      res.status(500).json({ error: "Server xatosi" });
+    }
+  }
+);
+
+// Set log channel
+router.post(
+  "/log-channel",
+  authMiddleware,
+  superAdminOnly,
+  async (req, res) => {
+    try {
+      const { channelId } = req.body;
+      if (!channelId) {
+        return res.status(400).json({ error: "channelId kerak" });
+      }
+      await Settings.setSetting(
+        "log_channel",
+        channelId,
+        "Log kanali (error va event loglar)"
+      );
+      res.json({ message: "Log kanali o'rnatildi", channelId });
+    } catch (error) {
+      logger.error("Set log channel error:", error);
+      res.status(500).json({ error: "Server xatosi" });
+    }
+  }
+);
+
 module.exports = router;

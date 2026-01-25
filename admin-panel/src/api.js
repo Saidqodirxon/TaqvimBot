@@ -60,6 +60,10 @@ export const settings = {
     }),
   setGreetingChannel: (channelId) =>
     api.post("/settings/greeting-channel", { channelId }),
+  setLogChannel: (channelId) =>
+    api.post("/settings/log-channel", { channelId }),
+  setCacheSettings: (cacheSettings) =>
+    api.post("/settings/cache-settings", cacheSettings),
   setReminderSettings: (reminderSettings) =>
     api.post("/settings/reminder-settings", reminderSettings),
   setAboutBot: (aboutText) => api.post("/settings/about-text", { aboutText }),

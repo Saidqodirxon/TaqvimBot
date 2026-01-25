@@ -1111,6 +1111,16 @@ async function startBot() {
         description: "Tabrik yuboriladi kanal",
       },
       {
+        key: "log_channel",
+        value: null,
+        description: "Log kanali (error va event loglar)",
+      },
+      {
+        key: "cache_settings",
+        value: { ttl: 86400, maxSize: 1000, autoClean: true },
+        description: "Cache sozlamalari (TTL, max size, auto clean)",
+      },
+      {
         key: "about_bot_text",
         value: null,
         description: "Bot haqida matn (uz, cr, ru)",
