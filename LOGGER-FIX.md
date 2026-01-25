@@ -24,7 +24,7 @@ error(message, error = null) {
   } else {
     console.error(message);
   }
-  
+
   // Critical errors send to Telegram
   if (error && error.stack && this.enabled) {
     this.logError(error, message).catch(() => {});
@@ -143,11 +143,13 @@ await logger.logError(error, "Context information");
 ## Scripts
 
 ### quick-restart.sh
+
 - Tez restart qilish
 - Logs ko'rsatish
 - Status tekshirish
 
 ### deploy.sh
+
 - Git pull
 - Dependencies install
 - Build frontend
@@ -155,6 +157,7 @@ await logger.logError(error, "Context information");
 - Status ko'rsatish
 
 ### cleanup-production.sh
+
 - Keraksiz fayllarni o'chirish
 - Production optimization
 
@@ -188,12 +191,14 @@ pm2 plus
 ## Troubleshooting
 
 ### Bot ishlamayapti
+
 ```bash
 pm2 logs ramazonbot  # Error log ko'rish
 pm2 restart ramazonbot  # Restart
 ```
 
 ### Database connection error
+
 ```bash
 # Check MongoDB
 systemctl status mongod
@@ -202,6 +207,7 @@ systemctl restart mongod
 ```
 
 ### Port already in use
+
 ```bash
 # Find process
 lsof -i :3001
