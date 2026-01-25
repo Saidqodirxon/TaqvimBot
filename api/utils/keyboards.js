@@ -189,7 +189,9 @@ async function getCalendarViewKeyboard(lang = "uz") {
     ]);
   }
 
-  buttons.push([Markup.button.callback(await t(lang, "btn_back"), "back_main")]);
+  buttons.push([
+    Markup.button.callback(await t(lang, "btn_back"), "back_main"),
+  ]);
 
   return Markup.inlineKeyboard(buttons);
 }

@@ -300,7 +300,12 @@ bot.hears(/⏰/, async (ctx) => {
     });
 
     const keyboard = Markup.inlineKeyboard([
-      [Markup.button.callback(await t(lang, "btn_refresh"), "refresh_countdown")],
+      [
+        Markup.button.callback(
+          await t(lang, "btn_refresh"),
+          "refresh_countdown"
+        ),
+      ],
     ]);
 
     await ctx.reply(message, keyboard);
@@ -507,7 +512,12 @@ bot.action("refresh_countdown", async (ctx) => {
     });
 
     const keyboard = Markup.inlineKeyboard([
-      [Markup.button.callback(await t(lang, "btn_refresh"), "refresh_countdown")],
+      [
+        Markup.button.callback(
+          await t(lang, "btn_refresh"),
+          "refresh_countdown"
+        ),
+      ],
     ]);
 
     await ctx.editMessageText(message, keyboard);
@@ -691,16 +701,21 @@ bot.action("calendar_daily", async (ctx) => {
     const nextPrayer = getNextPrayer(prayerData.timings);
 
     let message =
-      await t(lang, "calendar_daily_title") +
+      (await t(lang, "calendar_daily_title")) +
       `\n📍 ${locationName}\n📅 ${prayerData.date}\n📿 ${prayerData.hijri}\n\n`;
-    message += await t(lang, "prayer_fajr", { time: prayerData.timings.fajr }) + "\n";
     message +=
-      await t(lang, "prayer_sunrise", { time: prayerData.timings.sunrise }) + "\n";
+      (await t(lang, "prayer_fajr", { time: prayerData.timings.fajr })) + "\n";
     message +=
-      await t(lang, "prayer_dhuhr", { time: prayerData.timings.dhuhr }) + "\n";
-    message += await t(lang, "prayer_asr", { time: prayerData.timings.asr }) + "\n";
+      (await t(lang, "prayer_sunrise", { time: prayerData.timings.sunrise })) +
+      "\n";
     message +=
-      await t(lang, "prayer_maghrib", { time: prayerData.timings.maghrib }) + "\n";
+      (await t(lang, "prayer_dhuhr", { time: prayerData.timings.dhuhr })) +
+      "\n";
+    message +=
+      (await t(lang, "prayer_asr", { time: prayerData.timings.asr })) + "\n";
+    message +=
+      (await t(lang, "prayer_maghrib", { time: prayerData.timings.maghrib })) +
+      "\n";
     message += await t(lang, "prayer_isha", { time: prayerData.timings.isha });
 
     if (nextPrayer) {
@@ -748,7 +763,8 @@ bot.action("calendar_weekly", async (ctx) => {
     const latitudeAdjustment = user.prayerSettings?.latitudeAdjustment || 1;
 
     const moment = require("moment-timezone");
-    let message = await t(lang, "calendar_weekly_title") + `\n📍 ${locationName}\n\n`;
+    let message =
+      (await t(lang, "calendar_weekly_title")) + `\n📍 ${locationName}\n\n`;
 
     // Week day names
     const weekDays = {
@@ -924,7 +940,7 @@ bot.action("open_reminder_settings", async (ctx) => {
       minutesBefore: 15,
     };
     const message =
-      await t(lang, "reminder_settings") +
+      (await t(lang, "reminder_settings")) +
       `\n\n${reminderSettings.enabled ? "✅" : "❌"} ${
         reminderSettings.enabled
           ? await t(lang, "reminder_enabled")
@@ -960,7 +976,7 @@ bot.action("toggle_reminders", async (ctx) => {
     ctx.session.user.reminderSettings = newSettings;
 
     const message =
-      await t(lang, "reminder_settings") +
+      (await t(lang, "reminder_settings")) +
       `\n\n${newSettings.enabled ? "✅" : "❌"} ${
         newSettings.enabled
           ? await t(lang, "reminder_enabled")
@@ -998,7 +1014,7 @@ bot.action(/reminder_time_(\d+)/, async (ctx) => {
     await ctx.answerCbQuery(await t(lang, "reminder_updated"));
 
     const message =
-      await t(lang, "reminder_settings") +
+      (await t(lang, "reminder_settings")) +
       `\n\n${newSettings.enabled ? "✅" : "❌"} ${
         newSettings.enabled
           ? await t(lang, "reminder_enabled")
