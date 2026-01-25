@@ -91,4 +91,16 @@ export const locations = {
   getPublic: () => api.get("/locations/public/list"),
 };
 
+// Cache
+export const cache = {
+  getStats: () => api.get("/cache/stats"),
+  getAll: (page = 1, limit = 20) =>
+    api.get("/cache", { params: { page, limit } }),
+  refresh: (latitude, longitude, method, school) =>
+    api.post("/cache/refresh", { latitude, longitude, method, school }),
+  delete: (id) => api.delete(`/cache/${id}`),
+  clearExpired: () => api.post("/cache/clear-expired"),
+  clearAll: () => api.post("/cache/clear-all"),
+};
+
 export default api;

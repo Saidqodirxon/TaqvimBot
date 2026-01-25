@@ -1,8 +1,6 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
+import { cache } from "../api";
 import "./Cache.css";
-
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
 function Cache() {
   const [caches, setCaches] = useState([]);
@@ -19,10 +17,7 @@ function Cache() {
 
   const fetchStats = async () => {
     try {
-      const token = localStorage.getItem("adminToken");
-      const response = await axios.get(`${API_BASE}/api/cache/stats`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await cache.getStats();
       setStats(response.data);
     } catch (error) {
       console.error("Error fetching stats:", error);
@@ -32,11 +27,7 @@ function Cache() {
   const fetchCaches = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem("adminToken");
-      const response = await axios.get(`${API_BASE}/api/cache`, {
-        params: { page, limit: 20 },
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await cache.getAll(page, 20);
       setCaches(response.data.caches);
       setPagination(response.data.pagination);
     } catch (error) {
@@ -50,12 +41,7 @@ function Cache() {
   const handleRefresh = async (latitude, longitude) => {
     try {
       setRefreshing(true);
-      const token = localStorage.getItem("adminToken");
-      await axios.post(
-        `${API_BASE}/api/cache/refresh`,
-        { latitude, longitude },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      await cache.refresh(latitude, longitude, 1, 1);
       alert("Cache yangilandi!");
       fetchCaches();
       fetchStats();
@@ -71,10 +57,7 @@ function Cache() {
     if (!confirm("Rostdan ham o'chirmoqchimisiz?")) return;
 
     try {
-      const token = localStorage.getItem("adminToken");
-      await axios.delete(`${API_BASE}/api/cache/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await cache.delete(id);
       alert("Cache o'chirildi!");
       fetchCaches();
       fetchStats();
@@ -89,12 +72,7 @@ function Cache() {
       return;
 
     try {
-      const token = localStorage.getItem("adminToken");
-      const response = await axios.post(
-        `${API_BASE}/api/cache/clear-expired`,
-        {},
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      const response = await cache.clearExpired();
       alert(`${response.data.deletedCount} ta cache o'chirildi!`);
       fetchCaches();
       fetchStats();
@@ -107,26 +85,21 @@ function Cache() {
   const handleBulkRefresh = async () => {
     if (
       !confirm(
-        "Barcha joylashuvlar uchun cache'ni yangilamoqchimisiz? Bu biroz vaqt olishi mumkin."
+        "Barcha cache'ni o'chirmoqchimisiz? Bu barcha saqlangan ma'lumotlarni tozalaydi."
       )
     )
       return;
 
     try {
       setRefreshing(true);
-      const token = localStorage.getItem("adminToken");
-      const response = await axios.post(
-        `${API_BASE}/api/cache/bulk-refresh`,
-        {},
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      const response = await cache.clearAll();
       alert(
-        `Tugadi!\nMuvaffaqiyatli: ${response.data.success}\nXato: ${response.data.failed}`
+        `Tugadi! ${response.data.deletedCount} ta cache o'chirildi!`
       );
       fetchCaches();
       fetchStats();
     } catch (error) {
-      console.error("Error bulk refresh:", error);
+      console.error("Error clearing all:", error);
       alert("Xatolik: " + error.message);
     } finally {
       setRefreshing(false);
