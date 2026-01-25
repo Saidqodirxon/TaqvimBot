@@ -24,24 +24,12 @@ function getLanguageKeyboard(showBack = false) {
  * Create main menu keyboard based on user language
  */
 function getMainMenuKeyboard(lang = "uz") {
-  const webAppUrl = process.env.MINI_APP_URL;
-  const buttons = [];
-
-  // Only show WebApp button if HTTPS URL is configured
-  if (webAppUrl && webAppUrl.startsWith("https://")) {
-    buttons.push([
-      Markup.button.webApp(t(lang, "btn_calendar_webapp"), webAppUrl),
-      t(lang, "btn_send_greeting"),
-    ]);
-  } else {
-    buttons.push([t(lang, "btn_calendar"), t(lang, "btn_send_greeting")]);
-  }
-
-  buttons.push(
+  const buttons = [
+    [t(lang, "btn_calendar"), t(lang, "btn_send_greeting")],
     [t(lang, "btn_prayers"), t(lang, "btn_ramadan_countdown")],
     [t(lang, "btn_settings"), t(lang, "btn_suggest")],
-    [t(lang, "btn_about")]
-  );
+    [t(lang, "btn_about")],
+  ];
 
   return Markup.keyboard(buttons).resize().persistent(true);
 }
@@ -171,17 +159,28 @@ function getRefreshKeyboard(lang = "uz") {
 }
 
 /**
- * Create calendar view selection keyboard (daily/weekly)
+ * Create calendar view selection keyboard (daily/weekly/webapp)
  */
 function getCalendarViewKeyboard(lang = "uz") {
-  return Markup.inlineKeyboard([
+  const webAppUrl = process.env.MINI_APP_URL;
+  const buttons = [
     [
       Markup.button.callback(t(lang, "btn_daily"), "calendar_daily"),
       Markup.button.callback(t(lang, "btn_weekly"), "calendar_weekly"),
     ],
     [Markup.button.callback(t(lang, "btn_qibla"), "show_qibla")],
-    [Markup.button.callback(t(lang, "btn_back"), "back_main")],
-  ]);
+  ];
+
+  // Add WebApp button if HTTPS URL is configured
+  if (webAppUrl && webAppUrl.startsWith("https://")) {
+    buttons.push([
+      Markup.button.webApp("📱 " + t(lang, "btn_calendar_webapp"), webAppUrl),
+    ]);
+  }
+
+  buttons.push([Markup.button.callback(t(lang, "btn_back"), "back_main")]);
+
+  return Markup.inlineKeyboard(buttons);
 }
 
 /**

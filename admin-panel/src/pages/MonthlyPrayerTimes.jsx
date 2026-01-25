@@ -55,12 +55,9 @@ const MonthlyPrayerTimes = () => {
   const fetchLocation = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.get(
-        `${API_URL}/locations/${locationId}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      const response = await axios.get(`${API_URL}/locations/${locationId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       setLocation(response.data);
     } catch (error) {
       console.error("Error fetching location:", error);

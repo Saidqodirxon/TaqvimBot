@@ -1,3 +1,4 @@
+const logger = require("../../utils/logger");
 const express = require("express");
 const router = express.Router();
 const Location = require("../../models/Location");
@@ -11,7 +12,7 @@ router.get("/", async (req, res) => {
     const locations = await Location.find({ isActive: true }).sort({ name: 1 });
     res.json(locations);
   } catch (error) {
-    console.error("Error fetching locations:", error);
+    logger.error("Error fetching locations:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
@@ -29,7 +30,7 @@ router.get("/:id", async (req, res) => {
 
     res.json(location);
   } catch (error) {
-    console.error("Error fetching location:", error);
+    logger.error("Error fetching location:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
@@ -87,7 +88,7 @@ router.post("/", async (req, res) => {
 
     res.status(201).json(location);
   } catch (error) {
-    console.error("Error creating location:", error);
+    logger.error("Error creating location:", error);
     await logger.logError(error, "Location creation failed");
     res.status(500).json({ error: "Internal server error" });
   }
@@ -128,7 +129,7 @@ router.put("/:id", async (req, res) => {
 
     res.json(location);
   } catch (error) {
-    console.error("Error updating location:", error);
+    logger.error("Error updating location:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
@@ -156,7 +157,7 @@ router.delete("/:id", async (req, res) => {
 
     res.json({ success: true, message: "Location deleted" });
   } catch (error) {
-    console.error("Error deleting location:", error);
+    logger.error("Error deleting location:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
@@ -172,7 +173,7 @@ router.get("/public/list", async (req, res) => {
 
     res.json(locations);
   } catch (error) {
-    console.error("Error fetching public locations:", error);
+    logger.error("Error fetching public locations:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });

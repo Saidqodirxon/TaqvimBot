@@ -1,3 +1,4 @@
+const logger = require("../../utils/logger");
 const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcrypt");
@@ -47,7 +48,7 @@ router.post("/login", async (req, res) => {
       },
     });
   } catch (error) {
-    console.error("Login error:", error);
+    logger.error("Login error:", error);
     res.status(500).json({ error: "Server xatosi" });
   }
 });
@@ -88,7 +89,7 @@ router.post("/register", async (req, res) => {
       },
     });
   } catch (error) {
-    console.error("Register error:", error);
+    logger.error("Register error:", error);
     res.status(500).json({ error: "Server xatosi" });
   }
 });

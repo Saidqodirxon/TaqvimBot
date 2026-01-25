@@ -1,3 +1,4 @@
+const logger = require("../../utils/logger");
 const express = require("express");
 const router = express.Router();
 const { authMiddleware } = require("../../middleware/adminAuth");
@@ -63,7 +64,7 @@ router.get("/", authMiddleware, async (req, res) => {
       },
     });
   } catch (error) {
-    console.error("Get stats error:", error);
+    logger.error("Get stats error:", error);
 
     if (error.message && error.message.includes("timed out")) {
       return res
@@ -109,7 +110,7 @@ router.get("/growth", authMiddleware, async (req, res) => {
 
     res.json({ growth });
   } catch (error) {
-    console.error("Get growth error:", error);
+    logger.error("Get growth error:", error);
 
     if (error.message && error.message.includes("timed out")) {
       return res.status(408).json({ error: "Query timeout" });

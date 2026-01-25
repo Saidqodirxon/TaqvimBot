@@ -1,3 +1,4 @@
+const logger = require("../../utils/logger");
 const express = require("express");
 const router = express.Router();
 const {
@@ -12,7 +13,7 @@ router.get("/", authMiddleware, async (req, res) => {
     const prayers = await Prayer.find().sort({ order: 1 });
     res.json({ prayers });
   } catch (error) {
-    console.error("Get prayers error:", error);
+    logger.error("Get prayers error:", error);
     res.status(500).json({ error: "Server xatosi" });
   }
 });
@@ -28,7 +29,7 @@ router.get("/:id", authMiddleware, async (req, res) => {
 
     res.json({ prayer });
   } catch (error) {
-    console.error("Get prayer error:", error);
+    logger.error("Get prayer error:", error);
     res.status(500).json({ error: "Server xatosi" });
   }
 });
@@ -52,7 +53,7 @@ router.post("/", authMiddleware, superAdminOnly, async (req, res) => {
       prayer,
     });
   } catch (error) {
-    console.error("Create prayer error:", error);
+    logger.error("Create prayer error:", error);
     res.status(500).json({ error: "Server xatosi" });
   }
 });
@@ -82,7 +83,7 @@ router.put("/:id", authMiddleware, superAdminOnly, async (req, res) => {
       prayer,
     });
   } catch (error) {
-    console.error("Update prayer error:", error);
+    logger.error("Update prayer error:", error);
     res.status(500).json({ error: "Server xatosi" });
   }
 });
@@ -98,7 +99,7 @@ router.delete("/:id", authMiddleware, superAdminOnly, async (req, res) => {
 
     res.json({ message: "Dua o'chirildi" });
   } catch (error) {
-    console.error("Delete prayer error:", error);
+    logger.error("Delete prayer error:", error);
     res.status(500).json({ error: "Server xatosi" });
   }
 });

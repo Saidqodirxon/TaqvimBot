@@ -1,3 +1,4 @@
+const logger = require("../../utils/logger");
 const express = require("express");
 const router = express.Router();
 const Settings = require("../../models/Settings");
@@ -23,7 +24,7 @@ router.get("/", async (req, res) => {
       availableSchools: SCHOOLS,
     });
   } catch (error) {
-    console.error("Error fetching prayer defaults:", error);
+    logger.error("Error fetching prayer defaults:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
@@ -64,7 +65,7 @@ router.post("/", async (req, res) => {
       defaults,
     });
   } catch (error) {
-    console.error("Error updating prayer defaults:", error);
+    logger.error("Error updating prayer defaults:", error);
     await logger.logError(error, "Prayer defaults update failed");
     res.status(500).json({ error: "Internal server error" });
   }

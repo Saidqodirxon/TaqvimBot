@@ -2,7 +2,17 @@ import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { API_URL } from "../api";
-import { Save, BookOpen, Plus, Trash2, Edit2, MoveUp, MoveDown, Eye, EyeOff } from "lucide-react";
+import {
+  Save,
+  BookOpen,
+  Plus,
+  Trash2,
+  Edit2,
+  MoveUp,
+  MoveDown,
+  Eye,
+  EyeOff,
+} from "lucide-react";
 import "./Prayers.css";
 
 // using global API_URL from src/api.js
@@ -41,7 +51,7 @@ function Prayers() {
   const saveMutation = useMutation({
     mutationFn: async () => {
       const token = localStorage.getItem("token");
-      
+
       if (editingId) {
         // Update
         await axios.put(`${API_URL}/prayers/${editingId}`, editForm, {
@@ -264,8 +274,8 @@ function Prayers() {
               {saveMutation.isLoading
                 ? "Saqlanmoqda..."
                 : editingId
-                ? "Yangilash"
-                : "Qo'shish"}
+                  ? "Yangilash"
+                  : "Qo'shish"}
             </button>
 
             {editingId && (
@@ -354,25 +364,29 @@ function Prayers() {
         <h4>📋 Duolar haqida:</h4>
         <ul>
           <li>
-            <strong>Dinamik:</strong> Duolarni istalgan vaqt qo'shish, tahrirlash va o'chirishingiz mumkin
+            <strong>Dinamik:</strong> Duolarni istalgan vaqt qo'shish,
+            tahrirlash va o'chirishingiz mumkin
           </li>
           <li>
-            <strong>3 tilda:</strong> Har bir dua uchun 3 tilda nom va matn kiriting
+            <strong>3 tilda:</strong> Har bir dua uchun 3 tilda nom va matn
+            kiriting
           </li>
           <li>
-            <strong>Tartib:</strong> Order raqami bilan duolar tartibini belgilang
+            <strong>Tartib:</strong> Order raqami bilan duolar tartibini
+            belgilang
           </li>
           <li>
-            <strong>Faol/Nofaol:</strong> Duani vaqtincha yashirish uchun nofaol qiling
+            <strong>Faol/Nofaol:</strong> Duani vaqtincha yashirish uchun nofaol
+            qiling
           </li>
           <li>
-            <strong>HTML format:</strong> Matnda &lt;b&gt;, &lt;i&gt;, &lt;code&gt; taglaridan foydalanishingiz mumkin
+            <strong>HTML format:</strong> Matnda &lt;b&gt;, &lt;i&gt;,
+            &lt;code&gt; taglaridan foydalanishingiz mumkin
           </li>
         </ul>
       </div>
     </div>
   );
 }
-
 
 export default Prayers;

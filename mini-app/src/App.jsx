@@ -42,9 +42,9 @@ function App() {
     if (initDataUnsafe && initDataUnsafe.user) {
       fetchUserData(initDataUnsafe.user.id);
     } else {
-      // For testing without Telegram
-      console.log("Running in dev mode");
-      fetchUserData(1551855614); // Test user ID
+      // No Telegram user data available
+      setError("Telegram user data not found. Please open this app from Telegram.");
+      setLoading(false);
     }
   }, []);
 

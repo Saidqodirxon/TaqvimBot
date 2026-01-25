@@ -1,3 +1,4 @@
+const logger = require("../../utils/logger");
 const express = require("express");
 const router = express.Router();
 const Admin = require("../../models/Admin");
@@ -11,7 +12,7 @@ router.get("/", async (req, res) => {
     const admins = await Admin.find({ isActive: true }).sort({ createdAt: -1 });
     res.json(admins);
   } catch (error) {
-    console.error("Error fetching admins:", error);
+    logger.error("Error fetching admins:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
@@ -32,7 +33,7 @@ router.get("/:userId", async (req, res) => {
 
     res.json(admin);
   } catch (error) {
-    console.error("Error fetching admin:", error);
+    logger.error("Error fetching admin:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
@@ -73,7 +74,7 @@ router.post("/", async (req, res) => {
 
     res.status(201).json(admin);
   } catch (error) {
-    console.error("Error creating admin:", error);
+    logger.error("Error creating admin:", error);
     await logger.logError(error, "Admin creation failed");
     res.status(500).json({ error: "Internal server error" });
   }
@@ -107,7 +108,7 @@ router.put("/:userId", async (req, res) => {
 
     res.json(admin);
   } catch (error) {
-    console.error("Error updating admin:", error);
+    logger.error("Error updating admin:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
@@ -140,7 +141,7 @@ router.delete("/:userId", async (req, res) => {
 
     res.json({ success: true, message: "Admin deleted" });
   } catch (error) {
-    console.error("Error deleting admin:", error);
+    logger.error("Error deleting admin:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
@@ -164,7 +165,7 @@ router.get("/:userId/permissions", async (req, res) => {
       permissions: admin.permissions,
     });
   } catch (error) {
-    console.error("Error fetching permissions:", error);
+    logger.error("Error fetching permissions:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });

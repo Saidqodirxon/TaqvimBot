@@ -87,7 +87,7 @@ bot.use(async (ctx, next) => {
     }
     await next();
   } catch (error) {
-    console.error("Error in middleware:", error);
+    logger.error("Middleware error", error);
   }
 });
 
@@ -177,7 +177,7 @@ bot.command("start", async (ctx) => {
       ...getMainMenuKeyboard(lang),
     });
   } catch (error) {
-    console.error("Error in start command:", error);
+    logger.error("Start command error", error);
   }
 });
 
@@ -212,7 +212,7 @@ bot.action("lang_uz", async (ctx) => {
       ...getMainMenuKeyboard("uz"),
     });
   } catch (error) {
-    console.error("Error setting language uz:", error);
+    logger.error("Language change error", error);
   }
 });
 
@@ -227,7 +227,7 @@ bot.action("lang_cr", async (ctx) => {
       ...getMainMenuKeyboard("cr"),
     });
   } catch (error) {
-    console.error("Error setting language cr:", error);
+    logger.error("Language change error", error);
   }
 });
 
@@ -242,7 +242,7 @@ bot.action("lang_ru", async (ctx) => {
       ...getMainMenuKeyboard("ru"),
     });
   } catch (error) {
-    console.error("Error setting language ru:", error);
+    logger.error("Language change error", error);
   }
 });
 
@@ -273,7 +273,7 @@ bot.hears(/📅/, async (ctx) => {
 
     await ctx.reply(t(lang, "calendar_title"), getCalendarViewKeyboard(lang));
   } catch (error) {
-    console.error("Error in calendar handler:", error);
+    logger.error("Calendar handler error", error);
     const lang = getUserLanguage(ctx.session.user);
     ctx.reply(t(lang, "error_try_again"));
   }
@@ -314,7 +314,7 @@ bot.hears(/⏰/, async (ctx) => {
 
     await ctx.reply(message, keyboard);
   } catch (error) {
-    console.error("Error in countdown handler:", error);
+    logger.error("Countdown handler error", error);
   }
 });
 
@@ -366,7 +366,7 @@ bot.hears(/🤲/, async (ctx) => {
 
     await ctx.reply(t(lang, "prayers_select"), keyboard);
   } catch (error) {
-    console.error("Error in prayers handler:", error);
+    logger.error("Prayers handler error", error);
   }
 });
 
@@ -397,7 +397,7 @@ bot.hears(/ℹ️/, async (ctx) => {
 
     await ctx.reply(message, keyboard);
   } catch (error) {
-    console.error("Error in about handler:", error);
+    logger.error("About handler error", error);
   }
 });
 
@@ -415,7 +415,7 @@ bot.action("open_settings", async (ctx) => {
 
     await ctx.editMessageText(message, getSettingsInlineKeyboard(lang));
   } catch (error) {
-    console.error("Error in open_settings:", error);
+    logger.error("Open settings error", error);
   }
 });
 
@@ -431,7 +431,7 @@ bot.action("change_lang", async (ctx) => {
       getLanguageKeyboard(true)
     );
   } catch (error) {
-    console.error("Error in change_lang:", error);
+    logger.error("Change lang error", error);
   }
 });
 
@@ -443,7 +443,7 @@ bot.action("change_location", async (ctx) => {
     await ctx.answerCbQuery();
     await ctx.scene.enter("location");
   } catch (error) {
-    console.error("Error in change_location:", error);
+    logger.error("Change location error", error);
   }
 });
 
@@ -475,7 +475,7 @@ bot.action("back_to_about", async (ctx) => {
 
     await ctx.editMessageText(message, keyboard);
   } catch (error) {
-    console.error("Error in back_to_about:", error);
+    logger.error("Back to about error", error);
   }
 });
 
@@ -508,7 +508,7 @@ bot.action("refresh_countdown", async (ctx) => {
 
     await ctx.editMessageText(message, keyboard);
   } catch (error) {
-    console.error("Error in refresh_countdown:", error);
+    logger.error("Refresh countdown error", error);
   }
 });
 
@@ -549,7 +549,7 @@ bot.action(/prayer_(.+)/, async (ctx) => {
       },
     });
   } catch (error) {
-    console.error("Error in prayer action:", error);
+    logger.error("Prayer action error", error);
   }
 });
 
@@ -585,7 +585,7 @@ bot.action(/prayers_(uz|cr|ru)/, async (ctx) => {
       },
     });
   } catch (error) {
-    console.error("Error in prayers action:", error);
+    logger.error("Prayers action error", error);
   }
 });
 
@@ -617,7 +617,7 @@ bot.action("back_to_prayers_list", async (ctx) => {
 
     await ctx.editMessageText(t(lang, "prayers_select"), keyboard);
   } catch (error) {
-    console.error("Error in back_to_prayers_list:", error);
+    logger.error("Error in back_to_prayers_list:", error);
   }
 });
 
@@ -629,7 +629,7 @@ bot.action("close_prayers", async (ctx) => {
     await ctx.answerCbQuery();
     await ctx.deleteMessage();
   } catch (error) {
-    console.error("Error in close_prayers:", error);
+    logger.error("Error in close_prayers:", error);
   }
 });
 
@@ -641,13 +641,13 @@ bot.action("back_to_settings", async (ctx) => {
     await ctx.answerCbQuery();
     await ctx.scene.enter("settings");
   } catch (error) {
-    console.error("Error in back_to_settings:", error);
+    logger.error("Error in back_to_settings:", error);
     // Fallback - show main menu
     try {
       const lang = getUserLanguage(ctx.session.user);
       await ctx.editMessageText(t(lang, "main_menu"));
     } catch (e) {
-      console.error("Failed to show main menu:", e);
+      logger.error("Failed to show main menu:", e);
     }
   }
 });
@@ -720,7 +720,7 @@ bot.action("calendar_daily", async (ctx) => {
       },
     });
   } catch (error) {
-    console.error("Error in calendar_daily:", error);
+    logger.error("Error in calendar_daily:", error);
   }
 });
 
@@ -778,7 +778,7 @@ bot.action("calendar_weekly", async (ctx) => {
       },
     });
   } catch (error) {
-    console.error("Error in calendar_weekly:", error);
+    logger.error("Error in calendar_weekly:", error);
   }
 });
 
@@ -844,7 +844,7 @@ bot.action("show_qibla", async (ctx) => {
       },
     });
   } catch (error) {
-    console.error("Error in show_qibla:", error);
+    logger.error("Error in show_qibla:", error);
   }
 });
 
@@ -868,7 +868,7 @@ bot.action("open_location_settings", async (ctx) => {
 
     await ctx.editMessageText(message, getLocationSettingsKeyboard(lang));
   } catch (error) {
-    console.error("Error in open_location_settings:", error);
+    logger.error("Error in open_location_settings:", error);
   }
 });
 
@@ -898,7 +898,7 @@ bot.action("open_reminder_settings", async (ctx) => {
       getReminderSettingsKeyboard(lang, reminderSettings)
     );
   } catch (error) {
-    console.error("Error in open_reminder_settings:", error);
+    logger.error("Error in open_reminder_settings:", error);
   }
 });
 
@@ -934,7 +934,7 @@ bot.action("toggle_reminders", async (ctx) => {
       getReminderSettingsKeyboard(lang, newSettings)
     );
   } catch (error) {
-    console.error("Error in toggle_reminders:", error);
+    logger.error("Error in toggle_reminders:", error);
   }
 });
 
@@ -972,7 +972,7 @@ bot.action(/reminder_time_(\d+)/, async (ctx) => {
       getReminderSettingsKeyboard(lang, newSettings)
     );
   } catch (error) {
-    console.error("Error in reminder_time:", error);
+    logger.error("Error in reminder_time:", error);
   }
 });
 
@@ -988,7 +988,7 @@ bot.action("back_to_calendar_view", async (ctx) => {
       getCalendarViewKeyboard(lang)
     );
   } catch (error) {
-    console.error("Error in back_to_calendar_view:", error);
+    logger.error("Error in back_to_calendar_view:", error);
   }
 });
 
@@ -1000,7 +1000,7 @@ bot.action("back_main", async (ctx) => {
     await ctx.answerCbQuery();
     await ctx.deleteMessage();
   } catch (error) {
-    console.error("Error in back_main:", error);
+    logger.error("Error in back_main:", error);
   }
 });
 
@@ -1024,7 +1024,7 @@ bot.on("contact", async (ctx) => {
 
     await ctx.reply(t(lang, "phone_saved"), getMainMenuKeyboard(lang));
   } catch (error) {
-    console.error("Error saving phone number:", error);
+    logger.error("Error saving phone number:", error);
   }
 });
 
@@ -1045,20 +1045,20 @@ bot.hears("📊 Statistika", async (ctx) => {
 
     await ctx.reply(message);
   } catch (error) {
-    console.error("Error in stats handler:", error);
+    logger.error("Error in stats handler:", error);
   }
 });
 
 // ========== ERROR HANDLER ==========
 
 bot.catch((err, ctx) => {
-  console.error(`Error for ${ctx.updateType}:`, err);
+  logger.error(`Error for ${ctx.updateType}:`, err);
   try {
     const user = ctx.session?.user;
     const lang = getUserLanguage(user);
     ctx.reply(t(lang, "error_try_again"));
   } catch (e) {
-    console.error("Error sending error message:", e);
+    logger.error("Error sending error message:", e);
   }
 });
 
@@ -1153,17 +1153,17 @@ async function startBot() {
         console.log(`👨‍💼 Admin ID: ${adminId}`);
       })
       .catch((launchError) => {
-        console.error("⚠️ Bot launch error:", launchError.message);
+        logger.error("⚠️ Bot launch error:", launchError.message);
       });
 
     console.log("\n🎉 Backend API va Bot tayyor!\n");
   } catch (error) {
-    console.error("\n❌ Error starting bot:", error.message);
-    console.error("\n💡 Mumkin sabablari:");
-    console.error("   1. MongoDB ishlamayapti");
-    console.error("   2. .env fayl noto'g'ri to'ldirilgan");
-    console.error("   3. Internet ulanishi yo'q");
-    console.error("   4. BOT_TOKEN noto'g'ri\n");
+    logger.error("\n❌ Error starting bot:", error.message);
+    logger.error("\n💡 Mumkin sabablari:");
+    logger.error("   1. MongoDB ishlamayapti");
+    logger.error("   2. .env fayl noto'g'ri to'ldirilgan");
+    logger.error("   3. Internet ulanishi yo'q");
+    logger.error("   4. BOT_TOKEN noto'g'ri\n");
 
     // Agar faqat bot ishlamasa ham, backend API ni ishga tushir
     console.log("⏭️ Trying to start Admin API anyway...");
@@ -1171,7 +1171,7 @@ async function startBot() {
       await startAdminAPI();
       console.log("\n✅ Admin API ishga tushdi!\n");
     } catch (apiError) {
-      console.error("❌ Admin API error:", apiError.message);
+      logger.error("❌ Admin API error:", apiError.message);
       process.exit(1);
     }
   }
@@ -1289,7 +1289,7 @@ async function startAdminAPI() {
 
   // Error handler
   app.use((err, req, res, next) => {
-    console.error("❌ API Error:", err.message);
+    logger.error("❌ API Error:", err.message);
     res.status(500).json({ error: err.message || "Internal Server Error" });
   });
 

@@ -1,3 +1,4 @@
+const logger = require("../../utils/logger");
 const express = require("express");
 const router = express.Router();
 const {
@@ -23,7 +24,7 @@ router.get("/stats", authMiddleware, async (req, res) => {
       estimate,
     });
   } catch (error) {
-    console.error("Get broadcast stats error:", error);
+    logger.error("Get broadcast stats error:", error);
     res.status(500).json({ error: "Server xatosi" });
   }
 });
@@ -40,7 +41,7 @@ router.get("/job/:jobId", authMiddleware, async (req, res) => {
 
     res.json({ job });
   } catch (error) {
-    console.error("Get job status error:", error);
+    logger.error("Get job status error:", error);
     res.status(500).json({ error: "Server xatosi" });
   }
 });
@@ -81,7 +82,7 @@ router.post("/send", authMiddleware, superAdminOnly, async (req, res) => {
       result,
     });
   } catch (error) {
-    console.error("Broadcast send error:", error);
+    logger.error("Broadcast send error:", error);
     await logger.logError(error, "Broadcast send failed");
     res.status(500).json({ error: error.message || "Server xatosi" });
   }

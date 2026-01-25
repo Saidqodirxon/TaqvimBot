@@ -1,3 +1,4 @@
+const logger = require("../../utils/logger");
 const express = require("express");
 const router = express.Router();
 const MonthlyPrayerTime = require("../../models/MonthlyPrayerTime");

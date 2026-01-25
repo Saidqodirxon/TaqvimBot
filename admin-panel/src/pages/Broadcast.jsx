@@ -176,8 +176,8 @@ function Broadcast() {
           {sendMutation.isLoading
             ? "Yuklanmoqda..."
             : stats?.isProcessing
-            ? "Yuborilmoqda..."
-            : "Yuborish"}
+              ? "Yuborilmoqda..."
+              : "Yuborish"}
         </button>
       </div>
 

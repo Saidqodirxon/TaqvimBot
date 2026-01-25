@@ -1,3 +1,4 @@
+const logger = require("../../utils/logger");
 const express = require("express");
 const router = express.Router();
 const { authMiddleware } = require("../../middleware/adminAuth");
@@ -32,7 +33,7 @@ router.get("/", authMiddleware, async (req, res) => {
       },
     });
   } catch (error) {
-    console.error("Get users error:", error);
+    logger.error("Get users error:", error);
 
     if (
       error.message &&
@@ -69,7 +70,7 @@ router.get("/search", authMiddleware, async (req, res) => {
 
     res.json({ users });
   } catch (error) {
-    console.error("Search users error:", error);
+    logger.error("Search users error:", error);
     res.status(500).json({ error: "Server xatosi" });
   }
 });
@@ -85,7 +86,7 @@ router.get("/:userId", authMiddleware, async (req, res) => {
 
     res.json({ user });
   } catch (error) {
-    console.error("Get user error:", error);
+    logger.error("Get user error:", error);
     res.status(500).json({ error: "Server xatosi" });
   }
 });
@@ -110,7 +111,7 @@ router.patch("/:userId/block", authMiddleware, async (req, res) => {
       user,
     });
   } catch (error) {
-    console.error("Block user error:", error);
+    logger.error("Block user error:", error);
     res.status(500).json({ error: "Server xatosi" });
   }
 });
@@ -135,7 +136,7 @@ router.patch("/:userId/admin", authMiddleware, async (req, res) => {
       user,
     });
   } catch (error) {
-    console.error("Make admin error:", error);
+    logger.error("Make admin error:", error);
     res.status(500).json({ error: "Server xatosi" });
   }
 });

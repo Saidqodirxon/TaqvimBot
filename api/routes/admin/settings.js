@@ -1,3 +1,4 @@
+const logger = require("../../utils/logger");
 const express = require("express");
 const router = express.Router();
 const {
@@ -12,7 +13,7 @@ router.get("/", authMiddleware, async (req, res) => {
     const settings = await Settings.find();
     res.json({ settings });
   } catch (error) {
-    console.error("Get settings error:", error);
+    logger.error("Get settings error:", error);
     res.status(500).json({ error: "Server xatosi" });
   }
 });
@@ -28,7 +29,7 @@ router.get("/:key", authMiddleware, async (req, res) => {
 
     res.json({ setting });
   } catch (error) {
-    console.error("Get setting error:", error);
+    logger.error("Get setting error:", error);
     res.status(500).json({ error: "Server xatosi" });
   }
 });
@@ -49,7 +50,7 @@ router.put("/:key", authMiddleware, superAdminOnly, async (req, res) => {
       setting,
     });
   } catch (error) {
-    console.error("Update setting error:", error);
+    logger.error("Update setting error:", error);
     res.status(500).json({ error: "Server xatosi" });
   }
 });
@@ -76,7 +77,7 @@ router.post(
 
       res.json({ message: "Majburiy kanal o'rnatildi" });
     } catch (error) {
-      console.error("Set required channel error:", error);
+      logger.error("Set required channel error:", error);
       res.status(500).json({ error: "Server xatosi" });
     }
   }
@@ -95,7 +96,7 @@ router.post(
 
       res.json({ message: "Tabrik kanali o'rnatildi" });
     } catch (error) {
-      console.error("Set greeting channel error:", error);
+      logger.error("Set greeting channel error:", error);
       res.status(500).json({ error: "Server xatosi" });
     }
   }
@@ -123,7 +124,7 @@ router.post(
         enabled,
       });
     } catch (error) {
-      console.error("Toggle required channel error:", error);
+      logger.error("Toggle required channel error:", error);
       res.status(500).json({ error: "Server xatosi" });
     }
   }
@@ -148,7 +149,7 @@ router.post("/about-text", authMiddleware, superAdminOnly, async (req, res) => {
 
     res.json({ message: "Bot haqida matni yangilandi", aboutText });
   } catch (error) {
-    console.error("Set about text error:", error);
+    logger.error("Set about text error:", error);
     res.status(500).json({ error: "Server xatosi" });
   }
 });
@@ -184,7 +185,7 @@ router.post(
 
       res.json({ message: "Ramazon sanasi o'rnatildi", date });
     } catch (error) {
-      console.error("Set Ramadan date error:", error);
+      logger.error("Set Ramadan date error:", error);
       res.status(500).json({ error: "Server xatosi" });
     }
   }
@@ -230,7 +231,7 @@ router.post(
 
       res.json({ message: "Eslatma sozlamalari saqlandi", reminderSettings });
     } catch (error) {
-      console.error("Set reminder settings error:", error);
+      logger.error("Set reminder settings error:", error);
       res.status(500).json({ error: "Server xatosi" });
     }
   }
@@ -255,7 +256,7 @@ router.post("/prayers", authMiddleware, superAdminOnly, async (req, res) => {
 
     res.json({ message: "Duolar matni saqlandi", prayers });
   } catch (error) {
-    console.error("Set prayers error:", error);
+    logger.error("Set prayers error:", error);
     res.status(500).json({ error: "Server xatosi" });
   }
 });

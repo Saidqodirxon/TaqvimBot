@@ -4,6 +4,37 @@ const User = require("../../models/User");
 const { getPrayerTimes } = require("../../utils/aladhan");
 const axios = require("axios");
 const moment = require("moment-timezone");
+const logger = require("../../utils/logger");
+
+/**
+ * Test endpoint - returns specific test user data
+ */
+router.get("/test", async (req, res) => {
+  try {
+    const testUserId = 1551855614;
+    const user = await User.findOne({ userId: testUserId });
+
+    if (!user) {
+      return res.status(404).json({ 
+        error: "Test user not found",
+        userId: testUserId 
+      });
+    }
+
+    res.json({
+      userId: user.userId,
+      firstName: user.firstName,
+      language: user.language,
+      location: user.location,
+      prayerSettings: user.prayerSettings,
+      reminderSettings: user.reminderSettings,
+      isTestMode: true
+    });
+  } catch (error) {
+    logger.error("Test endpoint error", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
 
 /**
  * Get user data for mini app
@@ -11,6 +42,12 @@ const moment = require("moment-timezone");
 router.get("/user/:userId", async (req, res) => {
   try {
     const { userId } = req.params;
+    
+    // Validate userId
+    if (!userId || isNaN(userId)) {
+      return res.status(400).json({ error: "Invalid user ID" });
+    }
+
     const user = await User.findOne({ userId: parseInt(userId) });
 
     if (!user) {
@@ -26,7 +63,7 @@ router.get("/user/:userId", async (req, res) => {
       reminderSettings: user.reminderSettings,
     });
   } catch (error) {
-    console.error("Error fetching user for mini app:", error);
+    logger.error("Mini app user fetch error", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
@@ -37,6 +74,15 @@ router.get("/user/:userId", async (req, res) => {
 router.post("/prayer-times", async (req, res) => {
   try {
     const { userId, latitude, longitude } = req.body;
+
+    // Validate required parameters
+    if (!userId || !latitude || !longitude) {
+      return res.status(400).json({ 
+        error: "Missing required parameters",
+        required: ["userId", "latitude", "longitude"]
+      });
+    }
+
     const user = await User.findOne({ userId: parseInt(userId) });
 
     if (!user) {
@@ -59,14 +105,15 @@ router.post("/prayer-times", async (req, res) => {
       latitudeAdjustment
     );
 
-    if (!prayerData.success) {
+    if (!prayerData || !prayerData.success) {
+      logger.error("Prayer times fetch failed", { userId, latitude, longitude });
       return res.status(500).json({ error: "Failed to fetch prayer times" });
     }
 
     res.json(prayerData);
   } catch (error) {
-    console.error("Error fetching prayer times:", error);
-    res.status(500).json({ error: "Internal server error" });
+    logger.error("Prayer times error", { error: error.message, stack: error.stack });
+    res.status(500).json({ error: "Internal server error", message: error.message });
   }
 });
 
@@ -119,7 +166,7 @@ router.post("/weekly-prayer-times", async (req, res) => {
           });
         }
       } catch (error) {
-        console.error(
+        logger.error(
           `Error fetching prayer times for day ${i}:`,
           error.message
         );
@@ -131,7 +178,7 @@ router.post("/weekly-prayer-times", async (req, res) => {
       calendar,
     });
   } catch (error) {
-    console.error("Error fetching weekly prayer times:", error);
+    logger.error("Error fetching weekly prayer times:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });

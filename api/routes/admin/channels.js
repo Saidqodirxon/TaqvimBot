@@ -1,3 +1,4 @@
+const logger = require("../../utils/logger");
 const express = require("express");
 const router = express.Router();
 const Settings = require("../../models/Settings");
@@ -11,7 +12,7 @@ router.get("/", async (req, res) => {
     const channels = await Settings.getSetting("channels", []);
     res.json(channels);
   } catch (error) {
-    console.error("Error fetching channels:", error);
+    logger.error("Error fetching channels:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
@@ -52,7 +53,7 @@ router.post("/", async (req, res) => {
 
     res.json({ success: true, channels });
   } catch (error) {
-    console.error("Error updating channels:", error);
+    logger.error("Error updating channels:", error);
     await logger.logError(error, "Channel update failed");
     res.status(500).json({ error: "Internal server error" });
   }
@@ -83,7 +84,7 @@ router.patch("/:index/toggle", async (req, res) => {
 
     res.json({ success: true, channel: channels[index] });
   } catch (error) {
-    console.error("Error toggling channel:", error);
+    logger.error("Error toggling channel:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });

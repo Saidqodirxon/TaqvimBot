@@ -1,3 +1,4 @@
+const logger = require("../../utils/logger");
 const express = require("express");
 const router = express.Router();
 const { authMiddleware } = require("../../middleware/adminAuth");
@@ -21,7 +22,7 @@ router.get("/", authMiddleware, async (req, res) => {
 
     res.json({ greetings });
   } catch (error) {
-    console.error("Get greetings error:", error);
+    logger.error("Get greetings error:", error);
 
     if (
       error.message &&
@@ -50,7 +51,7 @@ router.patch("/:id/approve", authMiddleware, async (req, res) => {
 
     res.json({ message: "Tabrik tasdiqlandi", greeting });
   } catch (error) {
-    console.error("Approve greeting error:", error);
+    logger.error("Approve greeting error:", error);
     res.status(500).json({ error: "Server xatosi" });
   }
 });
@@ -70,7 +71,7 @@ router.patch("/:id/reject", authMiddleware, async (req, res) => {
 
     res.json({ message: "Tabrik rad etildi", greeting });
   } catch (error) {
-    console.error("Reject greeting error:", error);
+    logger.error("Reject greeting error:", error);
     res.status(500).json({ error: "Server xatosi" });
   }
 });
@@ -86,7 +87,7 @@ router.delete("/:id", authMiddleware, async (req, res) => {
 
     res.json({ message: "Tabrik o'chirildi" });
   } catch (error) {
-    console.error("Delete greeting error:", error);
+    logger.error("Delete greeting error:", error);
     res.status(500).json({ error: "Server xatosi" });
   }
 });
