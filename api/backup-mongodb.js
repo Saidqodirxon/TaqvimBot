@@ -15,7 +15,6 @@ const path = require("path");
 const { Telegraf } = require("telegraf");
 const logger = require("./utils/logger");
 const moment = require("moment-timezone");
-const moment = require("moment-timezone");
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
 const BACKUP_DIR = path.join(__dirname, "backups");

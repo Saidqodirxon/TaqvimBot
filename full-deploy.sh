@@ -30,17 +30,43 @@ echo -e "${YELLOW}📦 Step 2/8: API - npm install...${NC}"
 cd /root/ramazonbot/api
 npm install --silent
 echo -e "${GREEN}✓ API dependencies installed${NC}"
-echo -e "${YELLOW}🔄 Restarting API (PM2 ID: 9)...${NC}"
-pm2 restart 9
-sleep 2
-# Check if API is running
-if pm2 status | grep -q "9.*online"; then
-  echo -e "${GREEN}✓ API restarted successfully${NC}\n"
+
+# Check if PM2 ecosystem config exists and use it
+if [ -f "ecosystem.config.js" ]; then
+  echo -e "${YELLOW}🔄 Starting/Restarting with PM2 ecosystem...${NC}"
+  pm2 delete ecosystem.config.js 2>/dev/null || true
+  pm2 start ecosystem.config.js
+  pm2 save
+  sleep 3
+  
+  # Check if both processes are running
+  if pm2 status | grep -q "ramazonbot-api.*online"; then
+    echo -e "${GREEN}✓ API restarted successfully${NC}"
+  else
+    echo -e "${RED}✗ API failed to start. Checking logs:${NC}"
+    pm2 logs ramazonbot-api --lines 20 --nostream
+    exit 1
+  fi
+  
+  if pm2 status | grep -q "ramazonbot-cache-refresh.*online"; then
+    echo -e "${GREEN}✓ Cache refresh scheduler started${NC}"
+  else
+    echo -e "${YELLOW}⚠ Cache refresh scheduler not running (non-critical)${NC}"
+  fi
 else
-  echo -e "${RED}✗ API failed to start. Checking logs:${NC}"
-  pm2 logs 9 --lines 20 --nostream
-  exit 1
+  echo -e "${YELLOW}🔄 Restarting API (PM2 ID: 9)...${NC}"
+  pm2 restart 9
+  sleep 2
+  # Check if API is running
+  if pm2 status | grep -q "9.*online"; then
+    echo -e "${GREEN}✓ API restarted successfully${NC}"
+  else
+    echo -e "${RED}✗ API failed to start. Checking logs:${NC}"
+    pm2 logs 9 --lines 20 --nostream
+    exit 1
+  fi
 fi
+echo ""
 
 # 3. Admin Panel - Install & Build
 echo -e "${YELLOW}📦 Step 3/8: Admin Panel - npm install...${NC}"
