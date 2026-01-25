@@ -47,7 +47,16 @@ router.get("/user/:userId", async (req, res) => {
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
-    res.json({ user });
+    
+    // Return user data in format expected by frontend
+    res.json({
+      userId: user.userId,
+      firstName: user.firstName,
+      language: user.language,
+      location: user.location,
+      prayerSettings: user.prayerSettings,
+      reminderSettings: user.reminderSettings,
+    });
   } catch (error) {
     logger.error("Mini app user fetch error", error);
     res.status(500).json({ error: "Internal server error" });

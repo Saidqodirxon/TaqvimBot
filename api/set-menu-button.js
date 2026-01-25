@@ -23,7 +23,20 @@ async function setMenuButton() {
       },
     });
 
-    console.log("✅ Menu button set successfully!");
+    console.log("✅ Menu button set for user:", TEST_USER_ID);
+
+    // Also set default menu button for all users
+    await bot.telegram.setChatMenuButton({
+      menu_button: {
+        type: "web_app",
+        text: "📅 Taqvim",
+        web_app: {
+          url: process.env.MINI_APP_URL,
+        },
+      },
+    });
+
+    console.log("✅ Default menu button set for all users!");
     console.log("");
     console.log(
       "📱 Endi Telegram botingizga boring va quyidagilarni tekshiring:"

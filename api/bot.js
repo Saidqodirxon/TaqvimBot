@@ -72,6 +72,7 @@ async function setMenuButton(userId) {
   try {
     const miniAppUrl = process.env.MINI_APP_URL;
     if (miniAppUrl && miniAppUrl.startsWith("https://")) {
+      // Set for specific user with userId parameter
       await bot.telegram.setChatMenuButton({
         chat_id: userId,
         menu_button: {
