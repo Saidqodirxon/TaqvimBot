@@ -177,7 +177,9 @@ bot.command("start", async (ctx) => {
       return;
     }
 
-    // Agar telefon raqam kiritilmagan bo'lsa (kanal obunasidan keyin)
+    // Telefon raqam so'rash - O'chirilgan (ixtiyoriy)
+    // Agar kerak bo'lsa, quyidagi kodni uncomment qiling
+    /*
     if (!user.phoneNumber && user.hasJoinedChannel) {
       await ctx.reply(
         await t(lang, "request_phone"),
@@ -185,6 +187,7 @@ bot.command("start", async (ctx) => {
       );
       return;
     }
+    */
 
     // Asosiy menyuni ko'rsatish
     await ctx.reply(
@@ -290,7 +293,7 @@ bot.hears(/⏰/, async (ctx) => {
     const countdown = calculateTimeToRamadan(dbRamadanDate);
     const currentTime = getCurrentTime();
 
-    const message = t(lang, "ramadan_countdown", {
+    const message = await t(lang, "ramadan_countdown", {
       days: countdown.days,
       hours: countdown.hours,
       minutes: countdown.minutes,
@@ -502,7 +505,7 @@ bot.action("refresh_countdown", async (ctx) => {
     const countdown = calculateTimeToRamadan(dbRamadanDate);
     const currentTime = getCurrentTime();
 
-    const message = t(lang, "ramadan_countdown", {
+    const message = await t(lang, "ramadan_countdown", {
       days: countdown.days,
       hours: countdown.hours,
       minutes: countdown.minutes,

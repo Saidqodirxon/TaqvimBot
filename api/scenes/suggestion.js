@@ -1,4 +1,4 @@
-const { Scenes } = require("telegraf");
+const { Scenes, Markup } = require("telegraf");
 const { t, getUserLanguage } = require("../utils/translator");
 const { getMainMenuKeyboard } = require("../utils/keyboards");
 const Suggestion = require("../models/Suggestion");
@@ -10,9 +10,9 @@ suggestionScene.enter(async (ctx) => {
   const user = ctx.session.user;
   const lang = getUserLanguage(user);
 
-  await ctx.reply(await t(lang, "suggestion_send"), {
-    reply_markup: { remove_keyboard: true },
-  });
+  const keyboard = Markup.keyboard([[await t(lang, "btn_cancel")]]).resize();
+
+  await ctx.reply(await t(lang, "suggestion_send"), keyboard);
 });
 
 // Handle any command - leave scene
@@ -35,6 +35,22 @@ suggestionScene.on("text", async (ctx) => {
 
     const user = ctx.session.user;
     const lang = getUserLanguage(user);
+
+    // Check if user wants to cancel
+    const cancelTexts = [
+      await t(lang, "btn_cancel"),
+      await t(lang, "btn_back"),
+      await t(lang, "btn_back_menu"),
+      "❌ Bekor qilish",
+      "❌ Отмена",
+    ];
+
+    if (cancelTexts.includes(suggestion)) {
+      await ctx.reply(await t(lang, "main_menu"), {
+        ...(await getMainMenuKeyboard(lang)),
+      });
+      return await ctx.scene.leave();
+    }
 
     // Save to database
     await Suggestion.create({
