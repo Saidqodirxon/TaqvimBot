@@ -362,6 +362,21 @@ bot.hears(/🤲/, async (ctx) => {
 });
 
 /**
+ * Calendar (Taqvim)
+ */
+bot.hears(/📅/, async (ctx) => {
+  try {
+    const lang = getUserLanguage(ctx.session.user);
+    await ctx.reply(
+      await t(lang, "calendar_title"),
+      await getCalendarViewKeyboard(lang)
+    );
+  } catch (error) {
+    logger.error("Calendar handler error", error);
+  }
+});
+
+/**
  * About
  */
 bot.hears(/ℹ️/, async (ctx) => {
@@ -1007,8 +1022,8 @@ bot.action("back_to_calendar_view", async (ctx) => {
     await ctx.answerCbQuery();
     const lang = getUserLanguage(ctx.session.user);
     await ctx.editMessageText(
-      t(lang, "calendar_title"),
-      getCalendarViewKeyboard(lang)
+      await t(lang, "calendar_title"),
+      await getCalendarViewKeyboard(lang)
     );
   } catch (error) {
     logger.error("Error in back_to_calendar_view:", error);
