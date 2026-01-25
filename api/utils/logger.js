@@ -91,6 +91,33 @@ class Logger {
     await this.send(message);
   }
 
+  // Standard error logging (console.error replacement)
+  error(message, error = null) {
+    // Log to console for development
+    if (error) {
+      console.error(message, error);
+    } else {
+      console.error(message);
+    }
+
+    // Optionally send to Telegram group (only for critical errors)
+    if (error && error.stack && this.enabled) {
+      this.logError(error, message).catch(() => {
+        // Silently fail if Telegram logging fails
+      });
+    }
+  }
+
+  // Info logging
+  info(message) {
+    console.log(message);
+  }
+
+  // Warning logging
+  warn(message) {
+    console.warn(message);
+  }
+
   // Channel membership check failed
   async logChannelCheckFailed(user, channelUsername) {
     const message =

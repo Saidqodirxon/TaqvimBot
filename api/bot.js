@@ -1153,17 +1153,17 @@ async function startBot() {
         console.log(`👨‍💼 Admin ID: ${adminId}`);
       })
       .catch((launchError) => {
-        logger.error("⚠️ Bot launch error:", launchError.message);
+        console.error("⚠️ Bot launch error:", launchError.message);
       });
 
     console.log("\n🎉 Backend API va Bot tayyor!\n");
   } catch (error) {
-    logger.error("\n❌ Error starting bot:", error.message);
-    logger.error("\n💡 Mumkin sabablari:");
-    logger.error("   1. MongoDB ishlamayapti");
-    logger.error("   2. .env fayl noto'g'ri to'ldirilgan");
-    logger.error("   3. Internet ulanishi yo'q");
-    logger.error("   4. BOT_TOKEN noto'g'ri\n");
+    console.error("\n❌ Error starting bot:", error.message);
+    console.error("\n💡 Mumkin sabablari:");
+    console.error("   1. MongoDB ishlamayapti");
+    console.error("   2. .env fayl noto'g'ri to'ldirilgan");
+    console.error("   3. Internet ulanishi yo'q");
+    console.error("   4. BOT_TOKEN noto'g'ri\n");
 
     // Agar faqat bot ishlamasa ham, backend API ni ishga tushir
     console.log("⏭️ Trying to start Admin API anyway...");
@@ -1171,7 +1171,7 @@ async function startBot() {
       await startAdminAPI();
       console.log("\n✅ Admin API ishga tushdi!\n");
     } catch (apiError) {
-      logger.error("❌ Admin API error:", apiError.message);
+      console.error("❌ Admin API error:", apiError.message);
       process.exit(1);
     }
   }
