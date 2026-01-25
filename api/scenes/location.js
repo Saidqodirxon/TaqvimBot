@@ -15,7 +15,12 @@ locationScene.enter(async (ctx) => {
     // Show two main options: GPS or Manual selection
     const buttons = [
       [Markup.button.callback(await t(lang, "btn_gps_location"), "send_gps")],
-      [Markup.button.callback(await t(lang, "btn_manual_select"), "manual_select")],
+      [
+        Markup.button.callback(
+          await t(lang, "btn_manual_select"),
+          "manual_select"
+        ),
+      ],
       [Markup.button.callback(await t(lang, "btn_back_menu"), "back_to_menu")],
     ];
 
