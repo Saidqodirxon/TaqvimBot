@@ -2,7 +2,6 @@ const logger = require("../../utils/logger");
 const express = require("express");
 const router = express.Router();
 const Admin = require("../../models/Admin");
-const logger = require("../../utils/logger");
 
 /**
  * Get all admins
@@ -26,11 +25,9 @@ router.get("/:userId", async (req, res) => {
       userId: parseInt(req.params.userId),
       isActive: true,
     });
-
     if (!admin) {
       return res.status(404).json({ error: "Admin not found" });
     }
-
     res.json(admin);
   } catch (error) {
     logger.error("Error fetching admin:", error);
@@ -44,17 +41,14 @@ router.get("/:userId", async (req, res) => {
 router.post("/", async (req, res) => {
   try {
     const { userId, username, firstName, role, permissions } = req.body;
-
     // Check if admin already exists
     const existingAdmin = await Admin.findOne({ userId });
     if (existingAdmin) {
       return res.status(400).json({ error: "Admin already exists" });
     }
-
     // Get default permissions for role or use custom
     const adminPermissions =
       permissions || Admin.getDefaultPermissions(role || "moderator");
-
     const admin = new Admin({
       userId,
       username,
@@ -63,15 +57,12 @@ router.post("/", async (req, res) => {
       permissions: adminPermissions,
       addedBy: req.user?.id, // from auth middleware
     });
-
     await admin.save();
-
     await logger.logAdminAction(
       { userId: req.user?.id || "system", firstName: "Superadmin" },
       "Yangi admin qo'shildi",
       `${firstName} (@${username}) - ${role}`
     );
-
     res.status(201).json(admin);
   } catch (error) {
     logger.error("Error creating admin:", error);
@@ -87,25 +78,20 @@ router.put("/:userId", async (req, res) => {
   try {
     const { userId } = req.params;
     const { role, permissions, isActive } = req.body;
-
     const admin = await Admin.findOne({ userId: parseInt(userId) });
     if (!admin) {
       return res.status(404).json({ error: "Admin not found" });
     }
-
     // Update fields
     if (role !== undefined) admin.role = role;
     if (permissions !== undefined) admin.permissions = permissions;
     if (isActive !== undefined) admin.isActive = isActive;
-
     await admin.save();
-
     await logger.logAdminAction(
-      { userId: req.user?.id || "system", firstName: "Superadmin" },
+      req.user,
       "Admin tahrirlandi",
       `${admin.firstName} - yangi rol: ${role}`
     );
-
     res.json(admin);
   } catch (error) {
     logger.error("Error updating admin:", error);
@@ -118,27 +104,21 @@ router.put("/:userId", async (req, res) => {
  */
 router.delete("/:userId", async (req, res) => {
   try {
-    const { userId } = req.params;
-
-    const admin = await Admin.findOne({ userId: parseInt(userId) });
+    const admin = await Admin.findOne({ userId: parseInt(req.params.userId) });
     if (!admin) {
       return res.status(404).json({ error: "Admin not found" });
     }
-
     // Prevent deleting superadmin
     if (admin.role === "superadmin") {
       return res.status(403).json({ error: "Cannot delete superadmin" });
     }
-
     admin.isActive = false;
     await admin.save();
-
     await logger.logAdminAction(
-      { userId: req.user?.id || "system", firstName: "Superadmin" },
+      req.user,
       "Admin o'chirildi",
       `${admin.firstName} (@${admin.username})`
     );
-
     res.json({ success: true, message: "Admin deleted" });
   } catch (error) {
     logger.error("Error deleting admin:", error);
@@ -151,15 +131,10 @@ router.delete("/:userId", async (req, res) => {
  */
 router.get("/:userId/permissions", async (req, res) => {
   try {
-    const admin = await Admin.findOne({
-      userId: parseInt(req.params.userId),
-      isActive: true,
-    });
-
+    const admin = await Admin.findOne({ userId: parseInt(req.params.userId) });
     if (!admin) {
       return res.status(404).json({ error: "Admin not found" });
     }
-
     res.json({
       role: admin.role,
       permissions: admin.permissions,

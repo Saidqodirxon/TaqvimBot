@@ -172,6 +172,25 @@ bot.command("start", async (ctx) => {
       return;
     }
 
+    // Dynamic menu button sozlash (user ID bilan)
+    const miniAppUrl = process.env.MINI_APP_URL;
+    if (miniAppUrl && miniAppUrl.startsWith("https://")) {
+      try {
+        await bot.telegram.setChatMenuButton({
+          chat_id: ctx.from.id,
+          menu_button: {
+            type: "web_app",
+            text: "📅 Taqvim",
+            web_app: {
+              url: `${miniAppUrl}?userId=${ctx.from.id}`,
+            },
+          },
+        });
+      } catch (menuError) {
+        logger.error("Menu button setup error", menuError);
+      }
+    }
+
     // Asosiy menyuni ko'rsatish
     await ctx.reply(t(lang, "main_menu"), {
       ...getMainMenuKeyboard(lang),

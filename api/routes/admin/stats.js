@@ -11,7 +11,6 @@ router.get("/", authMiddleware, async (req, res) => {
     if (require("mongoose").connection.readyState !== 1) {
       return res.status(503).json({ error: "Database connection not ready" });
     }
-
     const totalUsers = await User.countDocuments().maxTimeMS(5000);
     const activeUsers = await User.countDocuments({
       is_block: false,
@@ -19,7 +18,6 @@ router.get("/", authMiddleware, async (req, res) => {
     const blockedUsers = await User.countDocuments({
       is_block: true,
     }).maxTimeMS(5000);
-
     const uzUsers = await User.countDocuments({ language: "uz" }).maxTimeMS(
       5000
     );
@@ -29,9 +27,7 @@ router.get("/", authMiddleware, async (req, res) => {
     const ruUsers = await User.countDocuments({ language: "ru" }).maxTimeMS(
       5000
     );
-
     const admins = await User.countDocuments({ isAdmin: true }).maxTimeMS(5000);
-
     const pendingGreetings = await Greeting.countDocuments({
       status: "pending",
     }).maxTimeMS(5000);
@@ -41,13 +37,11 @@ router.get("/", authMiddleware, async (req, res) => {
     const rejectedGreetings = await Greeting.countDocuments({
       status: "rejected",
     }).maxTimeMS(5000);
-
     const sevenDaysAgo = new Date();
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
     const recentUsers = await User.countDocuments({
       createdAt: { $gte: sevenDaysAgo },
     }).maxTimeMS(5000);
-
     res.json({
       users: {
         total: totalUsers,
@@ -65,38 +59,25 @@ router.get("/", authMiddleware, async (req, res) => {
     });
   } catch (error) {
     logger.error("Get stats error:", error);
-
     if (error.message && error.message.includes("timed out")) {
-      return res
-        .status(408)
-        .json({
-          error:
-            "Database query timeout. Ma'lumotlar bazasi sekin javob bermoqda.",
-        });
+      return res.status(408).json({
+        error:
+          "Database query timeout. Ma'lumotlar bazasi sekin javob bermoqda.",
+      });
     }
-
     if (error.message && error.message.includes("buffering")) {
-      return res
-        .status(503)
-        .json({
-          error: "Database connection issue. Iltimos qayta urinib ko'ring.",
-        });
+      return res.status(503).json({
+        error: "Database connection issue. Iltimos qayta urinib ko'ring.",
+      });
     }
-
     res.status(500).json({ error: "Server xatosi", details: error.message });
   }
 });
-
 // Get user growth data (last 30 days)
 router.get("/growth", authMiddleware, async (req, res) => {
   try {
-    if (require("mongoose").connection.readyState !== 1) {
-      return res.status(503).json({ error: "Database connection not ready" });
-    }
-
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-
     const growth = await User.aggregate([
       { $match: { createdAt: { $gte: thirtyDaysAgo } } },
       {
@@ -107,17 +88,13 @@ router.get("/growth", authMiddleware, async (req, res) => {
       },
       { $sort: { _id: 1 } },
     ]).maxTimeMS(10000);
-
     res.json({ growth });
   } catch (error) {
     logger.error("Get growth error:", error);
-
     if (error.message && error.message.includes("timed out")) {
       return res.status(408).json({ error: "Query timeout" });
     }
-
-    res.status(500).json({ error: "Server xatosi", details: error.message });
+    res.status(500).json({ error: "Server error", details: error.message });
   }
 });
-
 module.exports = router;

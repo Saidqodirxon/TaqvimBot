@@ -2,7 +2,6 @@ const logger = require("../../utils/logger");
 const express = require("express");
 const router = express.Router();
 const Settings = require("../../models/Settings");
-const logger = require("../../utils/logger");
 const { CALCULATION_METHODS, SCHOOLS } = require("../../utils/aladhan");
 
 /**
@@ -15,9 +14,7 @@ router.get("/", async (req, res) => {
       school: 1, // Hanafi
       midnightMode: 0,
     });
-
     console.log("� Retrieved prayer defaults from DB:", defaults);
-
     res.json({
       defaults,
       availableMethods: CALCULATION_METHODS,
@@ -35,25 +32,18 @@ router.get("/", async (req, res) => {
 router.post("/", async (req, res) => {
   try {
     const { calculationMethod, school, midnightMode } = req.body;
-
     const defaults = {
       calculationMethod: parseInt(calculationMethod) || 1,
       school: parseInt(school) || 1,
       midnightMode: parseInt(midnightMode) || 0,
     };
-
     console.log("💾 Saving prayer defaults:", defaults);
-
     const result = await Settings.setSetting(
       "defaultPrayerSettings",
-      defaults,
       "Default namoz sozlamalari (yangi foydalanuvchilar uchun)"
     );
-
     console.log("✅ Saved to database:", result);
-
     console.log("✅ Prayer defaults saved successfully");
-
     await logger.logAdminAction(
       { userId: req.user?.id || "system", firstName: "Admin" },
       "Default namoz sozlamalari yangilandi",

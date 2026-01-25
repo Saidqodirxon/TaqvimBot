@@ -11,19 +11,15 @@ router.get("/", authMiddleware, async (req, res) => {
     if (require("mongoose").connection.readyState !== 1) {
       return res.status(503).json({ error: "Database not connected" });
     }
-
     const { status } = req.query;
     const filter = status ? { status } : {};
-
     const greetings = await Greeting.find(filter)
       .sort({ createdAt: -1 })
       .limit(100)
       .maxTimeMS(10000);
-
     res.json({ greetings });
   } catch (error) {
     logger.error("Get greetings error:", error);
-
     if (
       error.message &&
       (error.message.includes("timed out") ||
@@ -35,7 +31,6 @@ router.get("/", authMiddleware, async (req, res) => {
     res.status(500).json({ error: "Server xatosi", details: error.message });
   }
 });
-
 // Approve greeting
 router.patch("/:id/approve", authMiddleware, async (req, res) => {
   try {
@@ -44,7 +39,6 @@ router.patch("/:id/approve", authMiddleware, async (req, res) => {
       { status: "approved" },
       { new: true }
     );
-
     if (!greeting) {
       return res.status(404).json({ error: "Tabrik topilmadi" });
     }

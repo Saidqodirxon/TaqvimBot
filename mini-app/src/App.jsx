@@ -37,12 +37,29 @@ function App() {
       tg.themeParams.button_text_color || "#ffffff"
     );
 
-    // Get user data from Telegram
+    // Get user ID from multiple sources
+    let userId = null;
+
+    // 1. Try from Telegram WebApp data (preferred)
     const initDataUnsafe = tg.initDataUnsafe;
     if (initDataUnsafe && initDataUnsafe.user) {
-      fetchUserData(initDataUnsafe.user.id);
+      userId = initDataUnsafe.user.id;
+    }
+
+    // 2. Try from URL query parameter (fallback)
+    if (!userId) {
+      const urlParams = new URLSearchParams(window.location.search);
+      const userIdParam = urlParams.get("userId");
+      if (userIdParam) {
+        userId = parseInt(userIdParam);
+      }
+    }
+
+    // 3. Fetch user data if userId found
+    if (userId) {
+      fetchUserData(userId);
     } else {
-      // No Telegram user data available
+      // No user ID available
       setError(
         "Telegram user data not found. Please open this app from Telegram."
       );

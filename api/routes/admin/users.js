@@ -10,11 +10,9 @@ router.get("/", authMiddleware, async (req, res) => {
     if (require("mongoose").connection.readyState !== 1) {
       return res.status(503).json({ error: "Database not connected" });
     }
-
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 20;
     const skip = (page - 1) * limit;
-
     const total = await User.countDocuments().maxTimeMS(5000);
     const users = await User.find()
       .sort({ createdAt: -1 })
@@ -22,7 +20,6 @@ router.get("/", authMiddleware, async (req, res) => {
       .limit(limit)
       .select("-__v")
       .maxTimeMS(10000);
-
     res.json({
       users,
       pagination: {
@@ -34,7 +31,6 @@ router.get("/", authMiddleware, async (req, res) => {
     });
   } catch (error) {
     logger.error("Get users error:", error);
-
     if (
       error.message &&
       (error.message.includes("timed out") ||
@@ -44,20 +40,16 @@ router.get("/", authMiddleware, async (req, res) => {
         .status(408)
         .json({ error: "Database timeout. Qayta urinib ko'ring." });
     }
-
     res.status(500).json({ error: "Server xatosi", details: error.message });
   }
 });
-
 // Search users
 router.get("/search", authMiddleware, async (req, res) => {
   try {
     const { query } = req.query;
-
     if (!query) {
       return res.status(400).json({ error: "Query kerak" });
     }
-
     const users = await User.find({
       $or: [
         { firstName: { $regex: query, $options: "i" } },
@@ -66,46 +58,38 @@ router.get("/search", authMiddleware, async (req, res) => {
       ],
     })
       .limit(50)
-      .maxTimeMS(10000);
-
+      .select("-__v");
     res.json({ users });
   } catch (error) {
     logger.error("Search users error:", error);
     res.status(500).json({ error: "Server xatosi" });
   }
 });
-
 // Get user by ID
 router.get("/:userId", authMiddleware, async (req, res) => {
   try {
     const user = await User.findOne({ userId: parseInt(req.params.userId) });
-
     if (!user) {
       return res.status(404).json({ error: "Foydalanuvchi topilmadi" });
     }
-
     res.json({ user });
   } catch (error) {
     logger.error("Get user error:", error);
     res.status(500).json({ error: "Server xatosi" });
   }
 });
-
 // Block/unblock user
 router.patch("/:userId/block", authMiddleware, async (req, res) => {
   try {
     const { is_block } = req.body;
-
     const user = await User.findOneAndUpdate(
       { userId: parseInt(req.params.userId) },
       { is_block },
       { new: true }
     );
-
     if (!user) {
       return res.status(404).json({ error: "Foydalanuvchi topilmadi" });
     }
-
     res.json({
       message: is_block ? "Bloklandi" : "Blokdan chiqarildi",
       user,
@@ -115,22 +99,18 @@ router.patch("/:userId/block", authMiddleware, async (req, res) => {
     res.status(500).json({ error: "Server xatosi" });
   }
 });
-
 // Make user admin
 router.patch("/:userId/admin", authMiddleware, async (req, res) => {
   try {
     const { isAdmin, role } = req.body;
-
     const user = await User.findOneAndUpdate(
       { userId: parseInt(req.params.userId) },
       { isAdmin, role },
       { new: true }
     );
-
     if (!user) {
       return res.status(404).json({ error: "Foydalanuvchi topilmadi" });
     }
-
     res.json({
       message: "Admin huquqi o'zgartirildi",
       user,
@@ -140,5 +120,4 @@ router.patch("/:userId/admin", authMiddleware, async (req, res) => {
     res.status(500).json({ error: "Server xatosi" });
   }
 });
-
 module.exports = router;

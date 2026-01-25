@@ -2,7 +2,6 @@ const logger = require("../../utils/logger");
 const express = require("express");
 const router = express.Router();
 const Location = require("../../models/Location");
-const logger = require("../../utils/logger");
 
 /**
  * Get all locations
@@ -23,11 +22,9 @@ router.get("/", async (req, res) => {
 router.get("/:id", async (req, res) => {
   try {
     const location = await Location.findById(req.params.id);
-
     if (!location) {
       return res.status(404).json({ error: "Location not found" });
     }
-
     res.json(location);
   } catch (error) {
     logger.error("Error fetching location:", error);
@@ -52,7 +49,6 @@ router.post("/", async (req, res) => {
       isDefault,
       manualPrayerTimes,
     } = req.body;
-
     // Validate required fields
     if (!name || !nameUz || !nameCr || !nameRu || !latitude || !longitude) {
       return res.status(400).json({ error: "Missing required fields" });
@@ -77,9 +73,7 @@ router.post("/", async (req, res) => {
         enabled: false,
       },
     });
-
     await location.save();
-
     await logger.logAdminAction(
       { userId: req.user?.id || "system", firstName: "Admin" },
       "Yangi joylashuv qo'shildi",
@@ -107,7 +101,6 @@ router.put("/:id", async (req, res) => {
       return res.status(404).json({ error: "Location not found" });
     }
 
-    // If setting as default, unset other defaults
     if (updateData.isDefault) {
       await Location.updateMany({ _id: { $ne: id } }, { isDefault: false });
     }
@@ -122,7 +115,7 @@ router.put("/:id", async (req, res) => {
     await location.save();
 
     await logger.logAdminAction(
-      { userId: req.user?.id || "system", firstName: "Admin" },
+      req.user,
       "Joylashuv tahrirlandi",
       `${location.name}`
     );
@@ -139,9 +132,7 @@ router.put("/:id", async (req, res) => {
  */
 router.delete("/:id", async (req, res) => {
   try {
-    const { id } = req.params;
-
-    const location = await Location.findById(id);
+    const location = await Location.findById(req.params.id);
     if (!location) {
       return res.status(404).json({ error: "Location not found" });
     }
@@ -150,7 +141,7 @@ router.delete("/:id", async (req, res) => {
     await location.save();
 
     await logger.logAdminAction(
-      { userId: req.user?.id || "system", firstName: "Admin" },
+      req.user,
       "Joylashuv o'chirildi",
       `${location.name}`
     );
