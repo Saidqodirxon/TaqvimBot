@@ -30,8 +30,8 @@ echo -e "${YELLOW}📦 Step 2/8: API - npm install...${NC}"
 cd /root/ramazonbot/api
 npm install --production --silent
 echo -e "${GREEN}✓ API dependencies installed${NC}"
-echo -e "${YELLOW}🔄 Restarting API (PM2 ID: 6)...${NC}"
-pm2 restart 6
+echo -e "${YELLOW}🔄 Restarting API (PM2 ID: 9)...${NC}"
+pm2 restart 9
 echo -e "${GREEN}✓ API restarted${NC}\n"
 
 # 3. Admin Panel - Install & Build
