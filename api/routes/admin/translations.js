@@ -1,14 +1,32 @@
 const logger = require("../../utils/logger");
 const express = require("express");
 const router = express.Router();
-const { authMiddleware, superAdminOnly } = require("../../middleware/adminAuth");
+const {
+  authMiddleware,
+  superAdminOnly,
+} = require("../../middleware/adminAuth");
 const Translation = require("../../models/Translation");
+const { clearTranslationCache } = require("../../utils/translator");
 
 // Get all translations
 router.get("/", authMiddleware, async (req, res) => {
   try {
-    const { category } = req.query;
-    const filter = category ? { category } : {};
+    const { category, search } = req.query;
+    const filter = {};
+
+    if (category) filter.category = category;
+
+    // Search functionality
+    if (search) {
+      filter.$or = [
+        { key: { $regex: search, $options: "i" } },
+        { uz: { $regex: search, $options: "i" } },
+        { cr: { $regex: search, $options: "i" } },
+        { ru: { $regex: search, $options: "i" } },
+        { description: { $regex: search, $options: "i" } },
+      ];
+    }
+
     const translations = await Translation.find(filter).sort({ key: 1 });
     res.json({ translations });
   } catch (error) {
@@ -35,7 +53,7 @@ router.get("/:key", authMiddleware, async (req, res) => {
 router.post("/", authMiddleware, superAdminOnly, async (req, res) => {
   try {
     const { key, uz, cr, ru, description, category } = req.body;
-    
+
     if (!key || !uz || !cr || !ru) {
       return res.status(400).json({ error: "key, uz, cr, ru kerak" });
     }
@@ -53,6 +71,9 @@ router.post("/", authMiddleware, superAdminOnly, async (req, res) => {
       `Key: ${key}`
     );
 
+    // Clear cache so new translations are loaded
+    clearTranslationCache();
+
     res.json({ message: "Tarjima saqlandi", translation });
   } catch (error) {
     logger.error("Create/update translation error:", error);
@@ -64,7 +85,7 @@ router.post("/", authMiddleware, superAdminOnly, async (req, res) => {
 router.put("/:key", authMiddleware, superAdminOnly, async (req, res) => {
   try {
     const { uz, cr, ru, description, category } = req.body;
-    
+
     const translation = await Translation.findOneAndUpdate(
       { key: req.params.key },
       { uz, cr, ru, description, category },
@@ -81,6 +102,8 @@ router.put("/:key", authMiddleware, superAdminOnly, async (req, res) => {
       `Key: ${req.params.key}`
     );
 
+    clearTranslationCache();
+
     res.json({ message: "Tarjima yangilandi", translation });
   } catch (error) {
     logger.error("Update translation error:", error);
@@ -91,8 +114,10 @@ router.put("/:key", authMiddleware, superAdminOnly, async (req, res) => {
 // Delete translation
 router.delete("/:key", authMiddleware, superAdminOnly, async (req, res) => {
   try {
-    const translation = await Translation.findOneAndDelete({ key: req.params.key });
-    
+    const translation = await Translation.findOneAndDelete({
+      key: req.params.key,
+    });
+
     if (!translation) {
       return res.status(404).json({ error: "Tarjima topilmadi" });
     }
@@ -102,6 +127,8 @@ router.delete("/:key", authMiddleware, superAdminOnly, async (req, res) => {
       "Tarjima o'chirildi",
       `Key: ${req.params.key}`
     );
+
+    clearTranslationCache();
 
     res.json({ message: "Tarjima o'chirildi" });
   } catch (error) {

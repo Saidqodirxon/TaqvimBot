@@ -162,6 +162,7 @@ function Cache() {
               <th>Joylashuv</th>
               <th>Sana</th>
               <th>Manba</th>
+              <th>Yaratilgan</th>
               <th>Saqlangan</th>
               <th>Muddati</th>
               <th>Holat</th>
@@ -192,6 +193,7 @@ function Cache() {
                         : "✍️ Manual"}
                   </span>
                 </td>
+                <td>{formatDate(cache.createdAt)}</td>
                 <td>{formatDate(cache.fetchedAt)}</td>
                 <td>{formatDate(cache.expiresAt)}</td>
                 <td>

@@ -17,6 +17,7 @@ import {
   Lightbulb,
   Heart,
   Languages,
+  User,
 } from "lucide-react";
 import "./Layout.css";
 
@@ -186,10 +187,22 @@ function Layout({ children, setAuth }) {
           </NavLink>
         </nav>
 
-        <button className="logout-btn" onClick={handleLogout}>
-          <LogOut size={20} />
-          <span>Chiqish</span>
-        </button>
+        <div className="sidebar-footer">
+          <NavLink
+            to="/profile"
+            className={({ isActive }) =>
+              isActive ? "nav-item active" : "nav-item"
+            }
+          >
+            <User size={20} />
+            <span>Profil</span>
+          </NavLink>
+
+          <button className="logout-btn" onClick={handleLogout}>
+            <LogOut size={20} />
+            <span>Chiqish</span>
+          </button>
+        </div>
       </aside>
 
       <main className="content">{children}</main>

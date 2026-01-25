@@ -11,11 +11,15 @@ const CATEGORIES = [
   { value: "admin", label: "Admin" },
   { value: "prayers", label: "Namozlar" },
   { value: "settings", label: "Sozlamalar" },
+  { value: "location", label: "Joylashuv" },
+  { value: "greeting", label: "Tabriklar" },
+  { value: "calendar", label: "Kalendar" },
   { value: "other", label: "Boshqa" },
 ];
 
 function Translations() {
   const [categoryFilter, setCategoryFilter] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingKey, setEditingKey] = useState(null);
   const [formData, setFormData] = useState({
@@ -30,9 +34,12 @@ function Translations() {
   const queryClient = useQueryClient();
 
   const { data, isLoading } = useQuery({
-    queryKey: ["translations", categoryFilter],
+    queryKey: ["translations", categoryFilter, searchQuery],
     queryFn: async () => {
-      const response = await translations.getAll(categoryFilter);
+      const params = new URLSearchParams();
+      if (categoryFilter) params.append("category", categoryFilter);
+      if (searchQuery) params.append("search", searchQuery);
+      const response = await translations.getAll(params.toString());
       return response.data.translations;
     },
   });
@@ -126,11 +133,24 @@ function Translations() {
             resetForm();
           }}
         >
-          {showAddForm ? "❌ Bekor qilish" : <><Plus size={18} /> Qo'shish</>}
+          {showAddForm ? (
+            "❌ Bekor qilish"
+          ) : (
+            <>
+              <Plus size={18} /> Qo'shish
+            </>
+          )}
         </button>
       </div>
 
       <div className="filters">
+        <input
+          type="text"
+          placeholder="🔍 Qidirish (key, text, izoh)..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="filter-search"
+        />
         <select
           value={categoryFilter}
           onChange={(e) => setCategoryFilter(e.target.value)}
@@ -147,7 +167,9 @@ function Translations() {
 
       {showAddForm && (
         <div className="card add-form">
-          <h3>{editingKey ? "Tarjimani tahrirlash" : "Yangi tarjima qo'shish"}</h3>
+          <h3>
+            {editingKey ? "Tarjimani tahrirlash" : "Yangi tarjima qo'shish"}
+          </h3>
           <form onSubmit={handleSubmit}>
             <div className="form-grid">
               <div className="form-group">

@@ -120,4 +120,64 @@ router.patch("/:userId/admin", authMiddleware, async (req, res) => {
     res.status(500).json({ error: "Server xatosi" });
   }
 });
+
+// Send message to single user
+router.post("/:userId/message", authMiddleware, async (req, res) => {
+  try {
+    const { message } = req.body;
+    const userId = parseInt(req.params.userId);
+
+    if (!message) {
+      return res.status(400).json({ error: "Xabar matni kerak" });
+    }
+
+    const user = await User.findOne({ userId });
+    if (!user) {
+      return res.status(404).json({ error: "Foydalanuvchi topilmadi" });
+    }
+
+    // Send via bot
+    const { Telegraf } = require("telegraf");
+    const bot = new Telegraf(process.env.BOT_TOKEN);
+    await bot.telegram.sendMessage(userId, message);
+
+    await logger.logAdminAction(
+      { userId: req.user?.id, firstName: "Admin" },
+      "Foydalanuvchiga xabar yuborildi",
+      `UserID: ${userId}`
+    );
+
+    res.json({ message: "Xabar yuborildi" });
+  } catch (error) {
+    logger.error("Send message error:", error);
+    res.status(500).json({ error: "Xabar yuborishda xatolik" });
+  }
+});
+
+// Reset user (delete and recreate on next /start)
+router.delete("/:userId/reset", authMiddleware, async (req, res) => {
+  try {
+    const userId = parseInt(req.params.userId);
+    const user = await User.findOneAndDelete({ userId });
+
+    if (!user) {
+      return res.status(404).json({ error: "Foydalanuvchi topilmadi" });
+    }
+
+    await logger.logAdminAction(
+      { userId: req.user?.id, firstName: "Admin" },
+      "Foydalanuvchi reset qilindi",
+      `UserID: ${userId}, Ism: ${user.firstName}`
+    );
+
+    res.json({
+      message:
+        "Foydalanuvchi reset qilindi. Keyingi /start da qayta yaratiladi.",
+    });
+  } catch (error) {
+    logger.error("Reset user error:", error);
+    res.status(500).json({ error: "Server xatosi" });
+  }
+});
+
 module.exports = router;

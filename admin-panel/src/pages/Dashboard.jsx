@@ -42,18 +42,39 @@ function Dashboard() {
       bg: "#e8f5e9",
     },
     {
+      title: "Bugun Aktiv",
+      value: data?.users?.activeToday || 0,
+      icon: <TrendingUp size={24} />,
+      color: "#2196f3",
+      bg: "#e1f5fe",
+    },
+    {
+      title: "7 Kun Aktiv",
+      value: data?.users?.activeLast7d || 0,
+      icon: <Users size={24} />,
+      color: "#9c27b0",
+      bg: "#f3e5f5",
+    },
+    {
+      title: "Yangi (Bugun)",
+      value: data?.users?.newUsersToday || 0,
+      icon: <TrendingUp size={24} />,
+      color: "#ff9800",
+      bg: "#fff3e0",
+    },
+    {
+      title: "Yangi (7 kun)",
+      value: data?.users?.newUsersLast7d || 0,
+      icon: <TrendingUp size={24} />,
+      color: "#ff5722",
+      bg: "#fbe9e7",
+    },
+    {
       title: "Bloklangan",
       value: data?.users?.blocked || 0,
       icon: <UserX size={24} />,
       color: "#f44336",
       bg: "#ffebee",
-    },
-    {
-      title: "Yangi (7 kun)",
-      value: data?.users?.recent || 0,
-      icon: <TrendingUp size={24} />,
-      color: "#ff9800",
-      bg: "#fff3e0",
     },
   ];
 

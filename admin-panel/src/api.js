@@ -44,6 +44,9 @@ export const users = {
     api.patch(`/users/${userId}/block`, { is_block }),
   makeAdmin: (userId, isAdmin, role) =>
     api.patch(`/users/${userId}/admin`, { isAdmin, role }),
+  sendMessage: (userId, message) =>
+    api.post(`/users/${userId}/message`, { message }),
+  reset: (userId) => api.delete(`/users/${userId}/reset`),
 };
 
 // Settings
@@ -111,7 +114,7 @@ export const cache = {
 
 // Translations
 export const translations = {
-  getAll: (category) => api.get(`/translations${category ? `?category=${category}` : ""}`),
+  getAll: (params) => api.get(`/translations${params ? `?${params}` : ""}`),
   getByKey: (key) => api.get(`/translations/${key}`),
   create: (data) => api.post("/translations", data),
   update: (key, data) => api.put(`/translations/${key}`, data),

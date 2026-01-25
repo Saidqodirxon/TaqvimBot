@@ -27,7 +27,22 @@
 }
 
 .filters {
+  display: flex;
+  gap: 12px;
   margin-bottom: 24px;
+}
+
+.filter-search {
+  flex: 1;
+  padding: 10px 16px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.filter-search:focus {
+  outline: none;
+  border-color: #007bff;
 }
 
 .filter-select {

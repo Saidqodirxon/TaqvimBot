@@ -113,14 +113,30 @@ function Users() {
                   <td>@{user.username || "-"}</td>
                   <td>
                     {user.phoneNumber ? (
-                      <span className="badge badge-success">📱 {user.phoneNumber}</span>
+                      <span className="badge badge-success">
+                        📱 {user.phoneNumber}
+                      </span>
                     ) : (
                       <span className="badge badge-secondary">-</span>
                     )}
                   </td>
                   <td>
                     {user.location?.name ? (
-                      <span className="badge badge-info">📍 {user.location.name}</span>
+                      user.location.latitude && user.location.longitude ? (
+                        <a
+                          href={`https://www.google.com/maps?q=${user.location.latitude},${user.location.longitude}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="badge badge-info"
+                          style={{ cursor: "pointer", textDecoration: "none" }}
+                        >
+                          📍 {user.location.name}
+                        </a>
+                      ) : (
+                        <span className="badge badge-info">
+                          📍 {user.location.name}
+                        </span>
+                      )
                     ) : (
                       <span className="badge badge-secondary">-</span>
                     )}
@@ -130,8 +146,8 @@ function Users() {
                       {user.language === "uz"
                         ? "🇺🇿 UZ"
                         : user.language === "cr"
-                        ? "🇺🇿 ЎЗ"
-                        : "🇷🇺 RU"}
+                          ? "🇺🇿 ЎЗ"
+                          : "🇷🇺 RU"}
                     </span>
                   </td>
                   <td>

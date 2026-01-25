@@ -11,6 +11,12 @@ router.get("/", authMiddleware, async (req, res) => {
     if (require("mongoose").connection.readyState !== 1) {
       return res.status(503).json({ error: "Database connection not ready" });
     }
+
+    const now = new Date();
+    const last24h = new Date(now - 24 * 60 * 60 * 1000);
+    const last7d = new Date(now - 7 * 24 * 60 * 60 * 1000);
+    const last30d = new Date(now - 30 * 24 * 60 * 60 * 1000);
+
     const totalUsers = await User.countDocuments().maxTimeMS(5000);
     const activeUsers = await User.countDocuments({
       is_block: false,
@@ -18,6 +24,23 @@ router.get("/", authMiddleware, async (req, res) => {
     const blockedUsers = await User.countDocuments({
       is_block: true,
     }).maxTimeMS(5000);
+
+    // Activity statistics
+    const activeToday = await User.countDocuments({
+      last_active: { $gte: last24h },
+    }).maxTimeMS(5000);
+    const activeLast7d = await User.countDocuments({
+      last_active: { $gte: last7d },
+    }).maxTimeMS(5000);
+
+    // New users
+    const newUsersToday = await User.countDocuments({
+      createdAt: { $gte: last24h },
+    }).maxTimeMS(5000);
+    const newUsersLast7d = await User.countDocuments({
+      createdAt: { $gte: last7d },
+    }).maxTimeMS(5000);
+
     const uzUsers = await User.countDocuments({ language: "uz" }).maxTimeMS(
       5000
     );
@@ -37,17 +60,16 @@ router.get("/", authMiddleware, async (req, res) => {
     const rejectedGreetings = await Greeting.countDocuments({
       status: "rejected",
     }).maxTimeMS(5000);
-    const sevenDaysAgo = new Date();
-    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-    const recentUsers = await User.countDocuments({
-      createdAt: { $gte: sevenDaysAgo },
-    }).maxTimeMS(5000);
+
     res.json({
       users: {
         total: totalUsers,
         active: activeUsers,
         blocked: blockedUsers,
-        recent: recentUsers,
+        activeToday,
+        activeLast7d,
+        newUsersToday,
+        newUsersLast7d,
       },
       languages: { uz: uzUsers, cr: crUsers, ru: ruUsers },
       admins,

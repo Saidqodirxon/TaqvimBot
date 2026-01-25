@@ -4,6 +4,7 @@ const router = express.Router();
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const Admin = require("../../models/Admin");
+const { authMiddleware } = require("../../middleware/adminAuth");
 
 // Login
 router.post("/login", async (req, res) => {
@@ -79,6 +80,59 @@ router.post("/register", async (req, res) => {
     });
   } catch (error) {
     logger.error("Register error:", error);
+    res.status(500).json({ error: "Server xatosi" });
+  }
+});
+
+// Get current admin profile
+router.get("/profile", authMiddleware, async (req, res) => {
+  try {
+    const admin = await Admin.findOne({ userId: req.user.id }).select(
+      "-password"
+    );
+    if (!admin) {
+      return res.status(404).json({ error: "Admin topilmadi" });
+    }
+    res.json(admin);
+  } catch (error) {
+    logger.error("Get profile error:", error);
+    res.status(500).json({ error: "Server xatosi" });
+  }
+});
+
+// Update current admin profile
+router.put("/profile", authMiddleware, async (req, res) => {
+  try {
+    const { username, firstName, password } = req.body;
+    const updateData = {};
+
+    if (username) updateData.username = username;
+    if (firstName) updateData.firstName = firstName;
+
+    // If password provided, hash it
+    if (password) {
+      updateData.password = await bcrypt.hash(password, 10);
+    }
+
+    const admin = await Admin.findOneAndUpdate(
+      { userId: req.user.id },
+      updateData,
+      { new: true }
+    ).select("-password");
+
+    if (!admin) {
+      return res.status(404).json({ error: "Admin topilmadi" });
+    }
+
+    await logger.logAdminAction(
+      { userId: req.user.id, firstName: admin.firstName },
+      "Profil yangilandi",
+      `Username: ${username}`
+    );
+
+    res.json({ message: "Profil yangilandi", admin });
+  } catch (error) {
+    logger.error("Update profile error:", error);
     res.status(500).json({ error: "Server xatosi" });
   }
 });

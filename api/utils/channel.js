@@ -23,14 +23,16 @@ async function checkChannelMembership(ctx, next) {
       days: 0,
       hours: 0,
     });
-    
+
     const user = ctx.session?.user;
     if (user && user.createdAt) {
       const now = new Date();
       const userCreatedAt = new Date(user.createdAt);
-      const delayMs = (delaySettings.days * 24 * 60 * 60 * 1000) + (delaySettings.hours * 60 * 60 * 1000);
+      const delayMs =
+        delaySettings.days * 24 * 60 * 60 * 1000 +
+        delaySettings.hours * 60 * 60 * 1000;
       const timeSinceCreation = now - userCreatedAt;
-      
+
       // If user is within delay period, skip channel check
       if (timeSinceCreation < delayMs) {
         return next();

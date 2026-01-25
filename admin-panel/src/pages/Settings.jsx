@@ -58,7 +58,9 @@ function Settings() {
       }
 
       // Channel join delay
-      const channelJoinDelay = data?.find((s) => s.key === "channel_join_delay");
+      const channelJoinDelay = data?.find(
+        (s) => s.key === "channel_join_delay"
+      );
       if (channelJoinDelay?.value) {
         setChannelJoinDelayDays(channelJoinDelay.value.days ?? 0);
         setChannelJoinDelayHours(channelJoinDelay.value.hours ?? 0);
@@ -317,7 +319,14 @@ function Settings() {
 
           <div className="form-group" style={{ marginTop: "32px" }}>
             <label>⏰ Kanal A'zoligini Tekshirish Kechikishi</label>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", marginTop: "8px" }}>
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr",
+                gap: "16px",
+                marginTop: "8px",
+              }}
+            >
               <div className="form-group">
                 <label>Kun</label>
                 <input
@@ -341,7 +350,8 @@ function Settings() {
               </div>
             </div>
             <small className="help-text">
-              💡 Yangi foydalanuvchilarga kanal a'zoligi necha kun/soat keyin tekshiriladi
+              💡 Yangi foydalanuvchilarga kanal a'zoligi necha kun/soat keyin
+              tekshiriladi
             </small>
           </div>
 
@@ -471,8 +481,8 @@ function Settings() {
           </li>
           <li>
             <strong>Kanal A'zolik Kechikishi:</strong> Yangi foydalanuvchilarga
-            botdan foydalanish uchun kanal a'zoligi majburiyati belgilangan vaqtdan
-            keyin qo'llaniladi (masalan: 3 kun 12 soat)
+            botdan foydalanish uchun kanal a'zoligi majburiyati belgilangan
+            vaqtdan keyin qo'llaniladi (masalan: 3 kun 12 soat)
           </li>
           <li>
             <strong>Bot Admin:</strong> Bot barcha kanallarda ham admin
@@ -485,8 +495,8 @@ function Settings() {
         <h4>💾 Cache haqida:</h4>
         <ul>
           <li>
-            <strong>TTL:</strong> Namoz vaqtlari qancha vaqt cache'da
-            saqlanadi, keyin qayta so'raladi
+            <strong>TTL:</strong> Namoz vaqtlari qancha vaqt cache'da saqlanadi,
+            keyin qayta so'raladi
           </li>
           <li>
             <strong>Max Size:</strong> Cache'da maksimal nechta joylashuv uchun

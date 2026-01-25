@@ -13,9 +13,12 @@ class Logger {
     try {
       // Get log channel from database
       const logChannel = await Settings.getSetting("log_channel", null);
-      
+
       if (!logChannel) {
-        console.log("[Logger] Log channel not configured, skipping log:", message);
+        console.log(
+          "[Logger] Log channel not configured, skipping log:",
+          message
+        );
         return;
       }
 

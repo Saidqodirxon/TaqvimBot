@@ -29,7 +29,18 @@ const TranslationSchema = new mongoose.Schema(
     },
     category: {
       type: String,
-      enum: ["buttons", "messages", "errors", "admin", "prayers", "settings", "other"],
+      enum: [
+        "buttons",
+        "messages",
+        "errors",
+        "admin",
+        "prayers",
+        "settings",
+        "location",
+        "greeting",
+        "calendar",
+        "other",
+      ],
       default: "other",
       index: true,
     },
@@ -48,7 +59,12 @@ TranslationSchema.statics.getTranslation = async function (key, lang = "uz") {
 };
 
 // Static method to set translation
-TranslationSchema.statics.setTranslation = async function (key, values, description = "", category = "other") {
+TranslationSchema.statics.setTranslation = async function (
+  key,
+  values,
+  description = "",
+  category = "other"
+) {
   return await this.findOneAndUpdate(
     { key },
     { uz: values.uz, cr: values.cr, ru: values.ru, description, category },

@@ -46,11 +46,14 @@ router.patch("/:id/approve", authMiddleware, async (req, res) => {
 
     // Send to greeting channel
     try {
-      const greetingChannel = await Settings.getSetting("greeting_channel", null);
+      const greetingChannel = await Settings.getSetting(
+        "greeting_channel",
+        null
+      );
       if (greetingChannel) {
         const botToken = process.env.BOT_TOKEN;
         const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
-        
+
         await axios.post(url, {
           chat_id: greetingChannel,
           text: `📨 Yangi Tabrik!\n\n${greeting.text}\n\n👤 Yuboruvchi: ${greeting.userId}`,

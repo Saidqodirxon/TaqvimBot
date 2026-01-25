@@ -79,10 +79,16 @@ bot.use(async (ctx, next) => {
       const user = await getOrCreateUser(ctx);
       ctx.session.user = user;
 
+      // Update last_active timestamp
+      await User.updateOne(
+        { userId: ctx.from.id },
+        { $set: { last_active: new Date() } }
+      );
+
       // Bloklangan foydalanuvchilarni tekshirish
       if (user.is_block) {
         const lang = getUserLanguage(user);
-        await ctx.reply(t(lang, "user_blocked"));
+        await ctx.reply(await t(lang, "user_blocked"));
         return; // Keyingi middleware'larga o'tmaslik
       }
     }
@@ -356,7 +362,7 @@ bot.hears(/ℹ️/, async (ctx) => {
     const message =
       customAboutText && customAboutText[lang]
         ? customAboutText[lang]
-        : t(lang, "about_bot", { admin: adminUser });
+        : await t(lang, "about_bot", { admin: adminUser });
 
     const keyboard = Markup.inlineKeyboard([
       [
@@ -366,7 +372,6 @@ bot.hears(/ℹ️/, async (ctx) => {
         ),
         Markup.button.url("👨‍💼 Admin", `https://t.me/${adminUser}`),
       ],
-      [Markup.button.callback("⚙️ Sozlamalar", "open_settings")],
     ]);
 
     await ctx.reply(message, keyboard);
@@ -434,7 +439,7 @@ bot.action("back_to_about", async (ctx) => {
     const message =
       customAboutText && customAboutText[lang]
         ? customAboutText[lang]
-        : t(lang, "about_bot", { admin: adminUser });
+        : await t(lang, "about_bot", { admin: adminUser });
 
     const keyboard = Markup.inlineKeyboard([
       [
@@ -444,7 +449,6 @@ bot.action("back_to_about", async (ctx) => {
         ),
         Markup.button.url("👨‍💼 Admin", `https://t.me/${adminUser}`),
       ],
-      [Markup.button.callback("⚙️ Sozlamalar", "open_settings")],
     ]);
 
     await ctx.editMessageText(message, keyboard);

@@ -95,13 +95,18 @@
   flex-shrink: 0;
 }
 
+.sidebar-footer {
+  padding: var(--spacing-lg);
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+}
+
 .logout-btn {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: var(--spacing-sm);
   padding: 14px 18px;
-  margin: var(--spacing-lg);
+  margin-top: var(--spacing-md);
   border: 2px solid rgba(239, 68, 68, 0.5);
   background: rgba(239, 68, 68, 0.15);
   color: white;
@@ -110,6 +115,7 @@
   font-size: 15px;
   font-weight: 600;
   transition: var(--transition);
+  width: 100%;
 }
 
 .logout-btn:hover {

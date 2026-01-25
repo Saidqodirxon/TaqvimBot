@@ -69,6 +69,11 @@ const UserSchema = new mongoose.Schema(
       type: mongoose.SchemaTypes.Date,
       default: Date.now,
     },
+    last_active: {
+      type: mongoose.SchemaTypes.Date,
+      default: Date.now,
+      index: true,
+    },
     reminderSettings: {
       enabled: {
         type: mongoose.SchemaTypes.Boolean,
