@@ -283,4 +283,32 @@ router.post(
   }
 );
 
+// Set channel join delay
+router.post(
+  "/channel-join-delay",
+  authMiddleware,
+  superAdminOnly,
+  async (req, res) => {
+    try {
+      const { days, hours } = req.body;
+      const delaySettings = {
+        days: typeof days === "number" ? days : 0,
+        hours: typeof hours === "number" ? hours : 0,
+      };
+      await Settings.setSetting(
+        "channel_join_delay",
+        delaySettings,
+        "Kanal a'zoligini tekshirish kechikishi (kun va soat)"
+      );
+      res.json({
+        message: "Kanal qo'shilish kechikishi o'rnatildi",
+        delaySettings,
+      });
+    } catch (error) {
+      logger.error("Set channel join delay error:", error);
+      res.status(500).json({ error: "Server xatosi" });
+    }
+  }
+);
+
 module.exports = router;

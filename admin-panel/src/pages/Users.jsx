@@ -92,6 +92,8 @@ function Users() {
                 <th>ID</th>
                 <th>Ism</th>
                 <th>Username</th>
+                <th>Telefon</th>
+                <th>Joylashuv</th>
                 <th>Til</th>
                 <th>Holat</th>
                 <th>Huquq</th>
@@ -109,6 +111,20 @@ function Users() {
                     </div>
                   </td>
                   <td>@{user.username || "-"}</td>
+                  <td>
+                    {user.phoneNumber ? (
+                      <span className="badge badge-success">📱 {user.phoneNumber}</span>
+                    ) : (
+                      <span className="badge badge-secondary">-</span>
+                    )}
+                  </td>
+                  <td>
+                    {user.location?.name ? (
+                      <span className="badge badge-info">📍 {user.location.name}</span>
+                    ) : (
+                      <span className="badge badge-secondary">-</span>
+                    )}
+                  </td>
                   <td>
                     <span className="badge badge-info">
                       {user.language === "uz"

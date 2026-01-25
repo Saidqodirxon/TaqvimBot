@@ -1116,6 +1116,11 @@ async function startBot() {
         description: "Log kanali (error va event loglar)",
       },
       {
+        key: "channel_join_delay",
+        value: { days: 0, hours: 0 },
+        description: "Kanal a'zoligini tekshirish kechikishi (kun va soat)",
+      },
+      {
         key: "cache_settings",
         value: { ttl: 86400, maxSize: 1000, autoClean: true },
         description: "Cache sozlamalari (TTL, max size, auto clean)",
@@ -1342,6 +1347,7 @@ async function startAdminAPI() {
   const cacheRoutes = require("./routes/admin/cache");
   const suggestionsRoutes = require("./routes/admin/suggestions");
   const greetingLogsRoutes = require("./routes/admin/greetingLogs");
+  const translationsRoutes = require("./routes/admin/translations");
 
   app.use("/api/auth", authRoutes);
   app.use("/api/users", usersRoutes);
@@ -1359,6 +1365,7 @@ async function startAdminAPI() {
   app.use("/api/cache", cacheRoutes);
   app.use("/api/suggestions", suggestionsRoutes);
   app.use("/api/greeting-logs", greetingLogsRoutes);
+  app.use("/api/translations", translationsRoutes);
 
   // Health check
   app.get("/", (req, res) => {

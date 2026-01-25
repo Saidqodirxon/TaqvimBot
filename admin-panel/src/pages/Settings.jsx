@@ -14,6 +14,8 @@ function Settings() {
   // Channel settings state
   const [greetingChannelId, setGreetingChannelId] = useState("");
   const [logChannelId, setLogChannelId] = useState("");
+  const [channelJoinDelayDays, setChannelJoinDelayDays] = useState(0);
+  const [channelJoinDelayHours, setChannelJoinDelayHours] = useState(0);
 
   // Cache settings state
   const [cacheTtl, setCacheTtl] = useState(86400); // 24 hours default
@@ -53,6 +55,13 @@ function Settings() {
       const logChannel = data?.find((s) => s.key === "log_channel");
       if (logChannel?.value) {
         setLogChannelId(logChannel.value);
+      }
+
+      // Channel join delay
+      const channelJoinDelay = data?.find((s) => s.key === "channel_join_delay");
+      if (channelJoinDelay?.value) {
+        setChannelJoinDelayDays(channelJoinDelay.value.days ?? 0);
+        setChannelJoinDelayHours(channelJoinDelay.value.hours ?? 0);
       }
 
       // Cache settings
@@ -95,6 +104,21 @@ function Settings() {
     onSuccess: () => {
       queryClient.invalidateQueries(["settings"]);
       alert("Log kanali o'rnatildi!");
+    },
+    onError: () => {
+      alert("Xatolik yuz berdi!");
+    },
+  });
+
+  const channelJoinDelayMutation = useMutation({
+    mutationFn: () =>
+      settings.setChannelJoinDelay(
+        parseInt(channelJoinDelayDays),
+        parseInt(channelJoinDelayHours)
+      ),
+    onSuccess: () => {
+      queryClient.invalidateQueries(["settings"]);
+      alert("Kanal qo'shilish kechikishi o'rnatildi!");
     },
     onError: () => {
       alert("Xatolik yuz berdi!");
@@ -290,6 +314,47 @@ function Settings() {
               ? "Saqlanmoqda..."
               : "Log Kanalini Saqlash"}
           </button>
+
+          <div className="form-group" style={{ marginTop: "32px" }}>
+            <label>⏰ Kanal A'zoligini Tekshirish Kechikishi</label>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", marginTop: "8px" }}>
+              <div className="form-group">
+                <label>Kun</label>
+                <input
+                  type="number"
+                  min="0"
+                  placeholder="0"
+                  value={channelJoinDelayDays}
+                  onChange={(e) => setChannelJoinDelayDays(e.target.value)}
+                />
+              </div>
+              <div className="form-group">
+                <label>Soat</label>
+                <input
+                  type="number"
+                  min="0"
+                  max="23"
+                  placeholder="0"
+                  value={channelJoinDelayHours}
+                  onChange={(e) => setChannelJoinDelayHours(e.target.value)}
+                />
+              </div>
+            </div>
+            <small className="help-text">
+              💡 Yangi foydalanuvchilarga kanal a'zoligi necha kun/soat keyin tekshiriladi
+            </small>
+          </div>
+
+          <button
+            className="btn-primary"
+            onClick={() => channelJoinDelayMutation.mutate()}
+            disabled={channelJoinDelayMutation.isLoading}
+          >
+            <Save size={18} />
+            {channelJoinDelayMutation.isLoading
+              ? "Saqlanmoqda..."
+              : "Kechikishni Saqlash"}
+          </button>
         </div>
       </div>
 
@@ -405,7 +470,12 @@ function Settings() {
             xatolar va statistika bu kanalga yuboriladi
           </li>
           <li>
-            <strong>Bot Admin:</strong> Bot ikkala kanalda ham admin
+            <strong>Kanal A'zolik Kechikishi:</strong> Yangi foydalanuvchilarga
+            botdan foydalanish uchun kanal a'zoligi majburiyati belgilangan vaqtdan
+            keyin qo'llaniladi (masalan: 3 kun 12 soat)
+          </li>
+          <li>
+            <strong>Bot Admin:</strong> Bot barcha kanallarda ham admin
             huquqlariga ega bo'lishi kerak
           </li>
         </ul>

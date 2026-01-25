@@ -2,25 +2,26 @@ const Settings = require("../models/Settings");
 const axios = require("axios");
 
 /**
- * Log system - sends important events to GROUP_ID
+ * Log system - sends important events to log channel from database
  */
 class Logger {
   constructor() {
-    this.groupId = process.env.GROUP_ID;
     this.botToken = process.env.BOT_TOKEN;
-    this.enabled = !!this.groupId;
   }
 
   async send(message, options = {}) {
-    if (!this.enabled) {
-      console.log("[Logger] GROUP_ID not configured, skipping log:", message);
-      return;
-    }
-
     try {
+      // Get log channel from database
+      const logChannel = await Settings.getSetting("log_channel", null);
+      
+      if (!logChannel) {
+        console.log("[Logger] Log channel not configured, skipping log:", message);
+        return;
+      }
+
       const url = `https://api.telegram.org/bot${this.botToken}/sendMessage`;
       await axios.post(url, {
-        chat_id: this.groupId,
+        chat_id: logChannel,
         text: message,
         parse_mode: options.parseMode || "HTML",
         disable_web_page_preview: options.disablePreview !== false,

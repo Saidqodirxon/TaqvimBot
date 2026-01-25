@@ -16,6 +16,7 @@ import {
   Database,
   Lightbulb,
   Heart,
+  Languages,
 } from "lucide-react";
 import "./Layout.css";
 
@@ -172,6 +173,16 @@ function Layout({ children, setAuth }) {
           >
             <Bell size={20} />
             <span>Eslatmalar</span>
+          </NavLink>
+
+          <NavLink
+            to="/translations"
+            className={({ isActive }) =>
+              isActive ? "nav-item active" : "nav-item"
+            }
+          >
+            <Languages size={20} />
+            <span>Tarjimalar</span>
           </NavLink>
         </nav>
 

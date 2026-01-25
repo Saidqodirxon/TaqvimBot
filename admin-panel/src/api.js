@@ -62,6 +62,8 @@ export const settings = {
     api.post("/settings/greeting-channel", { channelId }),
   setLogChannel: (channelId) =>
     api.post("/settings/log-channel", { channelId }),
+  setChannelJoinDelay: (days, hours) =>
+    api.post("/settings/channel-join-delay", { days, hours }),
   setCacheSettings: (cacheSettings) =>
     api.post("/settings/cache-settings", cacheSettings),
   setReminderSettings: (reminderSettings) =>
@@ -105,6 +107,15 @@ export const cache = {
   delete: (id) => api.delete(`/cache/${id}`),
   clearExpired: () => api.post("/cache/clear-expired"),
   clearAll: () => api.post("/cache/clear-all"),
+};
+
+// Translations
+export const translations = {
+  getAll: (category) => api.get(`/translations${category ? `?category=${category}` : ""}`),
+  getByKey: (key) => api.get(`/translations/${key}`),
+  create: (data) => api.post("/translations", data),
+  update: (key, data) => api.put(`/translations/${key}`, data),
+  delete: (key) => api.delete(`/translations/${key}`),
 };
 
 export default api;

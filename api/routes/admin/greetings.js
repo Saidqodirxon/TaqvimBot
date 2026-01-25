@@ -4,6 +4,7 @@ const router = express.Router();
 const { authMiddleware } = require("../../middleware/adminAuth");
 const Greeting = require("../../models/Greeting");
 const Settings = require("../../models/Settings");
+const axios = require("axios");
 
 // Get all greetings
 router.get("/", authMiddleware, async (req, res) => {
@@ -41,6 +42,26 @@ router.patch("/:id/approve", authMiddleware, async (req, res) => {
     );
     if (!greeting) {
       return res.status(404).json({ error: "Tabrik topilmadi" });
+    }
+
+    // Send to greeting channel
+    try {
+      const greetingChannel = await Settings.getSetting("greeting_channel", null);
+      if (greetingChannel) {
+        const botToken = process.env.BOT_TOKEN;
+        const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
+        
+        await axios.post(url, {
+          chat_id: greetingChannel,
+          text: `📨 Yangi Tabrik!\n\n${greeting.text}\n\n👤 Yuboruvchi: ${greeting.userId}`,
+          parse_mode: "HTML",
+        });
+
+        await logger.info(`Tabrik kanalga yuborildi: ${greeting._id}`);
+      }
+    } catch (channelError) {
+      logger.error("Greeting channel send error:", channelError);
+      // Continue even if channel send fails
     }
 
     res.json({ message: "Tabrik tasdiqlandi", greeting });
