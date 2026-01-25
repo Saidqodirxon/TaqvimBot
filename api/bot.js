@@ -749,9 +749,33 @@ bot.action("calendar_weekly", async (ctx) => {
 
     // Week day names
     const weekDays = {
-      uz: ["yakshanba", "dushanba", "seshanba", "chorshanba", "payshanba", "juma", "shanba"],
-      cr: ["якшанба", "душанба", "сешанба", "чоршанба", "пайшанба", "жума", "шанба"],
-      ru: ["воскресенье", "понедельник", "вторник", "среда", "четверг", "пятница", "суббота"]
+      uz: [
+        "yakshanba",
+        "dushanba",
+        "seshanba",
+        "chorshanba",
+        "payshanba",
+        "juma",
+        "shanba",
+      ],
+      cr: [
+        "якшанба",
+        "душанба",
+        "сешанба",
+        "чоршанба",
+        "пайшанба",
+        "жума",
+        "шанба",
+      ],
+      ru: [
+        "воскресенье",
+        "понедельник",
+        "вторник",
+        "среда",
+        "четверг",
+        "пятница",
+        "суббота",
+      ],
     };
 
     // Get prayer times for next 7 days
@@ -768,7 +792,8 @@ bot.action("calendar_weekly", async (ctx) => {
 
       if (prayerData.success) {
         const dayOfWeek = date.day();
-        const dayName = weekDays[lang]?.[dayOfWeek] || weekDays["uz"][dayOfWeek];
+        const dayName =
+          weekDays[lang]?.[dayOfWeek] || weekDays["uz"][dayOfWeek];
         message += `📅 ${date.format("DD.MM.YYYY")} (${dayName})\n`;
         message += `🌅 ${prayerData.timings.fajr} | ☀️ ${prayerData.timings.dhuhr} | 🌤 ${prayerData.timings.asr}\n`;
         message += `🌇 ${prayerData.timings.maghrib} | 🌙 ${prayerData.timings.isha}\n\n`;
@@ -1063,10 +1088,10 @@ bot.hears("📊 Statistika", async (ctx) => {
 
 bot.catch(async (err, ctx) => {
   logger.error(`Error for ${ctx.updateType}:`, err);
-  
+
   // Log to Telegram group
   await logError(err, ctx, `Bot Error - ${ctx.updateType}`);
-  
+
   try {
     const user = ctx.session?.user;
     const lang = getUserLanguage(user);
@@ -1186,7 +1211,7 @@ async function startBot() {
               },
             });
             console.log("✅ Default menu button set: " + miniAppUrl);
-            
+
             // Also set for admin user specifically
             await bot.telegram.setChatMenuButton({
               chat_id: parseInt(adminId),

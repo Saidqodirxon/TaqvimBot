@@ -574,23 +574,23 @@ const CALCULATION_METHODS = {
     cr: "Теҳрон университети",
     ru: "Тегеранский университет",
   },
-  8: { 
-    en: "Gulf Region", 
-    uz: "Fors ko'rfazi mintaqasi", 
+  8: {
+    en: "Gulf Region",
+    uz: "Fors ko'rfazi mintaqasi",
     cr: "Форс кўрфази минтақаси",
-    ru: "Регион Персидского залива"
+    ru: "Регион Персидского залива",
   },
-  9: { 
-    en: "Kuwait", 
-    uz: "Quvayt", 
+  9: {
+    en: "Kuwait",
+    uz: "Quvayt",
     cr: "Қувайт",
-    ru: "Кувейт"
+    ru: "Кувейт",
   },
-  10: { 
-    en: "Qatar", 
-    uz: "Qatar", 
+  10: {
+    en: "Qatar",
+    uz: "Qatar",
     cr: "Қатар",
-    ru: "Катар"
+    ru: "Катар",
   },
   11: {
     en: "Majlis Ugama Islam Singapura, Singapore",
@@ -604,11 +604,11 @@ const CALCULATION_METHODS = {
     cr: "Франция ислом ташкилотлари иттифоқи",
     ru: "Союз исламских организаций Франции",
   },
-  13: { 
-    en: "Diyanet İşleri Başkanlığı, Turkey", 
-    uz: "Turkiya diniy ishlar boshqarmasi", 
+  13: {
+    en: "Diyanet İşleri Başkanlığı, Turkey",
+    uz: "Turkiya diniy ishlar boshqarmasi",
     cr: "Туркия диний ишлар бошқармаси",
-    ru: "Управление по делам религии Турции"
+    ru: "Управление по делам религии Турции",
   },
   14: {
     en: "Spiritual Administration of Muslims of Russia",

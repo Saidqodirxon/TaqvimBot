@@ -168,7 +168,9 @@ function Suggestions() {
         {suggestions.map((suggestion) => (
           <div key={suggestion._id} className="suggestion-card">
             <div className="suggestion-header">
-              <span className={`status-badge ${getStatusBadge(suggestion.status)}`}>
+              <span
+                className={`status-badge ${getStatusBadge(suggestion.status)}`}
+              >
                 {getStatusText(suggestion.status)}
               </span>
               <span className="suggestion-date">

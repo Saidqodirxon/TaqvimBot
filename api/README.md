@@ -5,7 +5,6 @@
 ### ✅ Amalga oshirilgan yangiliklar:
 
 1. **Aladhan.com API integratsiyasi**
-
    - ❌ islomapi.uz o'rniga Aladhan.com API dan foydalanish
    - ✅ Xanafiy mazhabi (Hanafi school)
    - ✅ Karachi universiteti uslubi (method=1)
@@ -13,19 +12,16 @@
    - ✅ Koordinatalar orqali namoz vaqtlarini olish
 
 2. **Majburiy kanal funksiyasi**
-
    - ✅ Foydalanuvchi botdan foydalanish uchun kanalga obuna bo'lishi shart
    - ✅ Admin paneldan kanal sozlanadi
    - ✅ Kanal obunasini tekshirish
 
 3. **Til tanlash optimizatsiyasi**
-
    - ✅ Til faqat birinchi /start da so'raladi
    - ✅ Profilda saqlanadi va har safar suralmayd
      i - ✅ Sozlamalardan o'zgartirishga imkon bor
 
 4. **GPS joylashuv aniqlash**
-
    - ✅ Joylashuvni GPS orqali yuborish
    - ✅ Avtomatik shahar aniqlash (reverse geocoding)
    - ✅ Default: Tashkent

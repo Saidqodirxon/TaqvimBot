@@ -22,7 +22,7 @@ function initErrorLogger(bot) {
 async function logError(error, ctx = null, location = "Unknown") {
   try {
     const errorLogChatId = process.env.ERROR_LOG_CHAT_ID;
-    
+
     if (!errorLogChatId || !botInstance) {
       console.error("❌ Error logger not configured");
       return;
@@ -32,16 +32,16 @@ async function logError(error, ctx = null, location = "Unknown") {
     let message = `🚨 <b>Bot Error</b>\n\n`;
     message += `📍 <b>Location:</b> ${location}\n`;
     message += `⏰ <b>Time:</b> ${new Date().toLocaleString("uz-UZ")}\n\n`;
-    
+
     // User info if available
     if (ctx?.from) {
       message += `👤 <b>User:</b> ${ctx.from.first_name} (@${ctx.from.username || "N/A"})\n`;
       message += `🆔 <b>User ID:</b> ${ctx.from.id}\n\n`;
     }
-    
+
     // Error details
     message += `❌ <b>Error:</b> ${error.message}\n\n`;
-    
+
     // Stack trace (limited to prevent message too long)
     if (error.stack) {
       const stackLines = error.stack.split("\n").slice(0, 10);
@@ -67,14 +67,14 @@ async function logError(error, ctx = null, location = "Unknown") {
 async function logInfo(message, details = {}) {
   try {
     const errorLogChatId = process.env.ERROR_LOG_CHAT_ID;
-    
+
     if (!errorLogChatId || !botInstance) {
       return;
     }
 
     let text = `ℹ️ <b>${message}</b>\n\n`;
     text += `⏰ ${new Date().toLocaleString("uz-UZ")}\n\n`;
-    
+
     // Add details
     for (const [key, value] of Object.entries(details)) {
       text += `${key}: ${value}\n`;
@@ -96,14 +96,14 @@ async function logInfo(message, details = {}) {
 async function logWarning(message, details = {}) {
   try {
     const errorLogChatId = process.env.ERROR_LOG_CHAT_ID;
-    
+
     if (!errorLogChatId || !botInstance) {
       return;
     }
 
     let text = `⚠️ <b>${message}</b>\n\n`;
     text += `⏰ ${new Date().toLocaleString("uz-UZ")}\n\n`;
-    
+
     // Add details
     for (const [key, value] of Object.entries(details)) {
       text += `${key}: ${value}\n`;
