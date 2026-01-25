@@ -9,11 +9,11 @@ settingsScene.enter(async (ctx) => {
   const lang = ctx.session.language;
   const user = await User.findOne({ userId: ctx.from.id });
 
-  const text = t(lang, "settings_menu");
+  const text = await t(lang, "settings_menu");
   const keyboard = Markup.keyboard([
-    [t(lang, "btn_prayer_reminders"), t(lang, "btn_prayer_settings")],
-    [t(lang, "btn_location"), t(lang, "btn_change_language")],
-    [t(lang, "btn_back_main")],
+    [await t(lang, "btn_prayer_reminders"), await t(lang, "btn_prayer_settings")],
+    [await t(lang, "btn_location"), await t(lang, "btn_change_language")],
+    [await t(lang, "btn_back_main")],
   ]).resize();
 
   await ctx.reply(text, keyboard);
@@ -28,36 +28,40 @@ settingsScene.hears(
 
     const prayers = ["fajr", "dhuhr", "asr", "maghrib", "isha"];
 
-    const buttons = prayers.map((prayerKey) => {
+    const buttons = [];
+    for (const prayerKey of prayers) {
       const isEnabled = user.reminderSettings.prayers[prayerKey];
       const icon = isEnabled ? "✅" : "❌";
-      return [
+      buttons.push([
         Markup.button.callback(
-          `${icon} ${t(lang, prayerKey)}`,
+          `${icon} ${await t(lang, prayerKey)}`,
           `toggle_prayer_${prayerKey}`
         ),
-      ];
-    });
+      ]);
+    }
 
     // Eslatma vaqti
-    const minuteButtons = [5, 10, 15, 30].map((min) => {
+    const minuteButtons = [];
+    for (const min of [5, 10, 15, 30]) {
       const isCurrent = user.reminderSettings.minutesBefore === min;
-      return Markup.button.callback(
-        `${isCurrent ? "✅" : ""} ${min} ${t(lang, "minutes_before")}`,
-        `set_minutes_${min}`
+      minuteButtons.push(
+        Markup.button.callback(
+          `${isCurrent ? "✅" : ""} ${min} ${await t(lang, "minutes_before")}`,
+          `set_minutes_${min}`
+        )
       );
-    });
+    }
 
     buttons.push([
-      Markup.button.callback(t(lang, "btn_back"), "settings_back"),
+      Markup.button.callback(await t(lang, "btn_back"), "settings_back"),
     ]);
 
-    const text = t(lang, "configure_reminders");
+    const text = await t(lang, "configure_reminders");
     await ctx.reply(
       text +
-        `\n\n⏱ ${t(lang, "current_reminder_time")}: ${
+        `\n\n⏱ ${await t(lang, "current_reminder_time")}: ${
           user.reminderSettings.minutesBefore
-        } ${t(lang, "minutes")}`,
+        } ${await t(lang, "minutes")}`,
       Markup.inlineKeyboard([...buttons, minuteButtons])
     );
   }
@@ -73,21 +77,22 @@ settingsScene.action(/toggle_prayer_(.+)/, async (ctx) => {
     !user.reminderSettings.prayers[prayerKey];
   await user.save();
 
-  await ctx.answerCbQuery(t(lang, "saved"));
+  await ctx.answerCbQuery(await t(lang, "saved"));
 
   // Refresh buttons
   const prayers = ["fajr", "dhuhr", "asr", "maghrib", "isha"];
 
-  const buttons = prayers.map((pKey) => {
+  const buttons = [];
+  for (const pKey of prayers) {
     const isEnabled = user.reminderSettings.prayers[pKey];
     const icon = isEnabled ? "✅" : "❌";
-    return [
+    buttons.push([
       Markup.button.callback(
-        `${icon} ${t(lang, pKey)}`,
+        `${icon} ${await t(lang, pKey)}`,
         `toggle_prayer_${pKey}`
       ),
-    ];
-  });
+    ]);
+  }
 
   const minuteButtons = [5, 10, 15, 30].map((min) => {
     const isCurrent = user.reminderSettings.minutesBefore === min;
@@ -118,7 +123,7 @@ settingsScene.action(/set_minutes_(\d+)/, async (ctx) => {
   await user.save();
 
   await ctx.answerCbQuery(
-    `${t(lang, "reminder_set_to")} ${minutes} ${t(lang, "minutes")}`
+    `${await t(lang, "reminder_set_to")} ${minutes} ${await t(lang, "minutes")}`
   );
 
   // Refresh buttons
@@ -135,19 +140,22 @@ settingsScene.action(/set_minutes_(\d+)/, async (ctx) => {
     ];
   });
 
-  const minuteButtons = [5, 10, 15, 30].map((min) => {
+  const minuteButtons = [];
+  for (const min of [5, 10, 15, 30]) {
     const isCurrent = user.reminderSettings.minutesBefore === min;
-    return Markup.button.callback(
-      `${isCurrent ? "✅" : ""} ${min} ${t(lang, "minutes_before")}`,
-      `set_minutes_${min}`
+    minuteButtons.push(
+      Markup.button.callback(
+        `${isCurrent ? "✅" : ""} ${min} ${await t(lang, "minutes_before")}`,
+        `set_minutes_${min}`
+      )
     );
-  });
+  }
 
-  buttons.push([Markup.button.callback(t(lang, "btn_back"), "settings_back")]);
+  buttons.push([Markup.button.callback(await t(lang, "btn_back"), "settings_back")]);
 
   await ctx.editMessageText(
-    t(lang, "configure_reminders") +
-      `\n\n⏱ ${t(lang, "current_reminder_time")}: ${minutes} ${t(
+    await t(lang, "configure_reminders") +
+      `\n\n⏱ ${await t(lang, "current_reminder_time")}: ${minutes} ${await t(
         lang,
         "minutes"
       )}`,
@@ -177,10 +185,10 @@ settingsScene.hears(
     const keyboard = Markup.keyboard([
       ["🇺🇿 O'zbekcha", "🇷🇺 Кириллча"],
       ["🇷🇺 Русский"],
-      [t(ctx.session.language, "btn_back")],
+      [await t(ctx.session.language, "btn_back")],
     ]).resize();
 
-    await ctx.reply(t(ctx.session.language, "choose_language"), keyboard);
+    await ctx.reply(await t(ctx.session.language, "choose_language"), keyboard);
   }
 );
 

@@ -74,7 +74,7 @@ locationScene.action("manual_select", async (ctx) => {
 
     // Add back button
     buttons.push([
-      Markup.button.callback(t(lang, "btn_back"), "back_to_location_menu"),
+      Markup.button.callback(await t(lang, "btn_back"), "back_to_location_menu"),
     ]);
 
     await ctx.editMessageText(
@@ -145,8 +145,8 @@ locationScene.action(/^select_location_(.+)$/, async (ctx) => {
       // Ignore if message already deleted
     }
 
-    await ctx.reply(t(lang, "location_saved", { location: locationName }), {
-      ...getMainMenuKeyboard(lang),
+    await ctx.reply(await t(lang, "location_saved", { location: locationName }), {
+      ...(await getMainMenuKeyboard(lang)),
     });
 
     await ctx.scene.leave();
@@ -165,14 +165,14 @@ locationScene.action("send_gps", async (ctx) => {
     await ctx.answerCbQuery();
 
     const keyboard = Markup.keyboard([
-      [Markup.button.locationRequest(t(lang, "btn_send_gps"))],
-      [Markup.button.text(t(lang, "btn_cancel"))],
+      [Markup.button.locationRequest(await t(lang, "btn_send_gps"))],
+      [Markup.button.text(await t(lang, "btn_cancel"))],
     ])
       .resize()
       .oneTime();
 
-    await ctx.editMessageText(t(lang, "send_gps_location"));
-    await ctx.reply(t(lang, "location_send"), keyboard);
+    await ctx.editMessageText(await t(lang, "send_gps_location"));
+    await ctx.reply(await t(lang, "location_send"), keyboard);
   } catch (error) {
     console.error("Error in send_gps action:", error);
   }
@@ -238,15 +238,15 @@ locationScene.on("location", async (ctx) => {
       longitude: location.longitude,
     };
 
-    await ctx.reply(t(lang, "location_detected", { location: locationName }), {
-      ...getMainMenuKeyboard(lang),
+    await ctx.reply(await t(lang, "location_detected", { location: locationName }), {
+      ...(await getMainMenuKeyboard(lang)),
     });
 
     await ctx.scene.leave();
   } catch (error) {
     console.error("Error handling location:", error);
     const lang = getUserLanguage(ctx.session.user);
-    await ctx.reply(t(lang, "location_error"));
+    await ctx.reply(await t(lang, "location_error"));
   }
 });
 

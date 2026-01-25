@@ -10,7 +10,7 @@ suggestionScene.enter(async (ctx) => {
   const user = ctx.session.user;
   const lang = getUserLanguage(user);
 
-  await ctx.reply(t(lang, "suggestion_send"), {
+  await ctx.reply(await t(lang, "suggestion_send"), {
     reply_markup: { remove_keyboard: true },
   });
 });
@@ -55,15 +55,15 @@ suggestionScene.on("text", async (ctx) => {
       );
     }
 
-    await ctx.reply(t(lang, "suggestion_sent"), {
-      ...getMainMenuKeyboard(lang),
+    await ctx.reply(await t(lang, "suggestion_sent"), {
+      ...(await getMainMenuKeyboard(lang)),
     });
 
     await ctx.scene.leave();
   } catch (error) {
     console.error("Error in suggestion scene:", error);
     const lang = getUserLanguage(ctx.session.user);
-    await ctx.reply(t(lang, "error_try_again"));
+    await ctx.reply(await t(lang, "error_try_again"));
   }
 });
 

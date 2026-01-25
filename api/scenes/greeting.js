@@ -14,10 +14,10 @@ greetingScene.enter(async (ctx) => {
   const user = ctx.session.user;
   const lang = getUserLanguage(user);
 
-  await ctx.reply(t(lang, "greeting_send"), {
+  await ctx.reply(await t(lang, "greeting_send"), {
     parse_mode: "HTML",
     reply_markup: {
-      keyboard: [[{ text: t(lang, "btn_back_menu") }]],
+      keyboard: [[{ text: await t(lang, "btn_back_menu") }]],
       resize_keyboard: true,
       one_time_keyboard: false,
     },
@@ -40,13 +40,13 @@ greetingScene.on("text", async (ctx) => {
 
     // Check if user wants to go back
     if (
-      message === t(lang, "btn_back_menu") ||
-      message === t(lang, "btn_back") ||
-      message === t(lang, "btn_cancel")
+      message === await t(lang, "btn_back_menu") ||
+      message === await t(lang, "btn_back") ||
+      message === await t(lang, "btn_cancel")
     ) {
-      await ctx.reply(t(lang, "main_menu"), {
+      await ctx.reply(await t(lang, "main_menu"), {
         parse_mode: "HTML",
-        ...getMainMenuKeyboard(lang),
+        ...(await getMainMenuKeyboard(lang)),
       });
       return await ctx.scene.leave();
     }
@@ -66,14 +66,14 @@ greetingScene.on("text", async (ctx) => {
       username: ctx.from.username,
     };
 
-    await ctx.reply(`${t(lang, "greeting_confirm")}\n\n${message}`, {
+    await ctx.reply(`${await t(lang, "greeting_confirm")}\n\n${message}`, {
       parse_mode: "HTML",
-      ...getConfirmKeyboard(lang),
+      ...(await getConfirmKeyboard(lang)),
     });
   } catch (error) {
     console.error("Error in greeting scene text:", error);
     const lang = getUserLanguage(ctx.session.user);
-    await ctx.reply(t(lang, "error_try_again"));
+    await ctx.reply(await t(lang, "error_try_again"));
   }
 });
 
@@ -94,13 +94,13 @@ greetingScene.on("photo", async (ctx) => {
     };
 
     await ctx.replyWithPhoto(photo.file_id, {
-      caption: `${t(lang, "greeting_confirm")}\n\n${caption}`,
-      ...getConfirmKeyboard(lang),
+      caption: `${await t(lang, "greeting_confirm")}\n\n${caption}`,
+      ...(await getConfirmKeyboard(lang)),
     });
   } catch (error) {
     console.error("Error in greeting scene photo:", error);
     const lang = getUserLanguage(ctx.session.user);
-    await ctx.reply(t(lang, "error_try_again"));
+    await ctx.reply(await t(lang, "error_try_again"));
   }
 });
 
@@ -121,13 +121,13 @@ greetingScene.on("video", async (ctx) => {
     };
 
     await ctx.replyWithVideo(video.file_id, {
-      caption: `${t(lang, "greeting_confirm")}\n\n${caption}`,
-      ...getConfirmKeyboard(lang),
+      caption: `${await t(lang, "greeting_confirm")}\n\n${caption}`,
+      ...(await getConfirmKeyboard(lang)),
     });
   } catch (error) {
     console.error("Error in greeting scene video:", error);
     const lang = getUserLanguage(ctx.session.user);
-    await ctx.reply(t(lang, "error_try_again"));
+    await ctx.reply(await t(lang, "error_try_again"));
   }
 });
 
@@ -139,7 +139,7 @@ greetingScene.action("confirm", async (ctx) => {
     const greetingData = ctx.session.greetingData;
 
     if (!greetingData) {
-      await ctx.reply(t(lang, "error_try_again"));
+      await ctx.reply(await t(lang, "error_try_again"));
       return await ctx.scene.leave();
     }
 
