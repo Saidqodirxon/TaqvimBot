@@ -11,6 +11,7 @@ function App() {
   const [prayerTimes, setPrayerTimes] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [prayerError, setPrayerError] = useState(null);
   const [currentView, setCurrentView] = useState("calendar"); // "calendar" or "qibla"
 
   useEffect(() => {
@@ -70,28 +71,58 @@ function App() {
   const fetchUserData = async (userId) => {
     try {
       setLoading(true);
+      setError(null);
+      setPrayerError(null);
+      
       const response = await axios.get(
         `${API_BASE}/api/miniapp/user/${userId}`
       );
       setUserData(response.data);
 
-      // Fetch prayer times
-      if (response.data.location) {
-        const prayerResponse = await axios.post(
-          `${API_BASE}/api/miniapp/prayer-times`,
-          {
-            userId,
-            latitude: response.data.location.latitude,
-            longitude: response.data.location.longitude,
-          }
-        );
-        setPrayerTimes(prayerResponse.data);
+      // Fetch prayer times only if location exists
+      if (response.data.location && response.data.location.latitude) {
+        try {
+          const prayerResponse = await axios.post(
+            `${API_BASE}/api/miniapp/prayer-times`,
+            {
+              userId,
+              latitude: response.data.location.latitude,
+              longitude: response.data.location.longitude,
+            }
+          );
+          setPrayerTimes(prayerResponse.data);
+        } catch (prayerErr) {
+          console.error("Error fetching prayer times:", prayerErr);
+          setPrayerError(prayerErr.response?.data?.error || "Namoz vaqtlarini yuklashda xatolik");
+        }
       }
     } catch (err) {
       console.error("Error fetching data:", err);
-      setError(err.message);
+      setError(err.response?.data?.error || err.message || "Ma'lumot yuklashda xatolik");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const retryFetchPrayerTimes = () => {
+    if (userData?.userId && userData?.location) {
+      setPrayerError(null);
+      setLoading(true);
+      
+      axios.post(`${API_BASE}/api/miniapp/prayer-times`, {
+        userId: userData.userId,
+        latitude: userData.location.latitude,
+        longitude: userData.location.longitude,
+      })
+      .then(response => {
+        setPrayerTimes(response.data);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error("Retry error:", err);
+        setPrayerError(err.response?.data?.error || "Namoz vaqtlarini yuklashda xatolik");
+        setLoading(false);
+      });
     }
   };
 
@@ -138,7 +169,14 @@ function App() {
       </header>
 
       {currentView === "calendar" ? (
-        prayerTimes ? (
+        prayerError ? (
+          <div className="error-container">
+            <p>❌ Xatolik: {prayerError}</p>
+            <button onClick={retryFetchPrayerTimes} className="retry-button">
+              🔄 Qayta urinish
+            </button>
+          </div>
+        ) : prayerTimes ? (
           <Calendar prayerTimes={prayerTimes} userData={userData} />
         ) : (
           <div className="no-location">
