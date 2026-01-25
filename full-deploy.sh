@@ -48,7 +48,16 @@ echo -e "${YELLOW}📦 Step 4/8: Admin Panel Nginx - npm install...${NC}"
 cd /root/ramazonbot/admin-panel/nginx
 npm install --silent
 echo -e "${GREEN}✓ Admin Panel Nginx dependencies installed${NC}"
-echo -e "${YELLOW}🔄 Restarting Admin Panel (PM2 ID: 8)...${NC}"
+echo -e "${YELLOW}� Moving dist folder...${NC}"
+# Remove old dist folder if exists
+if [ -d "dist" ]; then
+  echo -e "${YELLOW}🗑️  Removing old dist folder...${NC}"
+  rm -rf dist
+fi
+# Move new dist folder
+mv ../dist .
+echo -e "${GREEN}✓ Dist folder moved${NC}"
+echo -e "${YELLOW}�🔄 Restarting Admin Panel (PM2 ID: 8)...${NC}"
 pm2 restart 8
 echo -e "${GREEN}✓ Admin Panel restarted${NC}\n"
 
@@ -66,7 +75,16 @@ echo -e "${YELLOW}📦 Step 6/8: WebApp Nginx - npm install...${NC}"
 cd /root/ramazonbot/mini-app/nginx
 npm install --silent
 echo -e "${GREEN}✓ WebApp Nginx dependencies installed${NC}"
-echo -e "${YELLOW}🔄 Restarting WebApp (PM2 ID: 7)...${NC}"
+echo -e "${YELLOW}� Moving dist folder...${NC}"
+# Remove old dist folder if exists
+if [ -d "dist" ]; then
+  echo -e "${YELLOW}🗑️  Removing old dist folder...${NC}"
+  rm -rf dist
+fi
+# Move new dist folder
+mv ../dist .
+echo -e "${GREEN}✓ Dist folder moved${NC}"
+echo -e "${YELLOW}�🔄 Restarting WebApp (PM2 ID: 7)...${NC}"
 pm2 restart 7
 echo -e "${GREEN}✓ WebApp restarted${NC}\n"
 
