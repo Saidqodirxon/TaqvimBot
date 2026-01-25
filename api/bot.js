@@ -84,6 +84,25 @@ bot.use(async (ctx, next) => {
         await ctx.reply(t(lang, "user_blocked"));
         return; // Keyingi middleware'larga o'tmaslik
       }
+
+      // Dynamic menu button o'rnatish har safar
+      const miniAppUrl = process.env.MINI_APP_URL;
+      if (miniAppUrl && miniAppUrl.startsWith("https://")) {
+        try {
+          await bot.telegram.setChatMenuButton({
+            chat_id: ctx.from.id,
+            menu_button: {
+              type: "web_app",
+              text: "📅 Taqvim",
+              web_app: {
+                url: `${miniAppUrl}?userId=${ctx.from.id}`,
+              },
+            },
+          });
+        } catch (menuError) {
+          // Menu button error'ni log qilmaslik - juda ko'p spam
+        }
+      }
     }
     await next();
   } catch (error) {
@@ -170,25 +189,6 @@ bot.command("start", async (ctx) => {
     if (!user.phoneNumber && user.hasJoinedChannel) {
       await ctx.reply(t(lang, "request_phone"), getPhoneRequestKeyboard(lang));
       return;
-    }
-
-    // Dynamic menu button sozlash (user ID bilan)
-    const miniAppUrl = process.env.MINI_APP_URL;
-    if (miniAppUrl && miniAppUrl.startsWith("https://")) {
-      try {
-        await bot.telegram.setChatMenuButton({
-          chat_id: ctx.from.id,
-          menu_button: {
-            type: "web_app",
-            text: "📅 Taqvim",
-            web_app: {
-              url: `${miniAppUrl}?userId=${ctx.from.id}`,
-            },
-          },
-        });
-      } catch (menuError) {
-        logger.error("Menu button setup error", menuError);
-      }
     }
 
     // Asosiy menyuni ko'rsatish
@@ -1230,13 +1230,18 @@ async function startAdminAPI() {
     }
   }, 2000);
 
-  // CORS - Completely open for all origins
+  // CORS - Completely open for all origins with explicit support
   app.use((req, res, next) => {
-    res.header("Access-Control-Allow-Origin", "*");
+    // Allow all origins
+    const origin = req.headers.origin;
+    res.header("Access-Control-Allow-Origin", origin || "*");
     res.header("Access-Control-Allow-Credentials", "true");
-    res.header("Access-Control-Allow-Methods", "*");
-    res.header("Access-Control-Allow-Headers", "*");
-    res.header("Access-Control-Expose-Headers", "*");
+    res.header("Access-Control-Allow-Methods", "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS");
+    res.header(
+      "Access-Control-Allow-Headers",
+      "Origin, X-Requested-With, Content-Type, Accept, Authorization, X-Auth-Token, telegram-data"
+    );
+    res.header("Access-Control-Expose-Headers", "Content-Length, X-JSON");
     res.header("Access-Control-Max-Age", "86400");
 
     // Handle preflight
