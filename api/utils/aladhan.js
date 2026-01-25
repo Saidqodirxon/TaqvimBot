@@ -1,6 +1,7 @@
 const axios = require("axios");
 const Location = require("../models/Location");
 const MonthlyPrayerTime = require("../models/MonthlyPrayerTime");
+const PrayerTimeCache = require("../models/PrayerTimeCache");
 
 /**
  * Aladhan API dan namoz vaqtlarini olish yoki manual vaqtlarni qaytarish
@@ -26,6 +27,44 @@ async function getPrayerTimes(
     // Create a clean date object without mutating the parameter
     const targetDate = date ? new Date(date.getTime()) : new Date();
     targetDate.setHours(0, 0, 0, 0);
+
+    // Create location key and date string for cache
+    const locationKey = `${latitude.toFixed(4)}_${longitude.toFixed(4)}`;
+    const dateStr = targetDate.toISOString().split('T')[0]; // YYYY-MM-DD
+
+    // Priority 0: Check cache first (fast and reliable)
+    try {
+      const cachedData = await PrayerTimeCache.findOne({
+        locationKey,
+        date: dateStr,
+        expiresAt: { $gt: new Date() }, // Not expired
+      });
+
+      if (cachedData) {
+        console.log(`✅ Cache hit for ${locationKey} on ${dateStr}`);
+        return {
+          success: true,
+          date: cachedData.date || targetDate.toLocaleDateString("en-GB", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+          }),
+          hijri: cachedData.hijri?.date || "Unknown",
+          timings: cachedData.timings,
+          meta: cachedData.meta || {
+            latitude,
+            longitude,
+            timezone: "Asia/Tashkent",
+          },
+          manual: false,
+          cached: true,
+          source: cachedData.source,
+        };
+      }
+    } catch (cacheError) {
+      console.error("Cache read error:", cacheError.message);
+      // Continue to other methods if cache fails
+    }
 
     // Find location by coordinates
     const location = await Location.findOne({
@@ -129,7 +168,7 @@ async function getPrayerTimes(
       const timings = response.data.data.timings;
       const dateData = response.data.data.date;
 
-      return {
+      const result = {
         success: true,
         date: dateData.readable,
         hijri: `${dateData.hijri.month.en} ${dateData.hijri.day}, ${dateData.hijri.year}`,
@@ -152,14 +191,69 @@ async function getPrayerTimes(
         },
         manual: false,
       };
+
+      // Save to cache (non-blocking)
+      savePrayerTimeToCache(locationKey, dateStr, result, {
+        latitude,
+        longitude,
+        method,
+        school,
+        midnightMode,
+        latitudeAdjustment,
+      }, 'aladhan-api').catch(err => {
+        console.error("Cache save error:", err.message);
+      });
+
+      return result;
     } else {
-      throw new Error("API qaytardi: " + response.data.status);
+      const errorMsg = `Aladhan API error: ${response.data.status || 'Unknown error'}`;
+      console.error(errorMsg, response.data);
+      return {
+        success: false,
+        error: errorMsg,
+      };
     }
   } catch (error) {
-    console.error("Aladhan API xatosi:", error.message);
+    const errorMsg = error.response?.data?.status || error.message || "API connection failed";
+    console.error("Aladhan API xatosi:", errorMsg);
+    console.error("Full error:", error);
+    
+    // Try to get last successful cache as fallback (any date)
+    try {
+      const lastCache = await PrayerTimeCache.findOne({
+        locationKey: `${latitude.toFixed(4)}_${longitude.toFixed(4)}`,
+        source: 'aladhan-api',
+      }).sort({ fetchedAt: -1 });
+
+      if (lastCache) {
+        console.log(`⚠️ API failed, using cached data from ${lastCache.date}`);
+        return {
+          success: true,
+          date: lastCache.date || new Date().toLocaleDateString("en-GB", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+          }),
+          hijri: lastCache.hijri?.date || "Unknown",
+          timings: lastCache.timings,
+          meta: lastCache.meta || {
+            latitude,
+            longitude,
+            timezone: "Asia/Tashkent",
+          },
+          manual: false,
+          cached: true,
+          outdated: true,
+          warning: "API ishlamadi, oxirgi saqlangan ma'lumot ko'rsatilmoqda",
+        };
+      }
+    } catch (cacheError) {
+      console.error("Fallback cache error:", cacheError.message);
+    }
+
     return {
       success: false,
-      error: error.message,
+      error: `Namoz vaqtlarini olishda xatolik: ${errorMsg}`,
     };
   }
 }
@@ -415,6 +509,53 @@ const CALCULATION_METHODS = {
 };
 
 /**
+ * Save prayer time to cache
+ * @param {string} locationKey - Location identifier
+ * @param {string} dateStr - Date string (YYYY-MM-DD)
+ * @param {Object} prayerData - Prayer time data
+ * @param {Object} settings - Calculation settings
+ * @param {string} source - Data source (aladhan-api, monthly, manual)
+ */
+async function savePrayerTimeToCache(locationKey, dateStr, prayerData, settings, source = 'aladhan-api') {
+  try {
+    const [lat, lon] = locationKey.split('_').map(Number);
+    
+    // Set expiration to end of day + 1 day (cache valid for 24+ hours)
+    const expiresAt = new Date(dateStr);
+    expiresAt.setHours(23, 59, 59, 999);
+    expiresAt.setDate(expiresAt.getDate() + 1);
+
+    const cacheData = {
+      locationKey,
+      latitude: lat,
+      longitude: lon,
+      date: dateStr,
+      timings: prayerData.timings,
+      hijri: {
+        date: prayerData.hijri,
+        month: { en: prayerData.hijri?.split(' ')[0] || '', uz: '' },
+        year: prayerData.hijri?.split(', ')[1] || '',
+      },
+      meta: prayerData.meta,
+      settings,
+      source,
+      expiresAt,
+    };
+
+    await PrayerTimeCache.findOneAndUpdate(
+      { locationKey, date: dateStr },
+      cacheData,
+      { upsert: true, new: true }
+    );
+
+    console.log(`💾 Cached prayer times for ${locationKey} on ${dateStr}`);
+  } catch (error) {
+    console.error("Failed to save cache:", error.message);
+    throw error;
+  }
+}
+
+/**
  * Mazhab nomlari
  */
 const SCHOOLS = {
@@ -427,6 +568,7 @@ module.exports = {
   getMonthlyPrayerTimes,
   getNextPrayer,
   getQiblaDirection,
+  savePrayerTimeToCache,
   CALCULATION_METHODS,
   SCHOOLS,
 };

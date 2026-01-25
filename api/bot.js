@@ -1214,6 +1214,21 @@ async function startAdminAPI() {
   const cors = require("cors");
   const Admin = require("./models/Admin");
   const bcrypt = require("bcrypt");
+  const mongoose = require("mongoose");
+
+  // Ensure database connection
+  if (mongoose.connection.readyState !== 1) {
+    console.log("⚠️ Database not connected. Reconnecting...");
+    try {
+      await db();
+      console.log("✅ Database reconnected for Admin API");
+    } catch (error) {
+      console.error("❌ Failed to reconnect database:", error.message);
+      throw error;
+    }
+  } else {
+    console.log("✅ Database already connected");
+  }
 
   const app = express();
   const PORT = process.env.PORT || 3001;

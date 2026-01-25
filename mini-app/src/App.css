@@ -129,3 +129,14 @@
 .retry-button:active {
   opacity: 0.7;
 }
+
+.warning-banner {
+  background: #fff3cd;
+  border: 1px solid #ffc107;
+  color: #856404;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin: 16px 0;
+  font-size: 14px;
+  text-align: center;
+}

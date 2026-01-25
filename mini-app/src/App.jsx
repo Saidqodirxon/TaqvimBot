@@ -73,7 +73,7 @@ function App() {
       setLoading(true);
       setError(null);
       setPrayerError(null);
-      
+
       const response = await axios.get(
         `${API_BASE}/api/miniapp/user/${userId}`
       );
@@ -93,12 +93,17 @@ function App() {
           setPrayerTimes(prayerResponse.data);
         } catch (prayerErr) {
           console.error("Error fetching prayer times:", prayerErr);
-          setPrayerError(prayerErr.response?.data?.error || "Namoz vaqtlarini yuklashda xatolik");
+          setPrayerError(
+            prayerErr.response?.data?.error ||
+              "Namoz vaqtlarini yuklashda xatolik"
+          );
         }
       }
     } catch (err) {
       console.error("Error fetching data:", err);
-      setError(err.response?.data?.error || err.message || "Ma'lumot yuklashda xatolik");
+      setError(
+        err.response?.data?.error || err.message || "Ma'lumot yuklashda xatolik"
+      );
     } finally {
       setLoading(false);
     }
@@ -108,21 +113,24 @@ function App() {
     if (userData?.userId && userData?.location) {
       setPrayerError(null);
       setLoading(true);
-      
-      axios.post(`${API_BASE}/api/miniapp/prayer-times`, {
-        userId: userData.userId,
-        latitude: userData.location.latitude,
-        longitude: userData.location.longitude,
-      })
-      .then(response => {
-        setPrayerTimes(response.data);
-        setLoading(false);
-      })
-      .catch(err => {
-        console.error("Retry error:", err);
-        setPrayerError(err.response?.data?.error || "Namoz vaqtlarini yuklashda xatolik");
-        setLoading(false);
-      });
+
+      axios
+        .post(`${API_BASE}/api/miniapp/prayer-times`, {
+          userId: userData.userId,
+          latitude: userData.location.latitude,
+          longitude: userData.location.longitude,
+        })
+        .then((response) => {
+          setPrayerTimes(response.data);
+          setLoading(false);
+        })
+        .catch((err) => {
+          console.error("Retry error:", err);
+          setPrayerError(
+            err.response?.data?.error || "Namoz vaqtlarini yuklashda xatolik"
+          );
+          setLoading(false);
+        });
     }
   };
 
@@ -177,7 +185,14 @@ function App() {
             </button>
           </div>
         ) : prayerTimes ? (
-          <Calendar prayerTimes={prayerTimes} userData={userData} />
+          <>
+            {prayerTimes.outdated && (
+              <div className="warning-banner">
+                ⚠️ {prayerTimes.warning || "API ishlamadi, oxirgi ma'lumot ko'rsatilmoqda"}
+              </div>
+            )}
+            <Calendar prayerTimes={prayerTimes} userData={userData} />
+          </>
         ) : (
           <div className="no-location">
             <p>📍 Joylashuvingizni kiriting</p>
