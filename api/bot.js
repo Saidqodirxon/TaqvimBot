@@ -241,7 +241,8 @@ bot.command("start", async (ctx) => {
 
     // Agar foydalanuvchi tili tanlanmagan bo'lsa
     if (!user.language) {
-      await ctx.reply(t("uz", "welcome"), {
+      const welcomeText = await t("uz", "welcome");
+      await ctx.reply(welcomeText, {
         ...getLanguageKeyboard(),
       });
       return;
