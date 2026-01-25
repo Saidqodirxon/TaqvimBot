@@ -4,7 +4,7 @@ import Calendar from "./components/Calendar";
 import Qibla from "./components/Qibla";
 import "./App.css";
 
-const API_BASE = "http://localhost:3001";
+const API_BASE = "https://ramazonbot-api.saidqodirxon.uz";
 
 function App() {
   const [userData, setUserData] = useState(null);
@@ -12,7 +12,7 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentView, setCurrentView] = useState("calendar"); // "calendar" or "qibla"
-
+  
   useEffect(() => {
     // Initialize Telegram WebApp
     const tg = window.Telegram.WebApp;
