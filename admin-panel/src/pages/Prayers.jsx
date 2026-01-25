@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { API_URL } from "../api";
@@ -12,6 +12,7 @@ import {
   MoveDown,
   Eye,
   EyeOff,
+  X,
 } from "lucide-react";
 import "./Prayers.css";
 
@@ -26,6 +27,8 @@ function Prayers() {
     order: 0,
     isActive: true,
   });
+  
+  const formRef = useRef(null);
 
   const queryClient = useQueryClient();
 
@@ -50,6 +53,17 @@ function Prayers() {
   // Create/Update prayer
   const saveMutation = useMutation({
     mutationFn: async () => {
+      // Validate form
+      if (!editForm.title.uz || !editForm.content.uz) {
+        throw new Error("O'zbek tilida nom va matn kiritish majburiy!");
+      }
+      if (!editForm.title.cr || !editForm.content.cr) {
+        throw new Error("Kirill tilida nom va matn kiritish majburiy!");
+      }
+      if (!editForm.title.ru || !editForm.content.ru) {
+        throw new Error("Rus tilida nom va matn kiritish majburiy!");
+      }
+
       const token = localStorage.getItem("token");
 
       if (editingId) {
@@ -67,9 +81,10 @@ function Prayers() {
     onSuccess: () => {
       queryClient.invalidateQueries(["prayers"]);
       resetForm();
-      alert(editingId ? "Dua yangilandi!" : "Dua qo'shildi!");
+      alert(editingId ? "Dua muvaffaqiyatli yangilandi!" : "Dua muvaffaqiyatli qo'shildi!");
     },
     onError: (error) => {
+      console.error("Save prayer error:", error);
       alert("Xatolik: " + (error.response?.data?.error || error.message));
     },
   });
@@ -101,11 +116,16 @@ function Prayers() {
   const handleEdit = (prayer) => {
     setEditingId(prayer._id);
     setEditForm({
-      title: prayer.title,
-      content: prayer.content,
+      title: { ...prayer.title },
+      content: { ...prayer.content },
       order: prayer.order,
       isActive: prayer.isActive,
     });
+    
+    // Scroll to form
+    setTimeout(() => {
+      formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
   };
 
   const handleDelete = (id) => {
@@ -133,13 +153,22 @@ function Prayers() {
       </div>
 
       {/* Prayer Form */}
-      <div className="card">
+      <div className="card" ref={formRef}>
         <div className="setting-header">
-          <Plus size={24} />
+          {editingId ? <Edit2 size={24} /> : <Plus size={24} />}
           <div>
             <h3>{editingId ? "Duani tahrirlash" : "Yangi dua qo'shish"}</h3>
             <p>Dua nomini va matnini 3 tilda kiriting</p>
           </div>
+          {editingId && (
+            <button 
+              className="btn-icon btn-close"
+              onClick={resetForm}
+              title="Bekor qilish"
+            >
+              <X size={20} />
+            </button>
+          )}
         </div>
 
         <div className="prayer-form">
