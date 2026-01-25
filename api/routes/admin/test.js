@@ -1,10 +1,7 @@
 const logger = require("../../utils/logger");
 const express = require("express");
 const router = express.Router();
-const {
-  authMiddleware,
-  superAdminOnly,
-} = require("../../middleware/adminAuth");
+const adminAuth = require("../../middleware/adminAuth");
 const { Telegraf } = require("telegraf");
 const User = require("../../models/User");
 const Settings = require("../../models/Settings");
@@ -14,7 +11,7 @@ const bot = new Telegraf(process.env.BOT_TOKEN);
 /**
  * Test bot connection
  */
-router.post("/bot-connection", authMiddleware, async (req, res) => {
+router.post("/bot-connection", adminAuth, async (req, res) => {
   try {
     const me = await bot.telegram.getMe();
     res.json({
@@ -39,7 +36,7 @@ router.post("/bot-connection", authMiddleware, async (req, res) => {
 /**
  * Test database connection
  */
-router.post("/database", authMiddleware, async (req, res) => {
+router.post("/database", adminAuth, async (req, res) => {
   try {
     const mongoose = require("mongoose");
     const isConnected = mongoose.connection.readyState === 1;
@@ -76,7 +73,7 @@ router.post("/database", authMiddleware, async (req, res) => {
 /**
  * Send test message to admin
  */
-router.post("/send-test-message", authMiddleware, async (req, res) => {
+router.post("/send-test-message", adminAuth, async (req, res) => {
   try {
     const adminId = process.env.ADMIN_ID;
 
@@ -116,7 +113,7 @@ router.post("/send-test-message", authMiddleware, async (req, res) => {
 /**
  * Test log channel
  */
-router.post("/log-channel", authMiddleware, async (req, res) => {
+router.post("/log-channel", adminAuth, async (req, res) => {
   try {
     const logChannel = await Settings.getSetting("log_channel", null);
 
@@ -151,7 +148,7 @@ router.post("/log-channel", authMiddleware, async (req, res) => {
 /**
  * Test greeting channel
  */
-router.post("/greeting-channel", authMiddleware, async (req, res) => {
+router.post("/greeting-channel", adminAuth, async (req, res) => {
   try {
     const greetingChannel = await Settings.getSetting("greeting_channel", null);
 
@@ -186,7 +183,7 @@ router.post("/greeting-channel", authMiddleware, async (req, res) => {
 /**
  * Test translation system
  */
-router.post("/translations", authMiddleware, async (req, res) => {
+router.post("/translations", adminAuth, async (req, res) => {
   try {
     const Translation = require("../../models/Translation");
     const { clearTranslationCache } = require("../../utils/translator");
@@ -215,8 +212,16 @@ router.post("/translations", authMiddleware, async (req, res) => {
 /**
  * Test backup creation
  */
-router.post("/backup", authMiddleware, superAdminOnly, async (req, res) => {
+router.post("/backup", adminAuth, async (req, res) => {
   try {
+    // Only superadmin can create backups
+    if (req.user.role !== "superadmin") {
+      return res.status(403).json({
+        success: false,
+        error: "Faqat superadmin backup yarata oladi",
+      });
+    }
+
     const { createBackup } = require("../../backup-mongodb");
 
     // Run backup in background

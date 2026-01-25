@@ -28,11 +28,19 @@ echo -e "${GREEN}✓ Git pull completed${NC}\n"
 # 2. API - Install & Restart
 echo -e "${YELLOW}📦 Step 2/8: API - npm install...${NC}"
 cd /root/ramazonbot/api
-npm install --production --silent
+npm install --silent
 echo -e "${GREEN}✓ API dependencies installed${NC}"
 echo -e "${YELLOW}🔄 Restarting API (PM2 ID: 9)...${NC}"
 pm2 restart 9
-echo -e "${GREEN}✓ API restarted${NC}\n"
+sleep 2
+# Check if API is running
+if pm2 status | grep -q "9.*online"; then
+  echo -e "${GREEN}✓ API restarted successfully${NC}\n"
+else
+  echo -e "${RED}✗ API failed to start. Checking logs:${NC}"
+  pm2 logs 9 --lines 20 --nostream
+  exit 1
+fi
 
 # 3. Admin Panel - Install & Build
 echo -e "${YELLOW}📦 Step 3/8: Admin Panel - npm install...${NC}"

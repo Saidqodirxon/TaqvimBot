@@ -1,7 +1,7 @@
 const logger = require("../../utils/logger");
 const express = require("express");
 const router = express.Router();
-const { authMiddleware } = require("../../middleware/adminAuth");
+const adminAuth = require("../../middleware/adminAuth");
 const os = require("os");
 const { exec } = require("child_process");
 const util = require("util");
@@ -10,7 +10,7 @@ const execPromise = util.promisify(exec);
 /**
  * Get system resource usage
  */
-router.get("/", authMiddleware, async (req, res) => {
+router.get("/", adminAuth, async (req, res) => {
   try {
     // CPU Information
     const cpus = os.cpus();
@@ -107,7 +107,7 @@ router.get("/", authMiddleware, async (req, res) => {
 /**
  * Get MongoDB statistics
  */
-router.get("/mongodb", authMiddleware, async (req, res) => {
+router.get("/mongodb", adminAuth, async (req, res) => {
   try {
     const mongoose = require("mongoose");
     const db = mongoose.connection.db;

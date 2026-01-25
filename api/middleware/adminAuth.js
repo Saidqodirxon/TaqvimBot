@@ -11,6 +11,7 @@ function authMiddleware(req, res, next) {
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     req.admin = decoded;
+    req.user = decoded; // For compatibility
     next();
   } catch (error) {
     res.status(401).json({ error: "Noto'g'ri token" });
@@ -25,4 +26,8 @@ function superAdminOnly(req, res, next) {
   next();
 }
 
-module.exports = { authMiddleware, superAdminOnly };
+// Export with both names for compatibility
+module.exports = authMiddleware;
+module.exports.authMiddleware = authMiddleware;
+module.exports.superAdminOnly = superAdminOnly;
+module.exports.adminAuth = authMiddleware;
