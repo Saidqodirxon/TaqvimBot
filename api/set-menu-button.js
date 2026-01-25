@@ -5,7 +5,8 @@ const bot = new Telegraf(process.env.BOT_TOKEN);
 
 // Admin user ID
 const ADMIN_USER_ID = parseInt(process.env.ADMIN_ID) || 1551855614;
-const MINI_APP_URL = process.env.MINI_APP_URL || "https://ramazonbot.saidqodirxon.uz";
+const MINI_APP_URL =
+  process.env.MINI_APP_URL || "https://ramazonbot.saidqodirxon.uz";
 
 async function setMenuButton() {
   try {
