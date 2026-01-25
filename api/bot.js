@@ -67,31 +67,6 @@ const stage = new Scenes.Stage([
   settingsScene,
 ]);
 
-// Helper function to set menu button
-async function setMenuButton(userId) {
-  try {
-    const miniAppUrl = process.env.MINI_APP_URL;
-    if (miniAppUrl && miniAppUrl.startsWith("https://")) {
-      // Set for specific user with userId parameter
-      await bot.telegram.setChatMenuButton({
-        chat_id: userId,
-        menu_button: {
-          type: "web_app",
-          text: "📅 Taqvim",
-          web_app: {
-            url: `${miniAppUrl}?userId=${userId}`,
-          },
-        },
-      });
-      return true;
-    }
-    return false;
-  } catch (error) {
-    console.log(`⚠️ Menu button error for user ${userId}:`, error.message);
-    return false;
-  }
-}
-
 // Middleware
 bot.use(session());
 bot.use(stage.middleware());
@@ -197,9 +172,6 @@ bot.command("start", async (ctx) => {
       return;
     }
 
-    // Set menu button with web app URL
-    await setMenuButton(ctx.from.id);
-
     // Asosiy menyuni ko'rsatish
     await ctx.reply(t(lang, "main_menu"), {
       ...getMainMenuKeyboard(lang),
@@ -235,7 +207,6 @@ bot.action("lang_uz", async (ctx) => {
     await updateUserLanguage(ctx.from.id, "uz");
     ctx.session.user.language = "uz";
 
-    await setMenuButton(ctx.from.id);
     await ctx.editMessageText(`✅ ${t("uz", "language_set")}`);
     await ctx.reply(t("uz", "main_menu"), {
       ...getMainMenuKeyboard("uz"),
@@ -251,7 +222,6 @@ bot.action("lang_cr", async (ctx) => {
     await updateUserLanguage(ctx.from.id, "cr");
     ctx.session.user.language = "cr";
 
-    await setMenuButton(ctx.from.id);
     await ctx.editMessageText(`✅ ${t("cr", "language_set")}`);
     await ctx.reply(t("cr", "main_menu"), {
       ...getMainMenuKeyboard("cr"),
@@ -267,7 +237,6 @@ bot.action("lang_ru", async (ctx) => {
     await updateUserLanguage(ctx.from.id, "ru");
     ctx.session.user.language = "ru";
 
-    await setMenuButton(ctx.from.id);
     await ctx.editMessageText(`✅ ${t("ru", "language_set")}`);
     await ctx.reply(t("ru", "main_menu"), {
       ...getMainMenuKeyboard("ru"),
@@ -1178,10 +1147,29 @@ async function startBot() {
       .launch({
         dropPendingUpdates: true,
       })
-      .then(() => {
+      .then(async () => {
         console.log("\n✅ Bot started successfully!");
         console.log(`📱 Bot username: @${botUser}`);
         console.log(`👨‍💼 Admin ID: ${adminId}`);
+        
+        // Set default menu button for ALL users after bot starts
+        try {
+          const miniAppUrl = process.env.MINI_APP_URL;
+          if (miniAppUrl && miniAppUrl.startsWith("https://")) {
+            await bot.telegram.setChatMenuButton({
+              menu_button: {
+                type: "web_app",
+                text: "📅 Taqvim",
+                web_app: {
+                  url: miniAppUrl + "?source=menu",
+                },
+              },
+            });
+            console.log("✅ Default menu button set for all users");
+          }
+        } catch (menuError) {
+          console.log("⚠️ Menu button error:", menuError.message);
+        }
       })
       .catch((launchError) => {
         console.error("⚠️ Bot launch error:", launchError.message);
