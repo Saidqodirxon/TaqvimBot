@@ -21,6 +21,7 @@ import {
   Activity,
   TestTube2,
   HardDrive,
+  RefreshCcw,
 } from "lucide-react";
 import "./Layout.css";
 
@@ -197,6 +198,16 @@ function Layout({ children, setAuth }) {
           >
             <HardDrive size={20} />
             <span>Backuplar</span>
+          </NavLink>
+
+          <NavLink
+            to="/recovery"
+            className={({ isActive }) =>
+              isActive ? "nav-item active" : "nav-item"
+            }
+          >
+            <RefreshCcw size={20} />
+            <span>User Recovery</span>
           </NavLink>
 
           <NavLink
