@@ -14,7 +14,7 @@ function initErrorLogger(bot) {
 }
 
 /**
- * Log error to Telegram group
+ * Log error to Telegram group with #error hashtag
  * @param {Error} error - Error object
  * @param {Object} ctx - Telegraf context (optional)
  * @param {string} location - Where the error occurred
@@ -28,8 +28,8 @@ async function logError(error, ctx = null, location = "Unknown") {
       return;
     }
 
-    // Build error message
-    let message = `🚨 <b>Bot Error</b>\n\n`;
+    // Build error message with #error hashtag
+    let message = `#error 🚨 <b>Bot Error</b>\n\n`;
     message += `📍 <b>Location:</b> ${location}\n`;
     message += `⏰ <b>Time:</b> ${new Date().toLocaleString("uz-UZ")}\n\n`;
 
@@ -117,9 +117,42 @@ async function logWarning(message, details = {}) {
   }
 }
 
+/**
+ * Log new user directly to admin (not to group)
+ * @param {Object} user - User object
+ * @param {number} totalUsers - Total users count
+ */
+async function logNewUser(user, totalUsers) {
+  try {
+    const adminId = process.env.ADMIN_ID;
+
+    if (!adminId || !botInstance) {
+      return;
+    }
+
+    const message =
+      `👤 <b>Yangi foydalanuvchi</b>\n\n` +
+      `🆔 <b>User ID:</b> ${user.userId}\n` +
+      `👤 <b>Ism:</b> ${user.firstName}\n` +
+      `📱 <b>Username:</b> @${user.username || "yo'q"}\n` +
+      `🌐 <b>Til:</b> ${user.language || "tanlanmagan"}\n` +
+      `⏰ <b>Vaqt:</b> ${new Date().toLocaleString("uz-UZ")}\n\n` +
+      `📊 <b>Jami foydalanuvchilar:</b> ${totalUsers} user`;
+
+    await botInstance.telegram.sendMessage(adminId, message, {
+      parse_mode: "HTML",
+    });
+
+    console.log(`✅ New user logged to admin: ${user.userId}`);
+  } catch (error) {
+    console.error("Failed to log new user:", error);
+  }
+}
+
 module.exports = {
   initErrorLogger,
   logError,
   logInfo,
   logWarning,
+  logNewUser,
 };

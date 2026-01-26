@@ -172,6 +172,10 @@ module.exports = {
     minutes_before: "daq. oldin",
     reminder_set_to: "Eslatma qo'yildi",
     saved: "✅ Saqlandi",
+    btn_disable_all_reminders: "❌ Barcha eslatmalarni o'chirish",
+    btn_enable_all_reminders: "✅ Barcha eslatmalarni yoqish",
+    all_reminders_disabled: "❌ Barcha eslatmalar o'chirildi",
+    all_reminders_enabled: "✅ Barcha eslatmalar yoqildi",
 
     // Prayer settings
     prayer_settings_title: "⚙️ Namoz vaqtlari sozlamalari",
@@ -371,10 +375,15 @@ module.exports = {
     btn_prayer_settings: "⚙️ Намоз созламалари",
     btn_back_main: "🔙 Бош меню",
     configure_reminders: "⏰ Намоз эслатмаларини созланг:",
-    current_reminder_time: "Жорий эслатма вақти: {minutes} дақиқа олдин",
+    current_reminder_time: "Жорий эслатма вақти",
     minutes: "дақиқа",
-    minutes_before: "{minutes} дақиқа олдин",
-    reminder_set_to: "Эслатма {minutes} дақиқа олдинга қўйилди",
+    minutes_before: "дақ. олдин",
+    reminder_set_to: "Эслатма қўйилди",
+    saved: "✅ Сақланди",
+    btn_disable_all_reminders: "❌ Барча эслатмаларни ўчириш",
+    btn_enable_all_reminders: "✅ Барча эслатмаларни ёқиш",
+    all_reminders_disabled: "❌ Барча эслатмалар ўчирилди",
+    all_reminders_enabled: "✅ Барча эслатмалар ёқилди",
 
     // Prayer settings
     prayer_settings_title: "⚙️ Намоз вақтлари созламалари",
@@ -594,6 +603,12 @@ module.exports = {
     current_reminder_time: "Текущее время напоминания: за {minutes} минут",
     minutes: "минут",
     minutes_before: "За {minutes} минут",
+    reminder_set_to: "Напоминание установлено",
+    saved: "✅ Сохранено",
+    btn_disable_all_reminders: "❌ Выключить все напоминания",
+    btn_enable_all_reminders: "✅ Включить все напоминания",
+    all_reminders_disabled: "❌ Все напоминания выключены",
+    all_reminders_enabled: "✅ Все напоминания включены",
     reminder_set_to: "Напоминание установлено за {minutes} минут",
     saved: "✅ Сохранено",
 

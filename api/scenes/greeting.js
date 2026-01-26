@@ -164,7 +164,7 @@ greetingScene.action("confirm", async (ctx) => {
       status: "pending",
     });
 
-    // Notify admin
+    // Send greeting directly to ADMIN (not to group)
     const adminId = process.env.ADMIN_ID;
     const botUser = process.env.BOT_USER;
 

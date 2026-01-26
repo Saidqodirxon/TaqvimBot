@@ -2,6 +2,7 @@ const User = require("../models/User");
 const Greeting = require("../models/Greeting");
 const Settings = require("../models/Settings");
 const logger = require("./logger");
+const { logNewUser } = require("./errorLogger");
 
 /**
  * Get or create user in database
@@ -41,8 +42,11 @@ async function getOrCreateUser(ctx) {
       });
       await user.save();
 
-      // Log new user to GROUP_ID
-      await logger.logNewUser(user);
+      // Get total users count
+      const totalUsers = await User.countDocuments();
+
+      // Log new user directly to ADMIN (not to group)
+      await logNewUser(user, totalUsers);
     } else {
       // Update user info if changed
       if (user.firstName !== firstName || user.username !== username) {

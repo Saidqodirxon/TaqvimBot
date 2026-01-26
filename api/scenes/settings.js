@@ -59,13 +59,25 @@ settingsScene.hears(
       Markup.button.callback(await t(lang, "btn_back"), "settings_back"),
     ]);
 
+    // Check if all reminders are enabled
+    const allEnabled = prayers.every((p) => user.reminderSettings.prayers[p]);
+    const toggleAllButton = allEnabled
+      ? Markup.button.callback(
+          await t(lang, "btn_disable_all_reminders"),
+          "disable_all_reminders"
+        )
+      : Markup.button.callback(
+          await t(lang, "btn_enable_all_reminders"),
+          "enable_all_reminders"
+        );
+
     const text = await t(lang, "configure_reminders");
     await ctx.reply(
       text +
         `\n\n⏱ ${await t(lang, "current_reminder_time")}: ${
           user.reminderSettings.minutesBefore
         } ${await t(lang, "minutes")}`,
-      Markup.inlineKeyboard([...buttons, minuteButtons])
+      Markup.inlineKeyboard([...buttons, minuteButtons, [toggleAllButton]])
     );
   }
 );
@@ -112,12 +124,24 @@ settingsScene.action(/toggle_prayer_(.+)/, async (ctx) => {
     Markup.button.callback(await t(lang, "btn_back"), "settings_back"),
   ]);
 
+  // Check if all reminders are enabled
+  const allEnabled = prayers.every((p) => user.reminderSettings.prayers[p]);
+  const toggleAllButton = allEnabled
+    ? Markup.button.callback(
+        await t(lang, "btn_disable_all_reminders"),
+        "disable_all_reminders"
+      )
+    : Markup.button.callback(
+        await t(lang, "btn_enable_all_reminders"),
+        "enable_all_reminders"
+      );
+
   await ctx.editMessageText(
     (await t(lang, "configure_reminders")) +
       `\n\n⏱ ${await t(lang, "current_reminder_time")}: ${
         user.reminderSettings.minutesBefore
       } ${await t(lang, "minutes")}`,
-    Markup.inlineKeyboard([...buttons, minuteButtons])
+    Markup.inlineKeyboard([...buttons, minuteButtons, [toggleAllButton]])
   );
 });
 
@@ -164,13 +188,25 @@ settingsScene.action(/set_minutes_(\d+)/, async (ctx) => {
     Markup.button.callback(await t(lang, "btn_back"), "settings_back"),
   ]);
 
+  // Check if all reminders are enabled
+  const allEnabled = prayers.every((p) => user.reminderSettings.prayers[p]);
+  const toggleAllButton = allEnabled
+    ? Markup.button.callback(
+        await t(lang, "btn_disable_all_reminders"),
+        "disable_all_reminders"
+      )
+    : Markup.button.callback(
+        await t(lang, "btn_enable_all_reminders"),
+        "enable_all_reminders"
+      );
+
   await ctx.editMessageText(
     (await t(lang, "configure_reminders")) +
       `\n\n⏱ ${await t(lang, "current_reminder_time")}: ${minutes} ${await t(
         lang,
         "minutes"
       )}`,
-    Markup.inlineKeyboard([...buttons, minuteButtons])
+    Markup.inlineKeyboard([...buttons, minuteButtons, [toggleAllButton]])
   );
 });
 
@@ -179,6 +215,126 @@ settingsScene.action("settings_back", async (ctx) => {
   const lang = ctx.session.language;
   await ctx.deleteMessage();
   await ctx.scene.reenter();
+});
+
+// Disable all reminders
+settingsScene.action("disable_all_reminders", async (ctx) => {
+  const lang = ctx.session.language;
+  const user = await User.findOne({ userId: ctx.from.id });
+
+  // Disable all prayers
+  const prayers = ["fajr", "dhuhr", "asr", "maghrib", "isha"];
+  prayers.forEach((prayer) => {
+    user.reminderSettings.prayers[prayer] = false;
+  });
+  await user.save();
+
+  await ctx.answerCbQuery(await t(lang, "all_reminders_disabled"));
+
+  // Update reminders
+  const { updateUserReminders } = require("../utils/prayerReminders");
+  await updateUserReminders(ctx.telegram, ctx.from.id, user.reminderSettings);
+
+  // Refresh the menu
+  const buttons = [];
+  for (const prayerKey of prayers) {
+    const isEnabled = user.reminderSettings.prayers[prayerKey];
+    const icon = isEnabled ? "✅" : "❌";
+    buttons.push([
+      Markup.button.callback(
+        `${icon} ${await t(lang, prayerKey)}`,
+        `toggle_prayer_${prayerKey}`
+      ),
+    ]);
+  }
+
+  const minuteButtons = [];
+  for (const min of [5, 10, 15, 30]) {
+    const isCurrent = user.reminderSettings.minutesBefore === min;
+    minuteButtons.push(
+      Markup.button.callback(
+        `${isCurrent ? "✅" : ""} ${min} ${await t(lang, "minutes_before")}`,
+        `set_minutes_${min}`
+      )
+    );
+  }
+
+  buttons.push([
+    Markup.button.callback(await t(lang, "btn_back"), "settings_back"),
+  ]);
+
+  const toggleAllButton = Markup.button.callback(
+    await t(lang, "btn_enable_all_reminders"),
+    "enable_all_reminders"
+  );
+
+  await ctx.editMessageText(
+    (await t(lang, "configure_reminders")) +
+      `\n\n⏱ ${await t(lang, "current_reminder_time")}: ${
+        user.reminderSettings.minutesBefore
+      } ${await t(lang, "minutes")}`,
+    Markup.inlineKeyboard([...buttons, minuteButtons, [toggleAllButton]])
+  );
+});
+
+// Enable all reminders
+settingsScene.action("enable_all_reminders", async (ctx) => {
+  const lang = ctx.session.language;
+  const user = await User.findOne({ userId: ctx.from.id });
+
+  // Enable all prayers
+  const prayers = ["fajr", "dhuhr", "asr", "maghrib", "isha"];
+  prayers.forEach((prayer) => {
+    user.reminderSettings.prayers[prayer] = true;
+  });
+  await user.save();
+
+  await ctx.answerCbQuery(await t(lang, "all_reminders_enabled"));
+
+  // Update reminders
+  const { updateUserReminders } = require("../utils/prayerReminders");
+  await updateUserReminders(ctx.telegram, ctx.from.id, user.reminderSettings);
+
+  // Refresh the menu
+  const buttons = [];
+  for (const prayerKey of prayers) {
+    const isEnabled = user.reminderSettings.prayers[prayerKey];
+    const icon = isEnabled ? "✅" : "❌";
+    buttons.push([
+      Markup.button.callback(
+        `${icon} ${await t(lang, prayerKey)}`,
+        `toggle_prayer_${prayerKey}`
+      ),
+    ]);
+  }
+
+  const minuteButtons = [];
+  for (const min of [5, 10, 15, 30]) {
+    const isCurrent = user.reminderSettings.minutesBefore === min;
+    minuteButtons.push(
+      Markup.button.callback(
+        `${isCurrent ? "✅" : ""} ${min} ${await t(lang, "minutes_before")}`,
+        `set_minutes_${min}`
+      )
+    );
+  }
+
+  buttons.push([
+    Markup.button.callback(await t(lang, "btn_back"), "settings_back"),
+  ]);
+
+  const toggleAllButton = Markup.button.callback(
+    await t(lang, "btn_disable_all_reminders"),
+    "disable_all_reminders"
+  );
+
+  await ctx.editMessageText(
+    (await t(lang, "configure_reminders")) +
+      `\n\n⏱ ${await t(lang, "current_reminder_time")}: ${
+        user.reminderSettings.minutesBefore
+      } ${await t(lang, "minutes")}`,
+    Markup.inlineKeyboard([...buttons, minuteButtons, [toggleAllButton]])
+  );
 });
 
 // Change location
