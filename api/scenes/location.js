@@ -264,8 +264,8 @@ locationScene.action("back_to_menu", async (ctx) => {
   const lang = getUserLanguage(ctx.session.user);
   await ctx.answerCbQuery();
   await ctx.deleteMessage();
-  await ctx.reply(t(lang, "main_menu"), {
-    ...getMainMenuKeyboard(lang),
+  await ctx.reply(await t(lang, "main_menu"), {
+    ...(await getMainMenuKeyboard(lang)),
   });
   await ctx.scene.leave();
 });
@@ -275,8 +275,8 @@ locationScene.action("cancel_location", async (ctx) => {
   const lang = getUserLanguage(ctx.session.user);
   await ctx.answerCbQuery();
   await ctx.deleteMessage();
-  await ctx.reply(t(lang, "main_menu"), {
-    ...getMainMenuKeyboard(lang),
+  await ctx.reply(await t(lang, "main_menu"), {
+    ...(await getMainMenuKeyboard(lang)),
   });
   await ctx.scene.leave();
 });
@@ -293,8 +293,8 @@ locationScene.action("back_to_menu", async (ctx) => {
       // Ignore if message already deleted
     }
 
-    await ctx.reply(t(lang, "main_menu"), {
-      ...getMainMenuKeyboard(lang),
+    await ctx.reply(await t(lang, "main_menu"), {
+      ...(await getMainMenuKeyboard(lang)),
     });
     await ctx.scene.leave();
   } catch (error) {
@@ -304,8 +304,8 @@ locationScene.action("back_to_menu", async (ctx) => {
 
 locationScene.hears(/❌|Bekor|Отмена|Cancel/, async (ctx) => {
   const lang = getUserLanguage(ctx.session.user);
-  await ctx.reply(t(lang, "main_menu"), {
-    ...getMainMenuKeyboard(lang),
+  await ctx.reply(await t(lang, "main_menu"), {
+    ...(await getMainMenuKeyboard(lang)),
   });
   await ctx.scene.leave();
 });
@@ -322,8 +322,8 @@ locationScene.hears(/◀️|Орқага|Назад/, async (ctx) => {
   const user = ctx.session.user;
   const lang = getUserLanguage(user);
 
-  await ctx.reply(t(lang, "main_menu"), {
-    ...getMainMenuKeyboard(lang),
+  await ctx.reply(await t(lang, "main_menu"), {
+    ...(await getMainMenuKeyboard(lang)),
   });
 
   await ctx.scene.leave();

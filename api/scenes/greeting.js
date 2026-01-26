@@ -238,20 +238,20 @@ greetingScene.action("confirm", async (ctx) => {
       // Ignore if message can't be deleted
     }
 
-    await ctx.reply(t(lang, "greeting_sent_admin"), {
+    await ctx.reply(await t(lang, "greeting_sent_admin"), {
       parse_mode: "HTML",
     });
 
-    await ctx.reply(t(lang, "main_menu"), {
+    await ctx.reply(await t(lang, "main_menu"), {
       parse_mode: "HTML",
-      ...getMainMenuKeyboard(lang),
+      ...(await getMainMenuKeyboard(lang)),
     });
 
     await ctx.scene.leave();
   } catch (error) {
     console.error("Error confirming greeting:", error);
     const lang = getUserLanguage(ctx.session.user);
-    await ctx.reply(t(lang, "error_try_again"));
+    await ctx.reply(await t(lang, "error_try_again"));
   }
 });
 
@@ -268,9 +268,9 @@ greetingScene.action("reject", async (ctx) => {
       // Ignore if message can't be deleted
     }
 
-    await ctx.reply(t(lang, "main_menu"), {
+    await ctx.reply(await t(lang, "main_menu"), {
       parse_mode: "HTML",
-      ...getMainMenuKeyboard(lang),
+      ...(await getMainMenuKeyboard(lang)),
     });
 
     await ctx.scene.leave();

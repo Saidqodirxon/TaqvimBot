@@ -76,7 +76,7 @@ async function checkChannelMembership(ctx, next) {
       notJoinedChannels.map((ch) => ch.username).join(", ")
     );
 
-    const message = t(lang, "must_join_channels");
+    const message = await t(lang, "must_join_channels");
 
     // Build inline keyboard with all channels
     const channelButtons = notJoinedChannels.map((channel) => [
@@ -147,7 +147,7 @@ async function handleCheckSubscription(ctx) {
       ctx.session.user.hasJoinedChannel = true;
     }
 
-    await ctx.editMessageText(t(lang, "welcome_after_join"));
+    await ctx.editMessageText(await t(lang, "welcome_after_join"));
 
     // Check if phone number is provided
     const {
@@ -156,10 +156,10 @@ async function handleCheckSubscription(ctx) {
     } = require("./keyboards");
     if (!ctx.session?.user?.phoneNumber) {
       // Request phone number
-      await ctx.reply(t(lang, "request_phone"), getPhoneRequestKeyboard(lang));
+      await ctx.reply(await t(lang, "request_phone"), await getPhoneRequestKeyboard(lang));
     } else {
       // Show main menu
-      await ctx.reply(t(lang, "main_menu"), getMainMenuKeyboard(lang));
+      await ctx.reply(await t(lang, "main_menu"), await getMainMenuKeyboard(lang));
     }
   } else {
     // Still not joined all channels

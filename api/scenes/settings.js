@@ -97,21 +97,24 @@ settingsScene.action(/toggle_prayer_(.+)/, async (ctx) => {
     ]);
   }
 
-  const minuteButtons = [5, 10, 15, 30].map((min) => {
+  const minuteButtons = [];
+  for (const min of [5, 10, 15, 30]) {
     const isCurrent = user.reminderSettings.minutesBefore === min;
-    return Markup.button.callback(
-      `${isCurrent ? "✅" : ""} ${min} ${t(lang, "minutes_before")}`,
-      `set_minutes_${min}`
+    minuteButtons.push(
+      Markup.button.callback(
+        `${isCurrent ? "✅" : ""} ${min} ${await t(lang, "minutes_before")}`,
+        `set_minutes_${min}`
+      )
     );
-  });
+  }
 
-  buttons.push([Markup.button.callback(t(lang, "btn_back"), "settings_back")]);
+  buttons.push([Markup.button.callback(await t(lang, "btn_back"), "settings_back")]);
 
   await ctx.editMessageText(
-    t(lang, "configure_reminders") +
-      `\n\n⏱ ${t(lang, "current_reminder_time")}: ${
+    (await t(lang, "configure_reminders")) +
+      `\n\n⏱ ${await t(lang, "current_reminder_time")}: ${
         user.reminderSettings.minutesBefore
-      } ${t(lang, "minutes")}`,
+      } ${await t(lang, "minutes")}`,
     Markup.inlineKeyboard([...buttons, minuteButtons])
   );
 });
@@ -132,16 +135,17 @@ settingsScene.action(/set_minutes_(\d+)/, async (ctx) => {
   // Refresh buttons
   const prayers = ["fajr", "dhuhr", "asr", "maghrib", "isha"];
 
-  const buttons = prayers.map((pKey) => {
+  const buttons = [];
+  for (const pKey of prayers) {
     const isEnabled = user.reminderSettings.prayers[pKey];
     const icon = isEnabled ? "✅" : "❌";
-    return [
+    buttons.push([
       Markup.button.callback(
-        `${icon} ${t(lang, pKey)}`,
+        `${icon} ${await t(lang, pKey)}`,
         `toggle_prayer_${pKey}`
       ),
-    ];
-  });
+    ]);
+  }
 
   const minuteButtons = [];
   for (const min of [5, 10, 15, 30]) {
@@ -236,8 +240,8 @@ settingsScene.hears([/🔙.*/, "🔙 Orqaga", "🔙 Назад"], async (ctx) =>
   await ctx.scene.leave();
   const { getMainMenuKeyboard } = require("../utils/keyboards");
   await ctx.reply(
-    t(ctx.session.language, "main_menu"),
-    getMainMenuKeyboard(ctx.session.language)
+    await t(ctx.session.language, "main_menu"),
+    await getMainMenuKeyboard(ctx.session.language)
   );
 });
 
@@ -273,19 +277,19 @@ settingsScene.hears(
       SCHOOLS[currentSchool]?.[lang] || SCHOOLS[1]?.uz || "Hanafiy";
 
     const text =
-      t(lang, "prayer_settings_title") +
-      `\n\n📐 ${t(lang, "calculation_method")}: ${methodName}` +
-      `\n📖 ${t(lang, "madhab")}: ${schoolName}`;
+      (await t(lang, "prayer_settings_title")) +
+      `\n\n📐 ${await t(lang, "calculation_method")}: ${methodName}` +
+      `\n📖 ${await t(lang, "madhab")}: ${schoolName}`;
 
     const keyboard = Markup.inlineKeyboard([
       [
         Markup.button.callback(
-          t(lang, "btn_select_method"),
+          await t(lang, "btn_select_method"),
           "select_calc_method"
         ),
       ],
-      [Markup.button.callback(t(lang, "btn_select_madhab"), "select_madhab")],
-      [Markup.button.callback(t(lang, "btn_back"), "settings_back")],
+      [Markup.button.callback(await t(lang, "btn_select_madhab"), "select_madhab")],
+      [Markup.button.callback(await t(lang, "btn_back"), "settings_back")],
     ]);
 
     await ctx.reply(text, keyboard);
@@ -304,11 +308,11 @@ settingsScene.action("select_calc_method", async (ctx) => {
   });
 
   buttons.push([
-    Markup.button.callback(t(lang, "btn_back"), "back_prayer_settings"),
+    Markup.button.callback(await t(lang, "btn_back"), "back_prayer_settings"),
   ]);
 
   await ctx.editMessageText(
-    t(lang, "select_calculation_method"),
+    await t(lang, "select_calculation_method"),
     Markup.inlineKeyboard(buttons)
   );
 });
@@ -337,7 +341,7 @@ settingsScene.action(/set_method_(\d+)/, async (ctx) => {
       ctx.session.user = user;
     }
 
-    await ctx.answerCbQuery(t(lang, "saved"));
+    await ctx.answerCbQuery(await t(lang, "saved"));
 
     // Update reminders with new method
     const { updateUserReminders } = require("../utils/prayerReminders");
@@ -365,19 +369,19 @@ settingsScene.action(/set_method_(\d+)/, async (ctx) => {
       SCHOOLS[currentSchool]?.[lang] || SCHOOLS[1]?.uz || "Hanafiy";
 
     const text =
-      t(lang, "prayer_settings_title") +
-      `\n\n📐 ${t(lang, "calculation_method")}: ${methodName}` +
-      `\n📖 ${t(lang, "madhab")}: ${schoolName}`;
+      (await t(lang, "prayer_settings_title")) +
+      `\n\n📐 ${await t(lang, "calculation_method")}: ${methodName}` +
+      `\n📖 ${await t(lang, "madhab")}: ${schoolName}`;
 
     const keyboard = Markup.inlineKeyboard([
       [
         Markup.button.callback(
-          t(lang, "btn_select_method"),
+          await t(lang, "btn_select_method"),
           "select_calc_method"
         ),
       ],
-      [Markup.button.callback(t(lang, "btn_select_madhab"), "select_madhab")],
-      [Markup.button.callback(t(lang, "btn_back"), "back_settings")],
+      [Markup.button.callback(await t(lang, "btn_select_madhab"), "select_madhab")],
+      [Markup.button.callback(await t(lang, "btn_back"), "back_settings")],
     ]);
 
     await ctx.reply(text, keyboard);
@@ -399,11 +403,11 @@ settingsScene.action("select_madhab", async (ctx) => {
   });
 
   buttons.push([
-    Markup.button.callback(t(lang, "btn_back"), "back_prayer_settings"),
+    Markup.button.callback(await t(lang, "btn_back"), "back_prayer_settings"),
   ]);
 
   await ctx.editMessageText(
-    t(lang, "select_madhab"),
+    await t(lang, "select_madhab"),
     Markup.inlineKeyboard(buttons)
   );
 });
@@ -426,7 +430,7 @@ settingsScene.action(/set_madhab_(\d+)/, async (ctx) => {
       ctx.session.user = user;
     }
 
-    await ctx.answerCbQuery(t(lang, "saved"));
+    await ctx.answerCbQuery(await t(lang, "saved"));
 
     // Update reminders with new school
     const { updateUserReminders } = require("../utils/prayerReminders");
@@ -454,19 +458,19 @@ settingsScene.action(/set_madhab_(\d+)/, async (ctx) => {
       SCHOOLS[currentSchool]?.[lang] || SCHOOLS[1]?.uz || "Hanafiy";
 
     const text =
-      t(lang, "prayer_settings_title") +
-      `\n\n📐 ${t(lang, "calculation_method")}: ${methodName}` +
-      `\n📖 ${t(lang, "madhab")}: ${schoolName}`;
+      (await t(lang, "prayer_settings_title")) +
+      `\n\n📐 ${await t(lang, "calculation_method")}: ${methodName}` +
+      `\n📖 ${await t(lang, "madhab")}: ${schoolName}`;
 
     const keyboard = Markup.inlineKeyboard([
       [
         Markup.button.callback(
-          t(lang, "btn_select_method"),
+          await t(lang, "btn_select_method"),
           "select_calc_method"
         ),
       ],
-      [Markup.button.callback(t(lang, "btn_select_madhab"), "select_madhab")],
-      [Markup.button.callback(t(lang, "btn_back"), "back_settings")],
+      [Markup.button.callback(await t(lang, "btn_select_madhab"), "select_madhab")],
+      [Markup.button.callback(await t(lang, "btn_back"), "back_settings")],
     ]);
 
     await ctx.reply(text, keyboard);
@@ -496,22 +500,29 @@ settingsScene.action("back_prayer_settings", async (ctx) => {
     SCHOOLS[currentSchool]?.[lang] || SCHOOLS[1]?.uz || "Hanafiy";
 
   const text =
-    t(lang, "prayer_settings_title") +
-    `\n\n📐 ${t(lang, "calculation_method")}: ${methodName}` +
-    `\n📖 ${t(lang, "madhab")}: ${schoolName}`;
+    (await t(lang, "prayer_settings_title")) +
+    `\n\n📐 ${await t(lang, "calculation_method")}: ${methodName}` +
+    `\n📖 ${await t(lang, "madhab")}: ${schoolName}`;
 
   const keyboard = Markup.inlineKeyboard([
     [
       Markup.button.callback(
-        t(lang, "btn_select_method"),
+        await t(lang, "btn_select_method"),
         "select_calc_method"
       ),
     ],
-    [Markup.button.callback(t(lang, "btn_select_madhab"), "select_madhab")],
-    [Markup.button.callback(t(lang, "btn_back"), "settings_back")],
+    [Markup.button.callback(await t(lang, "btn_select_madhab"), "select_madhab")],
+    [Markup.button.callback(await t(lang, "btn_back"), "settings_back")],
   ]);
 
   await ctx.reply(text, keyboard);
+});
+
+// Back to settings menu from prayer settings
+settingsScene.action("back_settings", async (ctx) => {
+  await ctx.answerCbQuery();
+  await ctx.deleteMessage();
+  await ctx.scene.reenter();
 });
 
 module.exports = settingsScene;

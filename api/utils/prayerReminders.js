@@ -76,7 +76,7 @@ async function schedulePrayerReminders(bot, user) {
             reminderTime.toDate(),
             async () => {
               try {
-                const message = t(lang, "reminder_before_prayer", {
+                const message = await t(lang, "reminder_before_prayer", {
                   prayer: prayer.name,
                   minutes: minutesBefore,
                   time: prayer.time,
@@ -97,7 +97,7 @@ async function schedulePrayerReminders(bot, user) {
         if (user.reminderSettings?.notifyAtPrayerTime !== false) {
           const atJob = schedule.scheduleJob(prayerTime.toDate(), async () => {
             try {
-              const message = t(lang, "reminder_prayer_time", {
+              const message = await t(lang, "reminder_prayer_time", {
                 prayer: prayer.name,
                 time: prayer.time,
               });

@@ -313,7 +313,7 @@ bot.command("start", async (ctx) => {
 bot.command("admin", async (ctx) => {
   if (!isAdmin(ctx.from.id)) {
     const lang = getUserLanguage(ctx.session.user);
-    return ctx.reply(t(lang, "admin_not_authorized"));
+    return ctx.reply(await t(lang, "admin_not_authorized"));
   }
 
   const keyboard = Markup.keyboard([
@@ -574,7 +574,7 @@ bot.hears(/🤲/, async (ctx) => {
       .maxTimeMS(5000);
 
     if (prayers.length === 0) {
-      await ctx.reply(t(lang, "no_prayers"));
+      await ctx.reply(await t(lang, "no_prayers"));
       return;
     }
 
@@ -665,7 +665,7 @@ bot.action("change_lang", async (ctx) => {
     await ctx.answerCbQuery();
     const lang = getUserLanguage(ctx.session.user);
     await ctx.editMessageText(
-      t(lang, "choose_language"),
+      await t(lang, "choose_language"),
       getLanguageKeyboard(true)
     );
   } catch (error) {
@@ -769,7 +769,7 @@ bot.action(/prayer_(.+)/, async (ctx) => {
     const prayer = await Prayer.findById(prayerId).maxTimeMS(5000);
 
     if (!prayer) {
-      await ctx.answerCbQuery(t(lang, "prayer_not_found"), {
+      await ctx.answerCbQuery(await t(lang, "prayer_not_found"), {
         show_alert: true,
       });
       return;
@@ -843,7 +843,7 @@ bot.action("back_to_prayers_list", async (ctx) => {
       .maxTimeMS(5000);
 
     if (prayers.length === 0) {
-      await ctx.editMessageText(t(lang, "no_prayers"));
+      await ctx.editMessageText(await t(lang, "no_prayers"));
       return;
     }
 
@@ -887,7 +887,7 @@ bot.action("back_to_settings", async (ctx) => {
     // Fallback - show main menu
     try {
       const lang = getUserLanguage(ctx.session.user);
-      await ctx.editMessageText(t(lang, "main_menu"));
+      await ctx.editMessageText(await t(lang, "main_menu"));
     } catch (e) {
       logger.error("Failed to show main menu:", e);
     }
