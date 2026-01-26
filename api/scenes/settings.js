@@ -108,7 +108,9 @@ settingsScene.action(/toggle_prayer_(.+)/, async (ctx) => {
     );
   }
 
-  buttons.push([Markup.button.callback(await t(lang, "btn_back"), "settings_back")]);
+  buttons.push([
+    Markup.button.callback(await t(lang, "btn_back"), "settings_back"),
+  ]);
 
   await ctx.editMessageText(
     (await t(lang, "configure_reminders")) +
@@ -288,7 +290,12 @@ settingsScene.hears(
           "select_calc_method"
         ),
       ],
-      [Markup.button.callback(await t(lang, "btn_select_madhab"), "select_madhab")],
+      [
+        Markup.button.callback(
+          await t(lang, "btn_select_madhab"),
+          "select_madhab"
+        ),
+      ],
       [Markup.button.callback(await t(lang, "btn_back"), "settings_back")],
     ]);
 
@@ -380,7 +387,12 @@ settingsScene.action(/set_method_(\d+)/, async (ctx) => {
           "select_calc_method"
         ),
       ],
-      [Markup.button.callback(await t(lang, "btn_select_madhab"), "select_madhab")],
+      [
+        Markup.button.callback(
+          await t(lang, "btn_select_madhab"),
+          "select_madhab"
+        ),
+      ],
       [Markup.button.callback(await t(lang, "btn_back"), "back_settings")],
     ]);
 
@@ -469,7 +481,12 @@ settingsScene.action(/set_madhab_(\d+)/, async (ctx) => {
           "select_calc_method"
         ),
       ],
-      [Markup.button.callback(await t(lang, "btn_select_madhab"), "select_madhab")],
+      [
+        Markup.button.callback(
+          await t(lang, "btn_select_madhab"),
+          "select_madhab"
+        ),
+      ],
       [Markup.button.callback(await t(lang, "btn_back"), "back_settings")],
     ]);
 
@@ -511,7 +528,12 @@ settingsScene.action("back_prayer_settings", async (ctx) => {
         "select_calc_method"
       ),
     ],
-    [Markup.button.callback(await t(lang, "btn_select_madhab"), "select_madhab")],
+    [
+      Markup.button.callback(
+        await t(lang, "btn_select_madhab"),
+        "select_madhab"
+      ),
+    ],
     [Markup.button.callback(await t(lang, "btn_back"), "settings_back")],
   ]);
 

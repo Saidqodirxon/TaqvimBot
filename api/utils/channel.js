@@ -156,10 +156,16 @@ async function handleCheckSubscription(ctx) {
     } = require("./keyboards");
     if (!ctx.session?.user?.phoneNumber) {
       // Request phone number
-      await ctx.reply(await t(lang, "request_phone"), await getPhoneRequestKeyboard(lang));
+      await ctx.reply(
+        await t(lang, "request_phone"),
+        await getPhoneRequestKeyboard(lang)
+      );
     } else {
       // Show main menu
-      await ctx.reply(await t(lang, "main_menu"), await getMainMenuKeyboard(lang));
+      await ctx.reply(
+        await t(lang, "main_menu"),
+        await getMainMenuKeyboard(lang)
+      );
     }
   } else {
     // Still not joined all channels
