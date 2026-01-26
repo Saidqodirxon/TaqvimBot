@@ -20,7 +20,6 @@ import Profile from "./pages/Profile";
 import Resources from "./pages/Resources";
 import Test from "./pages/Test";
 import Backups from "./pages/Backups";
-import Recovery from "./pages/Recovery";
 import Layout from "./components/Layout";
 
 function App() {
@@ -73,7 +72,6 @@ function App() {
         <Route path="/resources" element={<Resources />} />
         <Route path="/test" element={<Test />} />
         <Route path="/backups" element={<Backups />} />
-        <Route path="/recovery" element={<Recovery />} />
         <Route path="/broadcast" element={<Broadcast />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="*" element={<Navigate to="/" replace />} />
