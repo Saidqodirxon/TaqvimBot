@@ -1638,7 +1638,6 @@ async function startAdminAPI() {
   const testRoutes = require("./routes/admin/test");
   const backupsRoutes = require("./routes/admin/backups");
   const exportRoutes = require("./routes/admin/export");
-  const recoveryRoutes = require("./routes/admin/recovery");
 
   app.use("/api/auth", authRoutes);
   app.use("/api/users", usersRoutes);
@@ -1660,7 +1659,6 @@ async function startAdminAPI() {
   app.use("/api/test", testRoutes);
   app.use("/api/backups", backupsRoutes);
   app.use("/api/export", exportRoutes);
-  app.use("/api/admin/recovery", recoveryRoutes);
 
   // Health check
   app.get("/", (req, res) => {
