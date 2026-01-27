@@ -1,25 +1,26 @@
 /* eslint-disable no-undef */
 const express = require("express");
-const path = require("path"); // Modulni import qilishni unutmang
+const path = require("path");
 
 const app = express();
+const PORT = process.env.PORT || 9998;
 
 const distPath = path.join(__dirname, "..", "dist");
-const images = path.join(__dirname, "../../artJalyuzi_back/public");
 
+// Static files
 app.use(express.static(distPath));
-app.use(express.static(images));
 
-app.get("/", (req, res) => {
+// SPA routing - barcha route'lar uchun index.html qaytaradi
+app.get("*", (req, res) => {
   const distHtmlPath = path.join(distPath, "index.html");
-  res.sendFile(distHtmlPath);
+  res.sendFile(distHtmlPath, (err) => {
+    if (err) {
+      console.error("Error sending file:", err);
+      res.status(500).send("Internal Server Error");
+    }
+  });
 });
 
-app.get("/*", (req, res) => {
-  const distHtmlPath = path.join(distPath, "index.html");
-  res.sendFile(distHtmlPath);
-});
-
-app.listen(9998, () => {
-  console.log("Frontend ishlayapti, 9998-portni eshitishni kutamiz...");
+app.listen(PORT, () => {
+  console.log(`✅ Admin Panel ishlayapti: http://localhost:${PORT}`);
 });
