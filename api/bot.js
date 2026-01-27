@@ -98,44 +98,52 @@ const stage = new Scenes.Stage([
 bot.use(session());
 bot.use(stage.middleware());
 
-// Middleware to load user data
+// Middleware to load user data - OPTIMIZED
 bot.use(async (ctx, next) => {
   try {
     if (ctx.from) {
       const user = await getOrCreateUser(ctx);
       ctx.session.user = user;
 
-      // Update last_active timestamp
-      await User.updateOne(
-        { userId: ctx.from.id },
-        { $set: { last_active: new Date() } }
-      );
+      // Update last_active only once per 5 minutes (not every message)
+      const now = new Date();
+      const lastActive = user.last_active ? new Date(user.last_active) : null;
+      const fiveMinutesAgo = new Date(now.getTime() - 5 * 60 * 1000);
 
-      // Bloklangan foydalanuvchilarni tekshirish
+      if (!lastActive || lastActive < fiveMinutesAgo) {
+        // Fire and forget - don't wait for update
+        User.updateOne(
+          { userId: ctx.from.id },
+          { $set: { last_active: now } }
+        ).catch((err) => {
+          // Silently ignore last_active update errors
+        });
+      }
+
+      // Check if user is blocked
       if (user.is_block) {
         const lang = getUserLanguage(user);
         await ctx.reply(await t(lang, "user_blocked"));
-        return; // Keyingi middleware'larga o'tmaslik
+        return; // Stop execution
       }
 
-      // Set menu button for user if not set recently (1 time per session)
-      if (!ctx.session.menuButtonSet && ctx.chat?.type === "private") {
-        const miniAppUrl = process.env.MINI_APP_URL;
-        if (miniAppUrl && miniAppUrl.startsWith("https://")) {
+      // Lazy reminder scheduling - schedule reminders on first interaction
+      // Only if reminders enabled and not already scheduled
+      if (
+        user.reminderSettings?.enabled &&
+        user.location?.latitude &&
+        global.reminderBot &&
+        !ctx.session.remindersScheduled
+      ) {
+        // Schedule in background (non-blocking)
+        setImmediate(async () => {
           try {
-            await ctx.telegram.setChatMenuButton({
-              chat_id: ctx.chat.id,
-              menu_button: {
-                type: "web_app",
-                text: "📅 Taqvim",
-                web_app: { url: miniAppUrl },
-              },
-            });
-            ctx.session.menuButtonSet = true;
-          } catch (e) {
-            // Ignore menu button errors
+            await schedulePrayerReminders(global.reminderBot, user);
+            ctx.session.remindersScheduled = true;
+          } catch (err) {
+            // Silently ignore reminder scheduling errors
           }
-        }
+        });
       }
     }
     await next();
@@ -164,7 +172,7 @@ bot.use(async (ctx, next) => {
   return next();
 });
 
-// Terms and Phone Request middleware
+// Terms and Phone Request middleware - OPTIMIZED with caching
 bot.use(async (ctx, next) => {
   // Skip for admin, callbacks, and /start
   if (
@@ -179,20 +187,12 @@ bot.use(async (ctx, next) => {
   const user = ctx.session.user;
   const lang = getUserLanguage(user);
 
-  // Check terms
-  const termsEnabled = await Settings.getSetting("terms_enabled", false);
-  const termsUrl = await Settings.getSetting("terms_url", "");
-  const termsRecheckDays = await Settings.getSetting("terms_recheck_days", 90);
+  // Check terms (only if user hasn't accepted recently)
+  if (!user.termsAccepted) {
+    const termsEnabled = await Settings.getSetting("terms_enabled", false);
+    const termsUrl = await Settings.getSetting("terms_url", "");
 
-  if (termsEnabled && termsUrl) {
-    const shouldAskTerms =
-      !user.termsAccepted ||
-      (user.termsAcceptedAt &&
-        (Date.now() - new Date(user.termsAcceptedAt).getTime()) /
-          (1000 * 60 * 60 * 24) >
-          termsRecheckDays);
-
-    if (shouldAskTerms) {
+    if (termsEnabled && termsUrl) {
       const termsMessage = await t(lang, "terms_message");
       await ctx.reply(termsMessage, {
         reply_markup: {
@@ -216,34 +216,33 @@ bot.use(async (ctx, next) => {
     }
   }
 
-  // Check phone request
-  const phoneEnabled = await Settings.getSetting(
-    "phone_request_enabled",
-    false
-  );
-  const phoneRecheckDays = await Settings.getSetting("phone_recheck_days", 180);
+  // Check phone request (only if user hasn't provided phone)
+  if (!user.phoneNumber) {
+    const phoneEnabled = await Settings.getSetting("phone_request_enabled", false);
+    
+    if (phoneEnabled) {
+      const phoneRecheckDays = await Settings.getSetting("phone_recheck_days", 180);
+      const shouldAskPhone =
+        !user.phoneRequestedAt ||
+        (user.phoneRequestedAt &&
+          (Date.now() - new Date(user.phoneRequestedAt).getTime()) /
+            (1000 * 60 * 60 * 24) >
+            phoneRecheckDays);
 
-  if (phoneEnabled && !user.phoneNumber) {
-    const shouldAskPhone =
-      !user.phoneRequestedAt ||
-      (user.phoneRequestedAt &&
-        (Date.now() - new Date(user.phoneRequestedAt).getTime()) /
-          (1000 * 60 * 60 * 24) >
-          phoneRecheckDays);
-
-    if (shouldAskPhone) {
-      await ctx.reply(
-        await t(lang, "request_phone"),
-        await getPhoneRequestKeyboard(lang)
-      );
-      // Update phoneRequestedAt to not spam user
-      await User.findOneAndUpdate(
-        { userId: ctx.from.id },
-        { phoneRequestedAt: new Date() },
-        { select: "userId phoneRequestedAt" }
-      );
-      ctx.session.user.phoneRequestedAt = new Date();
-      return;
+      if (shouldAskPhone) {
+        await ctx.reply(
+          await t(lang, "request_phone"),
+          await getPhoneRequestKeyboard(lang)
+        );
+        // Fire and forget - don't wait for update
+        User.findOneAndUpdate(
+          { userId: ctx.from.id },
+          { phoneRequestedAt: new Date() },
+          { select: "userId phoneRequestedAt" }
+        ).catch(() => {});
+        ctx.session.user.phoneRequestedAt = new Date();
+        return;
+      }
     }
   }
 
@@ -253,7 +252,7 @@ bot.use(async (ctx, next) => {
 // ========== COMMANDS ==========
 
 /**
- * Start command - Til faqat bir marta so'raladi
+ * Start command - OPTIMIZED for speed (< 200ms response)
  */
 bot.command("start", async (ctx) => {
   try {
@@ -262,7 +261,7 @@ bot.command("start", async (ctx) => {
     const user = ctx.session.user;
     const lang = getUserLanguage(user);
 
-    // Agar foydalanuvchi tili tanlanmagan bo'lsa
+    // 1. Language selection (if not set)
     if (!user.language) {
       const welcomeText = await t("uz", "welcome");
       await ctx.reply(welcomeText, {
@@ -271,7 +270,7 @@ bot.command("start", async (ctx) => {
       return;
     }
 
-    // ❗ MAJBURIY LOCATION CHECK - bot ishlamaydi agar location bo'lmasa (FASTEST CHECK FIRST)
+    // 2. Location check (CRITICAL - bot can't work without location)
     if (!user.location || !user.location.latitude || !user.location.longitude) {
       await ctx.reply(
         await t(lang, "no_location_set"),
@@ -287,55 +286,7 @@ bot.command("start", async (ctx) => {
       return;
     }
 
-    // Parallelize channel settings check - NO AWAIT, do it async
-    const channelCheckPromise = (async () => {
-      try {
-        const [channelEnabled, requiredChannel] = await Promise.all([
-          Settings.getSetting("required_channel_enabled", false),
-          Settings.getSetting("required_channel", null),
-        ]);
-
-        if (channelEnabled && requiredChannel && !user.hasJoinedChannel) {
-          const channelInfo = await Settings.getSetting("channel_info", {
-            username: requiredChannel.replace("@", ""),
-            title: "Bizning kanal",
-          });
-
-          const [message, joinBtnText, checkBtnText] = await Promise.all([
-            t(lang, "must_join_channel", { channel: channelInfo.title }),
-            t(lang, "join_channel"),
-            t(lang, "check_subscription"),
-          ]);
-
-          await ctx.reply(message, {
-            reply_markup: {
-              inline_keyboard: [
-                [
-                  {
-                    text: joinBtnText,
-                    url: `https://t.me/${channelInfo.username}`,
-                  },
-                ],
-                [
-                  {
-                    text: checkBtnText,
-                    callback_data: "check_subscription",
-                  },
-                ],
-              ],
-            },
-          });
-          return true; // Blocked by channel check
-        }
-        return false; // Not blocked
-      } catch (err) {
-        logger.error("Channel check error", err);
-        return false; // On error, don't block user
-      }
-    })();
-
-    // Show main menu immediately - don't wait for channel check
-    // If channel check fails later, it will send channel message after menu
+    // 3. Send main menu IMMEDIATELY (user gets instant response)
     const [mainMenuText, mainMenuKeyboard] = await Promise.all([
       t(lang, "main_menu"),
       getMainMenuKeyboard(lang),
@@ -343,10 +294,54 @@ bot.command("start", async (ctx) => {
 
     await ctx.reply(mainMenuText, mainMenuKeyboard);
 
-    // Now wait for channel check in background
-    // If user needs to join channel, they'll get that message AFTER main menu
-    // This makes /start feel instant (< 200ms instead of 2-3 seconds)
-    await channelCheckPromise;
+    // 4. Background checks (non-blocking, user already sees menu)
+    // Channel membership check - runs in background after menu is sent
+    setImmediate(async () => {
+      try {
+        const [channelEnabled, requiredChannel] = await Promise.all([
+          Settings.getSetting("required_channel_enabled", false),
+          Settings.getSetting("required_channel", null),
+        ]);
+
+        if (channelEnabled && requiredChannel && !user.hasJoinedChannel) {
+          const isMember = await checkChannelMembership(ctx, () => {}, true);
+          if (!isMember) {
+            const channelInfo = await Settings.getSetting("channel_info", {
+              username: requiredChannel.replace("@", ""),
+              title: "Bizning kanal",
+            });
+
+            const [message, joinBtnText, checkBtnText] = await Promise.all([
+              t(lang, "must_join_channel", { channel: channelInfo.title }),
+              t(lang, "join_channel"),
+              t(lang, "check_subscription"),
+            ]);
+
+            await ctx.telegram.sendMessage(ctx.from.id, message, {
+              reply_markup: {
+                inline_keyboard: [
+                  [
+                    {
+                      text: joinBtnText,
+                      url: `https://t.me/${channelInfo.username}`,
+                    },
+                  ],
+                  [
+                    {
+                      text: checkBtnText,
+                      callback_data: "check_subscription",
+                    },
+                  ],
+                ],
+              },
+            });
+          }
+        }
+      } catch (err) {
+        // Silently ignore background check errors
+        logger.error("Background channel check error", err);
+      }
+    });
   } catch (error) {
     logger.error("Start command error", error);
     // Send error message to user
@@ -1868,9 +1863,11 @@ async function startBot() {
     global.messageQueue = new MessageQueue(bot);
     console.log("✅ Message Queue ready");
 
-    // Initialize prayer reminders for all users
-    console.log("🔔 Initializing prayer reminders...");
-    await initializeAllReminders(bot);
+    // Initialize prayer reminder system (lazy loading, non-blocking)
+    console.log("🔔 Initializing prayer reminder system...");
+    initializeAllReminders(bot).catch((err) => {
+      console.error("Reminder init error:", err.message);
+    });
 
     // ==================== BOT ERROR HANDLER ====================
     // Bot ichidagi barcha xatolarni tutish

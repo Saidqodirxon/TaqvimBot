@@ -24,9 +24,7 @@ async function schedulePrayerReminders(bot, user) {
 
     // ❗ Location MAJBURIY - default yo'q
     if (!user.location || !user.location.latitude || !user.location.longitude) {
-      console.warn(
-        `⚠️ User ${user.userId} has no location set, skipping reminders`
-      );
+      // Silently skip - don't spam logs
       return;
     }
 
@@ -182,34 +180,58 @@ function cancelUserReminders(userId) {
 
 /**
  * Initialize reminders for all users with reminders enabled
+ * OPTIMIZED: Lazy loading - reminders scheduled on-demand
  * @param {Object} bot - Telegraf bot instance
  */
 async function initializeAllReminders(bot) {
   try {
-    const users = await User.find({
+    // Just count users, don't load all at once
+    const count = await User.countDocuments({
       "reminderSettings.enabled": true,
       is_block: false,
+      location: { $exists: true, $ne: null },
+      "location.latitude": { $exists: true },
+      "location.longitude": { $exists: true },
     });
 
-    console.log(`🔔 Initializing reminders for ${users.length} users...`);
-
-    for (const user of users) {
+    console.log(`🔔 Reminder system ready for ${count} users (lazy loading)`);
+    console.log(`   Reminders will be scheduled when users interact with bot`);
+    
+    // Store bot reference globally for lazy scheduling
+    global.reminderBot = bot;
+    
+    // Optional: Schedule a background job to initialize top active users
+    // This runs in background after bot starts (non-blocking)
+    setImmediate(async () => {
       try {
-        await schedulePrayerReminders(bot, user);
-      } catch (userError) {
-        console.error(
-          `Failed to initialize reminders for user ${user.userId}:`,
-          userError.message
-        );
-        // Continue with next user - DO NOT throw
+        // Load only recently active users (last 7 days)
+        const recentUsers = await User.find({
+          "reminderSettings.enabled": true,
+          is_block: false,
+          location: { $exists: true },
+          "location.latitude": { $exists: true },
+          last_active: { $gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) },
+        }).limit(100);
+        
+        let scheduled = 0;
+        for (const user of recentUsers) {
+          try {
+            await schedulePrayerReminders(bot, user);
+            scheduled++;
+          } catch (err) {
+            // Silently skip failed users
+          }
+          // Small delay
+          await new Promise((resolve) => setTimeout(resolve, 50));
+        }
+        
+        console.log(`✅ Pre-scheduled reminders for ${scheduled} active users`);
+      } catch (err) {
+        console.error("Background reminder init error:", err.message);
       }
-      // Small delay to avoid overwhelming the system
-      await new Promise((resolve) => setTimeout(resolve, 100));
-    }
-
-    console.log(`✅ Reminders initialized for all users`);
+    });
   } catch (error) {
-    console.error("Error initializing reminders:", error);
+    console.error("Error initializing reminder system:", error);
     // DO NOT throw - bot must continue
   }
 }

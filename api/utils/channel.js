@@ -4,8 +4,9 @@ const logger = require("./logger");
 
 /**
  * Foydalanuvchi kanalga obuna bo'lganligini tekshirish (multiple channels)
+ * @param {boolean} returnOnly - If true, only return status without sending messages
  */
-async function checkChannelMembership(ctx, next) {
+async function checkChannelMembership(ctx, next, returnOnly = false) {
   try {
     // Get channels from Settings
     const channels = await Settings.getSetting("channels", []);
@@ -15,7 +16,7 @@ async function checkChannelMembership(ctx, next) {
 
     // If no active channels, skip check
     if (activeChannels.length === 0) {
-      return next();
+      return returnOnly ? true : next();
     }
 
     // Check if user is within delay period
@@ -35,7 +36,7 @@ async function checkChannelMembership(ctx, next) {
 
       // If user is within delay period, skip channel check
       if (timeSinceCreation < delayMs) {
-        return next();
+        return returnOnly ? true : next();
       }
     }
 
@@ -43,21 +44,26 @@ async function checkChannelMembership(ctx, next) {
     const lang = ctx.session?.user?.language || "uz";
     const notJoinedChannels = [];
 
-    // Check membership for each active channel
+    // Check membership for each active channel (with timeout)
     for (const channel of activeChannels) {
       try {
-        const member = await ctx.telegram.getChatMember(channel.id, userId);
+        const member = await Promise.race([
+          ctx.telegram.getChatMember(channel.id, userId),
+          new Promise((_, reject) =>
+            setTimeout(() => reject(new Error("Timeout")), 2000)
+          ),
+        ]);
 
         // Status: creator, administrator, member - obuna bo'lgan
         if (!["creator", "administrator", "member"].includes(member.status)) {
           notJoinedChannels.push(channel);
         }
       } catch (error) {
+        // On timeout or error, assume not joined
         console.error(
           `Kanal tekshirishda xato (${channel.username}):`,
           error.message
         );
-        // If error checking channel, add to not joined list
         notJoinedChannels.push(channel);
       }
     }
@@ -67,7 +73,12 @@ async function checkChannelMembership(ctx, next) {
       if (ctx.session?.user) {
         ctx.session.user.hasJoinedChannel = true;
       }
-      return next();
+      return returnOnly ? true : next();
+    }
+
+    // If returnOnly mode, just return false
+    if (returnOnly) {
+      return false;
     }
 
     // User hasn't joined some channels - show them
@@ -88,7 +99,7 @@ async function checkChannelMembership(ctx, next) {
 
     channelButtons.push([
       {
-        text: t(lang, "check_subscription"),
+        text: await t(lang, "check_subscription"),
         callback_data: "check_subscription",
       },
     ]);
