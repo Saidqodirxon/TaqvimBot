@@ -3,12 +3,19 @@ const express = require("express");
 const router = express.Router();
 const MonthlyPrayerTime = require("../../models/MonthlyPrayerTime");
 const Location = require("../../models/Location");
+const mongoose = require("mongoose");
 
 // Get all monthly prayer times for a location
 router.get("/:locationId", async (req, res) => {
   try {
     const { locationId } = req.params;
     const { month, year } = req.query;
+
+    // Validate locationId format
+    if (!mongoose.Types.ObjectId.isValid(locationId)) {
+      return res.status(400).json({ error: "Invalid location ID format" });
+    }
+
     const query = { locationId };
     // Filter by month/year if provided
     if (month && year) {
@@ -37,6 +44,12 @@ router.get("/:locationId", async (req, res) => {
 router.get("/:locationId/:date", async (req, res) => {
   try {
     const { locationId, date } = req.params;
+
+    // Validate locationId format
+    if (!mongoose.Types.ObjectId.isValid(locationId)) {
+      return res.status(400).json({ error: "Invalid location ID format" });
+    }
+
     const targetDate = new Date(date);
     targetDate.setHours(0, 0, 0, 0);
     const prayerTime = await MonthlyPrayerTime.findOne({
@@ -62,6 +75,12 @@ router.post("/:locationId", async (req, res) => {
   try {
     const { locationId } = req.params;
     const { date, hijriDate, timings } = req.body;
+
+    // Validate locationId format
+    if (!mongoose.Types.ObjectId.isValid(locationId)) {
+      return res.status(400).json({ error: "Invalid location ID format" });
+    }
+
     // Validate location exists
     const location = await Location.findById(locationId);
     if (!location) {
@@ -125,6 +144,12 @@ router.post("/:locationId/bulk", async (req, res) => {
   try {
     const { locationId } = req.params;
     const { prayerTimes } = req.body; // Array of {date, hijriDate, timings}
+
+    // Validate locationId format
+    if (!mongoose.Types.ObjectId.isValid(locationId)) {
+      return res.status(400).json({ error: "Invalid location ID format" });
+    }
+
     if (!Array.isArray(prayerTimes) || prayerTimes.length === 0) {
       return res.status(400).json({ error: "prayerTimes array is required" });
     }
@@ -185,6 +210,11 @@ router.post("/:locationId/bulk", async (req, res) => {
 router.delete("/:locationId/:date", async (req, res) => {
   try {
     const { locationId, date } = req.params;
+
+    // Validate locationId format
+    if (!mongoose.Types.ObjectId.isValid(locationId)) {
+      return res.status(400).json({ error: "Invalid location ID format" });
+    }
 
     const targetDate = new Date(date);
     targetDate.setHours(0, 0, 0, 0);

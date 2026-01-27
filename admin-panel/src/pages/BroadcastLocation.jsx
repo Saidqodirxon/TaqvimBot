@@ -45,7 +45,7 @@ function BroadcastLocation() {
     queryFn: async () => {
       const token = localStorage.getItem("token");
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL || "http://localhost:3000/api/admin"}/stats/users-without-location`,
+        `${import.meta.env.VITE_API_URL || "http://localhost:3000/api"}/stats/users-without-location`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }

@@ -124,9 +124,15 @@ class Logger {
 
   // Channel membership check failed
   async logChannelCheckFailed(user, channelUsername) {
+    // Handle both Telegram format (first_name, id) and our format (firstName, userId)
+    const firstName = user.firstName || user.first_name || "Unknown";
+    const userId = user.userId || user.id || "Unknown";
+    const username = user.username ? `@${user.username}` : "";
+
     const message =
       `⚠️ <b>Kanal tekshiruvi</b>\n\n` +
-      `Foydalanuvchi: ${user.firstName} (${user.userId})\n` +
+      `Foydalanuvchi: ${firstName} ${username}\n` +
+      `ID: ${userId}\n` +
       `Kanal: @${channelUsername}\n` +
       `Holat: A'zo emas\n` +
       `Vaqt: ${new Date().toLocaleString("uz-UZ")}`;
