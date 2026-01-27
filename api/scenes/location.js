@@ -3,6 +3,12 @@ const { t, getUserLanguage } = require("../utils/translator");
 const { getMainMenuKeyboard } = require("../utils/keyboards");
 const User = require("../models/User");
 const Location = require("../models/Location");
+const {
+  findNearestCity,
+  getCitiesByRegion,
+  getAllRegions,
+  getTopCities,
+} = require("../utils/nearestCity");
 
 // Location Scene
 const locationScene = new Scenes.BaseScene("location");
@@ -12,15 +18,11 @@ locationScene.enter(async (ctx) => {
     const user = ctx.session.user;
     const lang = getUserLanguage(user);
 
-    // Show two main options: GPS or Manual selection
+    // Show main options: GPS, Manual by Region, or Top Cities
     const buttons = [
       [Markup.button.callback(await t(lang, "btn_gps_location"), "send_gps")],
-      [
-        Markup.button.callback(
-          await t(lang, "btn_manual_select"),
-          "manual_select"
-        ),
-      ],
+      [Markup.button.callback("🏙️ Mashhur shaharlar", "top_cities")],
+      [Markup.button.callback("🗺️ Viloyat bo'yicha", "select_region")],
       [Markup.button.callback(await t(lang, "btn_back_menu"), "back_to_menu")],
     ];
 
@@ -86,6 +88,236 @@ locationScene.action("manual_select", async (ctx) => {
     );
   } catch (error) {
     console.error("Error in manual_select:", error);
+    await ctx.answerCbQuery("❌ Xatolik yuz berdi");
+  }
+});
+
+// Handle top cities selection
+locationScene.action("top_cities", async (ctx) => {
+  try {
+    await ctx.answerCbQuery();
+    const user = ctx.session.user;
+    const lang = getUserLanguage(user);
+
+    // Get top 20 cities
+    const cities = await getTopCities(20);
+
+    if (!cities || cities.length === 0) {
+      await ctx.editMessageText("⚠️ Shaharlar ro'yxati topilmadi");
+      return;
+    }
+
+    // Build inline keyboard
+    const buttons = [];
+    for (const city of cities) {
+      let cityName = city.name;
+      if (lang === "uz") cityName = city.nameUz || city.name;
+      else if (lang === "cr") cityName = city.nameCyrillic || city.name;
+      else if (lang === "ru") cityName = city.nameRu || city.name;
+
+      buttons.push([
+        Markup.button.callback(`📍 ${cityName}`, `select_location_${city._id}`),
+      ]);
+    }
+
+    buttons.push([
+      Markup.button.callback("◀️ Orqaga", "back_to_location_menu"),
+    ]);
+
+    await ctx.editMessageText(
+      "🏙️ Mashhur shaharlar:",
+      Markup.inlineKeyboard(buttons)
+    );
+  } catch (error) {
+    console.error("Error in top_cities:", error);
+    await ctx.answerCbQuery("❌ Xatolik yuz berdi");
+  }
+});
+
+// Handle region selection
+locationScene.action("select_region", async (ctx) => {
+  try {
+    await ctx.answerCbQuery();
+    const user = ctx.session.user;
+    const lang = getUserLanguage(user);
+
+    // Get all regions
+    const regions = await getAllRegions();
+
+    if (!regions || regions.length === 0) {
+      await ctx.editMessageText("⚠️ Viloyatlar ro'yxati topilmadi");
+      return;
+    }
+
+    // Build inline keyboard
+    const buttons = [];
+    for (const region of regions) {
+      buttons.push([
+        Markup.button.callback(
+          `🗺️ ${region.region} (${region.cityCount})`,
+          `region_${region.region}`
+        ),
+      ]);
+    }
+
+    buttons.push([
+      Markup.button.callback("◀️ Orqaga", "back_to_location_menu"),
+    ]);
+
+    await ctx.editMessageText(
+      "🗺️ Viloyatni tanlang:",
+      Markup.inlineKeyboard(buttons)
+    );
+  } catch (error) {
+    console.error("Error in select_region:", error);
+    await ctx.answerCbQuery("❌ Xatolik yuz berdi");
+  }
+});
+
+// Handle region cities
+locationScene.action(/^region_(.+)$/, async (ctx) => {
+  try {
+    const regionName = ctx.match[1];
+    await ctx.answerCbQuery();
+    const user = ctx.session.user;
+    const lang = getUserLanguage(user);
+
+    // Get cities in this region
+    const cities = await getCitiesByRegion(regionName);
+
+    if (!cities || cities.length === 0) {
+      await ctx.editMessageText("⚠️ Bu viloyatda shaharlar topilmadi");
+      return;
+    }
+
+    // Build inline keyboard
+    const buttons = [];
+    for (const city of cities) {
+      let cityName = city.name;
+      if (lang === "uz") cityName = city.nameUz || city.name;
+      else if (lang === "cr") cityName = city.nameCyrillic || city.name;
+      else if (lang === "ru") cityName = city.nameRu || city.name;
+
+      buttons.push([
+        Markup.button.callback(`📍 ${cityName}`, `select_location_${city._id}`),
+      ]);
+    }
+
+    buttons.push([
+      Markup.button.callback("◀️ Viloyatlarga qaytish", "select_region"),
+    ]);
+
+    await ctx.editMessageText(
+      `🏙️ ${regionName} shaharlari:`,
+      Markup.inlineKeyboard(buttons)
+    );
+  } catch (error) {
+    console.error("Error in region cities:", error);
+    await ctx.answerCbQuery("❌ Xatolik yuz berdi");
+  }
+});
+
+// Handle using nearest city
+locationScene.action(/^use_nearest_(.+)$/, async (ctx) => {
+  try {
+    const locationId = ctx.match[1];
+    await ctx.answerCbQuery();
+
+    const location = await Location.findById(locationId);
+    if (!location) {
+      await ctx.reply("❌ Shahar topilmadi");
+      return;
+    }
+
+    const user = ctx.session.user;
+    const lang = getUserLanguage(user);
+
+    let locationName = location.name;
+    if (lang === "uz") locationName = location.nameUz || location.name;
+    else if (lang === "cr")
+      locationName = location.nameCyrillic || location.name;
+    else if (lang === "ru") locationName = location.nameRu || location.name;
+
+    // Save nearest city
+    await User.findOneAndUpdate(
+      { userId: ctx.from.id },
+      {
+        location: {
+          name: locationName,
+          latitude: location.latitude,
+          longitude: location.longitude,
+          timezone: location.timezone || "Asia/Tashkent",
+        },
+      }
+    );
+
+    ctx.session.user.location = {
+      name: locationName,
+      latitude: location.latitude,
+      longitude: location.longitude,
+    };
+
+    await ctx.editMessageText(
+      `✅ Joylashuv saqlandi: ${locationName}\n` +
+        `📦 Bu shahar uchun namoz vaqtlari cache'da mavjud!`
+    );
+
+    await ctx.reply(await t(lang, "main_menu"), {
+      ...(await getMainMenuKeyboard(lang)),
+    });
+
+    await ctx.scene.leave();
+  } catch (error) {
+    console.error("Error using nearest city:", error);
+    await ctx.answerCbQuery("❌ Xatolik yuz berdi");
+  }
+});
+
+// Handle using GPS coordinates
+locationScene.action("use_gps_coords", async (ctx) => {
+  try {
+    await ctx.answerCbQuery();
+
+    const tempLoc = ctx.session.tempLocation;
+    if (!tempLoc || !tempLoc.gps) {
+      await ctx.reply("❌ GPS ma'lumotlari topilmadi");
+      return;
+    }
+
+    const user = ctx.session.user;
+    const lang = getUserLanguage(user);
+
+    // Save GPS coordinates
+    await User.findOneAndUpdate(
+      { userId: ctx.from.id },
+      {
+        location: {
+          name: tempLoc.gps.name,
+          latitude: tempLoc.gps.lat,
+          longitude: tempLoc.gps.lon,
+          timezone: "Asia/Tashkent",
+        },
+      }
+    );
+
+    ctx.session.user.location = {
+      name: tempLoc.gps.name,
+      latitude: tempLoc.gps.lat,
+      longitude: tempLoc.gps.lon,
+    };
+
+    await ctx.editMessageText(
+      `✅ GPS koordinatalaringiz saqlandi\n` +
+        `⚠️ Cache'da bo'lmagan vaqtlar uchun API'dan olinadi`
+    );
+
+    await ctx.reply(await t(lang, "main_menu"), {
+      ...(await getMainMenuKeyboard(lang)),
+    });
+
+    await ctx.scene.leave();
+  } catch (error) {
+    console.error("Error using GPS coords:", error);
     await ctx.answerCbQuery("❌ Xatolik yuz berdi");
   }
 });
@@ -191,12 +423,68 @@ locationScene.on("location", async (ctx) => {
     const lang = getUserLanguage(user);
     const location = ctx.message.location;
 
-    // Reverse geocoding - GPS koordinatalardan shahar aniqlash
-    const axios = require("axios");
-    let locationName = "Tashkent"; // Default
+    await ctx.reply("⏳ Eng yaqin shaharni qidiryapman...");
 
+    // Find nearest city from database
+    const nearestResult = await findNearestCity(
+      location.latitude,
+      location.longitude,
+      100
+    );
+
+    let locationName = "Tashkent"; // Default
+    let finalLat = location.latitude;
+    let finalLon = location.longitude;
+    let useNearestCity = false;
+
+    if (nearestResult && nearestResult.city) {
+      const nearest = nearestResult.city;
+      locationName = nearest.nameUz || nearest.name;
+
+      // Show options: use nearest city or keep GPS coordinates
+      const buttons = [
+        [
+          Markup.button.callback(
+            `✅ ${locationName} (${nearest.distance} km)`,
+            `use_nearest_${nearest._id}`
+          ),
+        ],
+        [
+          Markup.button.callback(
+            "📍 GPS koordinatalarimni saqlash",
+            "use_gps_coords"
+          ),
+        ],
+      ];
+
+      // Store data in session for later use
+      ctx.session.tempLocation = {
+        gps: {
+          lat: location.latitude,
+          lon: location.longitude,
+          name: locationName,
+        },
+        nearest: {
+          id: nearest._id,
+          name: locationName,
+          lat: nearest.latitude,
+          lon: nearest.longitude,
+          distance: nearest.distance,
+        },
+      };
+
+      await ctx.reply(
+        `📍 Sizning joylashuvingiz: ${locationName}\n` +
+          `📏 Masofa: ${nearest.distance} km\n\n` +
+          `⚡️ Cache'langan data uchun eng yaqin shaharni tanlashingiz tavsiya etiladi.`,
+        Markup.inlineKeyboard(buttons)
+      );
+      return;
+    }
+
+    // Fallback: reverse geocoding if no nearest city found
     try {
-      // Nominatim API orqali shahar nomini aniqlash
+      const axios = require("axios");
       const response = await axios.get(
         `https://nominatim.openstreetmap.org/reverse`,
         {
@@ -225,7 +513,7 @@ locationScene.on("location", async (ctx) => {
       console.error("Reverse geocoding error:", error.message);
     }
 
-    // Foydalanuvchi joylashuvini saqlash
+    // Save GPS coordinates
     await User.findOneAndUpdate(
       { userId: ctx.from.id },
       {

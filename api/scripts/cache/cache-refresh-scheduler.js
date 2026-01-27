@@ -144,22 +144,28 @@ async function preCacheForActiveUsers() {
           });
 
           if (!existing) {
-            await getPrayerTimes(
-              location.latitude,
-              location.longitude,
-              location.method || 1,
-              location.school || 1,
-              0,
-              1,
-              targetDate
-            );
-            cached++;
+            try {
+              await getPrayerTimes(
+                location.latitude,
+                location.longitude,
+                location.method || 1,
+                location.school || 1,
+                0,
+                1,
+                targetDate
+              );
+              cached++;
+            } catch (apiError) {
+              // Silently skip if API fails - cache will use fallback
+              console.error(`⚠️ API timeout for ${key}, skipping...`);
+            }
           }
 
           await new Promise((resolve) => setTimeout(resolve, 50));
         }
       } catch (error) {
         console.error(`❌ Pre-cache failed for ${key}:`, error.message);
+        // Continue with next location - DO NOT throw
       }
     }
 
@@ -226,7 +232,8 @@ async function startScheduler() {
     await preCacheForActiveUsers();
   } catch (error) {
     console.error("❌ Scheduler startup error:", error);
-    process.exit(1);
+    console.error("⚠️ Continuing bot operation despite scheduler error...");
+    // DO NOT exit - bot must continue working
   }
 }
 
@@ -247,7 +254,8 @@ process.on("SIGTERM", async () => {
 if (require.main === module) {
   startScheduler().catch((error) => {
     console.error("💥 Fatal error:", error);
-    process.exit(1);
+    console.error("⚠️ Continuing bot operation despite fatal error...");
+    // DO NOT exit - bot must continue working
   });
 }
 

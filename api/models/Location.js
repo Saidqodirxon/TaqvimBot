@@ -7,9 +7,21 @@ const LocationSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    nameEn: {
+      type: String,
+      default: function () {
+        return this.name;
+      },
+    },
     nameUz: {
       type: String,
       required: true,
+    },
+    nameCyrillic: {
+      type: String,
+      default: function () {
+        return this.nameCr || this.nameUz;
+      },
     },
     nameCr: {
       type: String,
@@ -42,6 +54,18 @@ const LocationSchema = new mongoose.Schema(
       type: String,
       default: "Uzbekistan",
     },
+    region: {
+      type: String,
+      default: "Unknown",
+    },
+    population: {
+      type: Number,
+      default: 0,
+    },
+    priority: {
+      type: Number,
+      default: 999,
+    },
     isActive: {
       type: Boolean,
       default: true,
@@ -73,5 +97,8 @@ const LocationSchema = new mongoose.Schema(
 // Add index for geospatial queries
 LocationSchema.index({ latitude: 1, longitude: 1 });
 LocationSchema.index({ isActive: 1 });
+LocationSchema.index({ region: 1, isActive: 1 });
+LocationSchema.index({ priority: 1, population: -1 });
+LocationSchema.index({ nameUz: 1, nameEn: 1, nameCr: 1, nameRu: 1 });
 
 module.exports = mongoose.model("Location", LocationSchema);

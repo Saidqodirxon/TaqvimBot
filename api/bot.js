@@ -4,6 +4,28 @@ require("dotenv/config");
 // Set timezone to Uzbekistan
 process.env.TZ = "Asia/Tashkent";
 
+// ==================== GLOBAL ERROR HANDLERS ====================
+// Bot hech qachon crash bo'lmasligi uchun
+process.on("unhandledRejection", (reason, promise) => {
+  console.error("⚠️ Unhandled Rejection at:", promise);
+  console.error("Reason:", reason);
+  // DO NOT EXIT - Bot must continue working
+});
+
+process.on("uncaughtException", (error) => {
+  console.error("⚠️ Uncaught Exception:", error);
+  console.error("Stack:", error.stack);
+  // DO NOT EXIT - Bot must continue working
+});
+
+process.on("warning", (warning) => {
+  console.warn("⚠️ Node.js Warning:", warning.name);
+  console.warn("Message:", warning.message);
+  console.warn("Stack:", warning.stack);
+});
+
+// ==================== END GLOBAL ERROR HANDLERS ====================
+
 const db = require("./modules/db");
 
 // Models
@@ -217,7 +239,8 @@ bot.use(async (ctx, next) => {
       // Update phoneRequestedAt to not spam user
       await User.findOneAndUpdate(
         { userId: ctx.from.id },
-        { phoneRequestedAt: new Date() }
+        { phoneRequestedAt: new Date() },
+        { select: "userId phoneRequestedAt" }
       );
       ctx.session.user.phoneRequestedAt = new Date();
       return;
@@ -248,62 +271,90 @@ bot.command("start", async (ctx) => {
       return;
     }
 
-    // Majburiy kanalga obuna tekshirish
-    const channelEnabled = await Settings.getSetting(
-      "required_channel_enabled",
-      false
-    );
-    const requiredChannel = await Settings.getSetting("required_channel", null);
-    if (channelEnabled && requiredChannel && !user.hasJoinedChannel) {
-      const channelInfo = await Settings.getSetting("channel_info", {
-        username: requiredChannel.replace("@", ""),
-        title: "Bizning kanal",
-      });
-
-      const message = await t(lang, "must_join_channel", {
-        channel: channelInfo.title,
-      });
-
-      await ctx.reply(message, {
-        reply_markup: {
-          inline_keyboard: [
-            [
-              {
-                text: await t(lang, "join_channel"),
-                url: `https://t.me/${channelInfo.username}`,
-              },
-            ],
-            [
-              {
-                text: await t(lang, "check_subscription"),
-                callback_data: "check_subscription",
-              },
-            ],
-          ],
-        },
-      });
-      return;
-    }
-
-    // Telefon raqam so'rash - O'chirilgan (ixtiyoriy)
-    // Agar kerak bo'lsa, quyidagi kodni uncomment qiling
-    /*
-    if (!user.phoneNumber && user.hasJoinedChannel) {
+    // ❗ MAJBURIY LOCATION CHECK - bot ishlamaydi agar location bo'lmasa (FASTEST CHECK FIRST)
+    if (!user.location || !user.location.latitude || !user.location.longitude) {
       await ctx.reply(
-        await t(lang, "request_phone"),
-        await getPhoneRequestKeyboard(lang)
+        await t(lang, "no_location_set"),
+        Markup.inlineKeyboard([
+          [
+            Markup.button.callback(
+              await t(lang, "btn_set_location"),
+              "enter_location_scene"
+            ),
+          ],
+        ])
       );
       return;
     }
-    */
 
-    // Asosiy menyuni ko'rsatish
-    await ctx.reply(
-      await t(lang, "main_menu"),
-      await getMainMenuKeyboard(lang)
-    );
+    // Parallelize channel settings check - NO AWAIT, do it async
+    const channelCheckPromise = (async () => {
+      try {
+        const [channelEnabled, requiredChannel] = await Promise.all([
+          Settings.getSetting("required_channel_enabled", false),
+          Settings.getSetting("required_channel", null),
+        ]);
+
+        if (channelEnabled && requiredChannel && !user.hasJoinedChannel) {
+          const channelInfo = await Settings.getSetting("channel_info", {
+            username: requiredChannel.replace("@", ""),
+            title: "Bizning kanal",
+          });
+
+          const [message, joinBtnText, checkBtnText] = await Promise.all([
+            t(lang, "must_join_channel", { channel: channelInfo.title }),
+            t(lang, "join_channel"),
+            t(lang, "check_subscription"),
+          ]);
+
+          await ctx.reply(message, {
+            reply_markup: {
+              inline_keyboard: [
+                [
+                  {
+                    text: joinBtnText,
+                    url: `https://t.me/${channelInfo.username}`,
+                  },
+                ],
+                [
+                  {
+                    text: checkBtnText,
+                    callback_data: "check_subscription",
+                  },
+                ],
+              ],
+            },
+          });
+          return true; // Blocked by channel check
+        }
+        return false; // Not blocked
+      } catch (err) {
+        logger.error("Channel check error", err);
+        return false; // On error, don't block user
+      }
+    })();
+
+    // Show main menu immediately - don't wait for channel check
+    // If channel check fails later, it will send channel message after menu
+    const [mainMenuText, mainMenuKeyboard] = await Promise.all([
+      t(lang, "main_menu"),
+      getMainMenuKeyboard(lang),
+    ]);
+
+    await ctx.reply(mainMenuText, mainMenuKeyboard);
+
+    // Now wait for channel check in background
+    // If user needs to join channel, they'll get that message AFTER main menu
+    // This makes /start feel instant (< 200ms instead of 2-3 seconds)
+    await channelCheckPromise;
   } catch (error) {
     logger.error("Start command error", error);
+    // Send error message to user
+    try {
+      await ctx.reply("⚠️ Xatolik yuz berdi. Iltimos, qayta urinib ko'ring.");
+    } catch (e) {
+      // Ignore if can't send error message
+    }
   }
 });
 
@@ -686,6 +737,163 @@ bot.action("change_location", async (ctx) => {
 });
 
 /**
+ * Enter location scene (alias for change_location)
+ */
+bot.action("enter_location_scene", async (ctx) => {
+  try {
+    await ctx.answerCbQuery();
+    await ctx.scene.enter("location");
+  } catch (error) {
+    logger.error("Enter location scene error", error);
+  }
+});
+
+/**
+ * Restart bot - redirect to /start
+ */
+bot.action("restart_bot", async (ctx) => {
+  try {
+    await ctx.answerCbQuery("🔄 Bot qayta ishga tushirilmoqda...");
+    await ctx.scene.leave();
+
+    const user = ctx.session.user;
+    const lang = getUserLanguage(user);
+
+    // Redirect to main menu
+    await ctx.reply(
+      await t(lang, "main_menu"),
+      await getMainMenuKeyboard(lang)
+    );
+  } catch (error) {
+    logger.error("Restart bot error", error);
+  }
+});
+
+/**
+ * Enable reminders from broadcast
+ */
+bot.action("enable_reminders_from_broadcast", async (ctx) => {
+  try {
+    await ctx.answerCbQuery();
+    const user = ctx.session.user;
+    const lang = getUserLanguage(user);
+
+    // Check if user has location
+    if (!user.location || !user.location.latitude) {
+      await ctx.reply(
+        await t(lang, "no_location_set"),
+        Markup.inlineKeyboard([
+          [
+            Markup.button.callback(
+              await t(lang, "btn_set_location"),
+              "enter_location_scene"
+            ),
+          ],
+        ])
+      );
+      return;
+    }
+
+    // Enable reminders
+    await User.updateOne(
+      { userId: user.userId },
+      {
+        $set: {
+          "reminderSettings.enabled": true,
+          "reminderSettings.defaultMinutes": 10,
+          "reminderSettings.notifyAtPrayerTime": true,
+        },
+      }
+    );
+
+    // Update session
+    ctx.session.user.reminderSettings = {
+      enabled: true,
+      defaultMinutes: 10,
+      notifyAtPrayerTime: true,
+    };
+
+    await ctx.reply(
+      "✅ " + (await t(lang, "reminders_enabled_success")),
+      await getMainMenuKeyboard(lang)
+    );
+  } catch (error) {
+    logger.error("Enable reminders from broadcast error", error);
+  }
+});
+
+/**
+ * Enable reminders from prayer times view
+ */
+bot.action("enable_reminders_from_prayer", async (ctx) => {
+  try {
+    await ctx.answerCbQuery();
+    const user = ctx.session.user;
+    const lang = getUserLanguage(user);
+
+    // Check if user has location
+    if (!user.location || !user.location.latitude) {
+      await ctx.editMessageText(
+        await t(lang, "no_location_set"),
+        Markup.inlineKeyboard([
+          [
+            Markup.button.callback(
+              await t(lang, "btn_set_location"),
+              "enter_location_scene"
+            ),
+          ],
+        ])
+      );
+      return;
+    }
+
+    // Enable reminders
+    await User.updateOne(
+      { userId: user.userId },
+      {
+        $set: {
+          "reminderSettings.enabled": true,
+          "reminderSettings.defaultMinutes": 10,
+          "reminderSettings.notifyAtPrayerTime": true,
+        },
+      }
+    );
+
+    // Update session
+    ctx.session.user.reminderSettings = {
+      enabled: true,
+      defaultMinutes: 10,
+      notifyAtPrayerTime: true,
+    };
+
+    // Show reminder settings
+    await ctx.editMessageText(
+      "✅ " + (await t(lang, "reminders_enabled_success")),
+      {
+        reply_markup: {
+          inline_keyboard: [
+            [
+              {
+                text: await t(lang, "btn_reminder_settings"),
+                callback_data: "open_reminder_settings",
+              },
+            ],
+            [
+              {
+                text: await t(lang, "btn_back"),
+                callback_data: "back_to_calendar_view",
+              },
+            ],
+          ],
+        },
+      }
+    );
+  } catch (error) {
+    logger.error("Enable reminders from prayer error", error);
+  }
+});
+
+/**
  * Back to about
  */
 bot.action("back_to_about", async (ctx) => {
@@ -903,9 +1111,25 @@ bot.action("calendar_daily", async (ctx) => {
     const lang = getUserLanguage(ctx.session.user);
     const user = ctx.session.user;
 
-    const latitude = user.location?.latitude || 41.2995;
-    const longitude = user.location?.longitude || 69.2401;
-    const locationName = user.location?.name || "Tashkent";
+    // ❗ LOCATION MAJBURIY - default Tashkent yo'q
+    if (!user.location || !user.location.latitude || !user.location.longitude) {
+      await ctx.editMessageText(
+        await t(lang, "no_location_set"),
+        Markup.inlineKeyboard([
+          [
+            Markup.button.callback(
+              await t(lang, "btn_set_location"),
+              "enter_location_scene"
+            ),
+          ],
+        ])
+      );
+      return;
+    }
+
+    const latitude = user.location.latitude;
+    const longitude = user.location.longitude;
+    const locationName = user.location.name || "Joylashuv";
 
     // Foydalanuvchi sozlamalarini olish
     const method = user.prayerSettings?.calculationMethod || 1;
@@ -913,14 +1137,20 @@ bot.action("calendar_daily", async (ctx) => {
     const midnightMode = user.prayerSettings?.midnightMode || 0;
     const latitudeAdjustment = user.prayerSettings?.latitudeAdjustment || 1;
 
-    const prayerData = await getPrayerTimes(
-      latitude,
-      longitude,
-      method,
-      school,
-      midnightMode,
-      latitudeAdjustment
-    );
+    let prayerData;
+    try {
+      prayerData = await getPrayerTimes(
+        latitude,
+        longitude,
+        method,
+        school,
+        midnightMode,
+        latitudeAdjustment
+      );
+    } catch (prayerError) {
+      console.error("Prayer times fetch error:", prayerError.message);
+      return ctx.reply(await t(lang, "error_try_again"));
+    }
 
     if (!prayerData.success) {
       return ctx.reply(await t(lang, "error_try_again"));
@@ -954,16 +1184,30 @@ bot.action("calendar_daily", async (ctx) => {
       });
     }
 
+    // Check if user has reminders enabled
+    const hasReminders = user.reminderSettings?.enabled ?? false;
+    const keyboard = [
+      [
+        {
+          text: await t(lang, "btn_back"),
+          callback_data: "back_to_calendar_view",
+        },
+      ],
+    ];
+
+    // Add reminder button if not enabled
+    if (!hasReminders) {
+      keyboard.unshift([
+        {
+          text: "🔔 " + (await t(lang, "btn_enable_reminders")),
+          callback_data: "enable_reminders_from_prayer",
+        },
+      ]);
+    }
+
     await ctx.editMessageText(message, {
       reply_markup: {
-        inline_keyboard: [
-          [
-            {
-              text: await t(lang, "btn_back"),
-              callback_data: "back_to_calendar_view",
-            },
-          ],
-        ],
+        inline_keyboard: keyboard,
       },
     });
   } catch (error) {
@@ -980,9 +1224,25 @@ bot.action("calendar_weekly", async (ctx) => {
     const lang = getUserLanguage(ctx.session.user);
     const user = ctx.session.user;
 
-    const latitude = user.location?.latitude || 41.2995;
-    const longitude = user.location?.longitude || 69.2401;
-    const locationName = user.location?.name || "Tashkent";
+    // ❗ LOCATION MAJBURIY
+    if (!user.location || !user.location.latitude || !user.location.longitude) {
+      await ctx.editMessageText(
+        await t(lang, "no_location_set"),
+        Markup.inlineKeyboard([
+          [
+            Markup.button.callback(
+              await t(lang, "btn_set_location"),
+              "enter_location_scene"
+            ),
+          ],
+        ])
+      );
+      return;
+    }
+
+    const latitude = user.location.latitude;
+    const longitude = user.location.longitude;
+    const locationName = user.location.name || "Joylashuv";
 
     // Foydalanuvchi sozlamalarini olish
     const method = user.prayerSettings?.calculationMethod || 1;
@@ -1028,35 +1288,57 @@ bot.action("calendar_weekly", async (ctx) => {
     // Get prayer times for next 7 days
     for (let i = 0; i < 7; i++) {
       const date = moment.tz("Asia/Tashkent").add(i, "days");
-      const prayerData = await getPrayerTimes(
-        latitude,
-        longitude,
-        method,
-        school,
-        midnightMode,
-        latitudeAdjustment
-      );
+      try {
+        const prayerData = await getPrayerTimes(
+          latitude,
+          longitude,
+          method,
+          school,
+          midnightMode,
+          latitudeAdjustment
+        );
 
-      if (prayerData.success) {
-        const dayOfWeek = date.day();
-        const dayName =
-          weekDays[lang]?.[dayOfWeek] || weekDays["uz"][dayOfWeek];
-        message += `📅 ${date.format("DD.MM.YYYY")} (${dayName})\n`;
-        message += `🌅 ${prayerData.timings.fajr} | ☀️ ${prayerData.timings.dhuhr} | 🌤 ${prayerData.timings.asr}\n`;
-        message += `🌇 ${prayerData.timings.maghrib} | 🌙 ${prayerData.timings.isha}\n\n`;
+        if (prayerData.success) {
+          const dayOfWeek = date.day();
+          const dayName =
+            weekDays[lang]?.[dayOfWeek] || weekDays["uz"][dayOfWeek];
+          message += `📅 ${date.format("DD.MM.YYYY")} (${dayName})\n`;
+          message += `🌅 ${prayerData.timings.fajr} | ☀️ ${prayerData.timings.dhuhr} | 🌤 ${prayerData.timings.asr}\n`;
+          message += `🌇 ${prayerData.timings.maghrib} | 🌙 ${prayerData.timings.isha}\n\n`;
+        }
+      } catch (dayError) {
+        console.error(
+          `Error getting prayer times for day ${i}:`,
+          dayError.message
+        );
+        // Skip this day but continue with others
       }
+    }
+
+    // Check if user has reminders enabled
+    const hasRemindersWeekly = user.reminderSettings?.enabled ?? false;
+    const keyboardWeekly = [
+      [
+        {
+          text: await t(lang, "btn_back"),
+          callback_data: "back_to_calendar_view",
+        },
+      ],
+    ];
+
+    // Add reminder button if not enabled
+    if (!hasRemindersWeekly) {
+      keyboardWeekly.unshift([
+        {
+          text: "🔔 " + (await t(lang, "btn_enable_reminders")),
+          callback_data: "enable_reminders_from_prayer",
+        },
+      ]);
     }
 
     await ctx.editMessageText(message, {
       reply_markup: {
-        inline_keyboard: [
-          [
-            {
-              text: await t(lang, "btn_back"),
-              callback_data: "back_to_calendar_view",
-            },
-          ],
-        ],
+        inline_keyboard: keyboardWeekly,
       },
     });
   } catch (error) {
@@ -1287,6 +1569,151 @@ bot.action("back_main", async (ctx) => {
 });
 
 /**
+ * Approve greeting from admin
+ */
+bot.action(/approve_(.+)/, async (ctx) => {
+  try {
+    await ctx.answerCbQuery("✅ Tabrik tasdiqlandi!");
+
+    const greetingId = ctx.match[1];
+    const GreetingLog = require("./models/GreetingLog");
+    const Settings = require("./models/Settings");
+
+    // Find greeting
+    const greeting = await GreetingLog.findById(greetingId);
+    if (!greeting) {
+      await ctx.editMessageReplyMarkup({ inline_keyboard: [] });
+      await ctx.reply("❌ Tabrik topilmadi yoki allaqachon o'chirilgan");
+      return;
+    }
+
+    // Check if already processed
+    if (greeting.status !== "pending") {
+      await ctx.editMessageReplyMarkup({ inline_keyboard: [] });
+      await ctx.reply(
+        `ℹ️ Bu tabrik allaqachon ${greeting.status === "approved" ? "tasdiqlangan" : "rad etilgan"}`
+      );
+      return;
+    }
+
+    // Remove inline buttons FIRST
+    await ctx.editMessageReplyMarkup({ inline_keyboard: [] }).catch(() => {});
+
+    // Update status
+    greeting.status = "approved";
+    greeting.reviewedBy = ctx.from.id;
+    greeting.reviewedAt = new Date();
+    await greeting.save();
+
+    // Get greeting channel
+    const greetingChannelSetting = await Settings.findOne({
+      key: "greeting_channel",
+    });
+    const greetingChannel = greetingChannelSetting?.value;
+
+    // Get greeting text - handle both text and message fields
+    const greetingText = greeting.text || greeting.message || "(Matn yo'q)";
+
+    // Send to channel if configured
+    if (greetingChannel) {
+      try {
+        const channelMsg = await ctx.telegram.sendMessage(
+          greetingChannel,
+          greetingText,
+          { parse_mode: "HTML" }
+        );
+
+        greeting.sentToChannel = true;
+        greeting.channelMessageId = channelMsg.message_id;
+        await greeting.save();
+
+        await ctx.reply(
+          `✅ Tabrik tasdiqlandi va kanalga yuborildi!\n👤 ${greeting.firstName} (@${greeting.username || "no_username"})\n\n${greetingText.substring(0, 100)}...`
+        );
+      } catch (channelError) {
+        console.error("Error sending to channel:", channelError);
+        await ctx.reply(
+          `✅ Tabrik tasdiqlandi, lekin kanalga yuborishda xatolik:\n${channelError.message}`
+        );
+      }
+    } else {
+      await ctx.reply(
+        `✅ Tabrik tasdiqlandi!\n⚠️ Kanal sozlanmagan, kanalga yuborilmadi.\n👤 ${greeting.firstName} (@${greeting.username || "no_username"})\n\n${greetingText.substring(0, 100)}...`
+      );
+    }
+
+    // Send notification to user
+    try {
+      await ctx.telegram.sendMessage(
+        greeting.userId,
+        "✅ Sizning tabrigingiz tasdiqlandi va kanalga joylandi!\n\nRahmat 🙏"
+      );
+    } catch (userError) {
+      console.error("Error notifying user:", userError.message);
+    }
+  } catch (error) {
+    console.error("Error approving greeting:", error);
+    await ctx.reply("❌ Xatolik yuz berdi: " + error.message).catch(() => {});
+  }
+});
+
+/**
+ * Reject greeting from admin
+ */
+bot.action(/reject_(.+)/, async (ctx) => {
+  try {
+    await ctx.answerCbQuery("❌ Tabrik rad etildi");
+
+    const greetingId = ctx.match[1];
+    const GreetingLog = require("./models/GreetingLog");
+
+    // Find greeting
+    const greeting = await GreetingLog.findById(greetingId);
+    if (!greeting) {
+      await ctx.editMessageReplyMarkup({ inline_keyboard: [] });
+      await ctx.reply("❌ Tabrik topilmadi yoki allaqachon o'chirilgan");
+      return;
+    }
+
+    // Check if already processed
+    if (greeting.status !== "pending") {
+      await ctx.editMessageReplyMarkup({ inline_keyboard: [] });
+      await ctx.reply(
+        `ℹ️ Bu tabrik allaqachon ${greeting.status === "approved" ? "tasdiqlangan" : "rad etilgan"}`
+      );
+      return;
+    }
+
+    // Remove inline buttons FIRST
+    await ctx.editMessageReplyMarkup({ inline_keyboard: [] }).catch(() => {});
+
+    // Update status
+    greeting.status = "rejected";
+    greeting.reviewedBy = ctx.from.id;
+    greeting.reviewedAt = new Date();
+    greeting.rejectionReason = "Admin tomonidan rad etildi";
+    await greeting.save();
+
+    await ctx.reply(
+      `❌ Tabrik rad etildi\n👤 ${greeting.firstName} (@${greeting.username || "no_username"})`
+    );
+
+    // Send notification to user
+    try {
+      await ctx.telegram.sendMessage(
+        greeting.userId,
+        "❌ Afsuski, sizning tabrigingiz moderatsiyadan o'tmadi.\n\nQoidalarga rioya qilgan holda qayta yuboring."
+      );
+    } catch (userError) {
+      console.error("Error notifying user:", userError.message);
+    }
+  } catch (error) {
+    console.error("Error rejecting greeting:", error);
+    await ctx.reply("❌ Xatolik yuz berdi: " + error.message).catch(() => {});
+  }
+});
+
+/**
  * Handle phone number contact
  */
 bot.on("contact", async (ctx) => {
@@ -1422,7 +1849,9 @@ async function startBot() {
     }
 
     // Create superadmin if not exists
-    const superadmin = await User.findOne({ userId: parseInt(adminId) });
+    const superadmin = await User.findOne({ userId: parseInt(adminId) }).select(
+      "userId isAdmin role"
+    );
     if (superadmin) {
       superadmin.isAdmin = true;
       superadmin.role = "superadmin";
@@ -1442,6 +1871,28 @@ async function startBot() {
     // Initialize prayer reminders for all users
     console.log("🔔 Initializing prayer reminders...");
     await initializeAllReminders(bot);
+
+    // ==================== BOT ERROR HANDLER ====================
+    // Bot ichidagi barcha xatolarni tutish
+    bot.catch((err, ctx) => {
+      console.error("⚠️ Bot error caught:", err);
+      console.error("Error in update:", ctx.update);
+
+      // Try to send error message to user if possible
+      if (ctx && ctx.from) {
+        const lang = getUserLanguage(ctx.session?.user);
+        ctx.reply(t(lang, "error_try_again")).catch(() => {
+          // Ignore if can't send error message
+          console.error("⚠️ Could not send error message to user");
+        });
+      }
+
+      // Log error but DO NOT crash bot
+      logError(err, ctx, "Bot Update Error").catch(() => {
+        // Ignore if logging fails
+      });
+    });
+    // ==================== END BOT ERROR HANDLER ====================
 
     // Launch bot AFTER API
     console.log("🤖 Launching bot...");
@@ -1638,6 +2089,7 @@ async function startAdminAPI() {
   const testRoutes = require("./routes/admin/test");
   const backupsRoutes = require("./routes/admin/backups");
   const exportRoutes = require("./routes/admin/export");
+  const botInfoRoutes = require("./routes/admin/bot-info");
 
   app.use("/api/auth", authRoutes);
   app.use("/api/users", usersRoutes);
@@ -1659,6 +2111,7 @@ async function startAdminAPI() {
   app.use("/api/test", testRoutes);
   app.use("/api/backups", backupsRoutes);
   app.use("/api/export", exportRoutes);
+  app.use("/api/bot-info", botInfoRoutes);
 
   // Health check
   app.get("/", (req, res) => {

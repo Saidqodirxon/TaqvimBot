@@ -161,6 +161,16 @@ function Layout({ children, setAuth }) {
           </NavLink>
 
           <NavLink
+            to="/broadcast-location"
+            className={({ isActive }) =>
+              isActive ? "nav-item active" : "nav-item"
+            }
+          >
+            <MapPin size={20} />
+            <span>📍 Joylashuv Broadcast</span>
+          </NavLink>
+
+          <NavLink
             to="/settings"
             className={({ isActive }) =>
               isActive ? "nav-item active" : "nav-item"

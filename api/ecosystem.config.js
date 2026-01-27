@@ -36,6 +36,23 @@ module.exports = {
       restart_delay: 5000,
     },
     {
+      name: "ramazonbot-backup-scheduler",
+      script: "./scripts/maintenance/backup-scheduler.js",
+      cwd: "/root/ramazonbot/api",
+      instances: 1,
+      exec_mode: "fork",
+      env: {
+        NODE_ENV: "production",
+        TZ: "Asia/Tashkent",
+      },
+      error_file: "./logs/backup-scheduler-error.log",
+      out_file: "./logs/backup-scheduler-out.log",
+      log_date_format: "YYYY-MM-DD HH:mm:ss Z",
+      merge_logs: true,
+      max_memory_restart: "200M",
+      restart_delay: 5000,
+    },
+    {
       name: "ramazonbot-admin-9998",
       script: "./nginx/server.main.js",
       cwd: "/root/ramazonbot/admin-panel",

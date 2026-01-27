@@ -1,0 +1,29 @@
+[
+  {
+    "_id": "69779fa098692023a79aaebd",
+    "userId": 1551855614,
+    "text": "A",
+    "status": "pending",
+    "createdAt": "2026-01-26T17:08:48.749Z",
+    "updatedAt": "2026-01-26T17:08:48.749Z",
+    "__v": 0
+  },
+  {
+    "_id": "69779fd098692023a79aaecd",
+    "userId": 1551855614,
+    "text": "A",
+    "status": "pending",
+    "createdAt": "2026-01-26T17:09:36.217Z",
+    "updatedAt": "2026-01-26T17:09:36.217Z",
+    "__v": 0
+  },
+  {
+    "_id": "6978538d98692023a79ab2ce",
+    "userId": 7182661464,
+    "text": "Barcha yaqinlarimni ramazon ayyomi bilan tabriklayman",
+    "status": "pending",
+    "createdAt": "2026-01-27T05:56:29.742Z",
+    "updatedAt": "2026-01-27T05:56:29.742Z",
+    "__v": 0
+  }
+]

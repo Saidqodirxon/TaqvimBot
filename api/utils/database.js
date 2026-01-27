@@ -13,7 +13,10 @@ async function getOrCreateUser(ctx) {
     const firstName = ctx.from.first_name;
     const username = ctx.from.username;
 
-    let user = await User.findOne({ userId });
+    // Optimized query - select only needed fields
+    let user = await User.findOne({ userId }).select(
+      "userId firstName username language location prayerSettings reminderSettings hasJoinedChannel is_block phoneNumber phoneRequestedAt termsAcceptedAt last_active"
+    );
 
     if (!user) {
       // Get default prayer settings
@@ -42,18 +45,30 @@ async function getOrCreateUser(ctx) {
       });
       await user.save();
 
-      // Get total users count
-      const totalUsers = await User.countDocuments();
+      // Get total users count (fast count)
+      const totalUsers = await User.estimatedDocumentCount();
 
       // Log new user directly to ADMIN (not to group)
       await logNewUser(user, totalUsers);
     } else {
-      // Update user info if changed
-      if (user.firstName !== firstName || user.username !== username) {
+      // Update user info if changed (minimal update)
+      const needsUpdate =
+        user.firstName !== firstName || user.username !== username;
+      if (needsUpdate) {
+        await User.updateOne(
+          { userId },
+          {
+            $set: {
+              firstName,
+              username,
+              lastActive: new Date(),
+            },
+          }
+        );
+        // Update local object
         user.firstName = firstName;
         user.username = username;
         user.lastActive = new Date();
-        await user.save();
       }
     }
 

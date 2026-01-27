@@ -119,4 +119,23 @@ router.get("/growth", authMiddleware, async (req, res) => {
     res.status(500).json({ error: "Server error", details: error.message });
   }
 });
+
+// Get users without location count
+router.get("/users-without-location", authMiddleware, async (req, res) => {
+  try {
+    const count = await User.countDocuments({
+      $or: [
+        { "location.latitude": { $exists: false } },
+        { "location.latitude": null },
+      ],
+      isActive: { $ne: false },
+    }).maxTimeMS(5000);
+
+    res.json({ count });
+  } catch (error) {
+    logger.error("Get users without location error:", error);
+    res.status(500).json({ error: "Server error", details: error.message });
+  }
+});
+
 module.exports = router;

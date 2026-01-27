@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const fs = require("fs").promises;
 const path = require("path");
-const { createBackup } = require("../../backup-mongodb");
+const { createBackup } = require("../../scripts/maintenance/backup-mongodb");
 const adminAuth = require("../../middleware/adminAuth");
 const logger = require("../../utils/logger");
 
@@ -324,6 +324,124 @@ router.put("/schedule", adminAuth, async (req, res) => {
     res.status(500).json({
       success: false,
       error: "Backup schedule sozlamalarini yangilashda xatolik",
+    });
+  }
+});
+
+// Send backup to Telegram group
+router.post("/send/:filename", adminAuth, async (req, res) => {
+  try {
+    // Only superadmin can send backups
+    if (req.user.role !== "superadmin") {
+      return res.status(403).json({
+        success: false,
+        error: "Faqat superadmin backup yuborishi mumkin",
+      });
+    }
+
+    const { filename } = req.params;
+
+    // Security: prevent directory traversal
+    if (
+      filename.includes("..") ||
+      filename.includes("/") ||
+      filename.includes("\\")
+    ) {
+      return res.status(400).json({
+        success: false,
+        error: "Noto'g'ri fayl nomi",
+      });
+    }
+
+    // Only allow .tar.gz files
+    if (!filename.endsWith(".tar.gz")) {
+      return res.status(400).json({
+        success: false,
+        error: "Faqat .tar.gz fayllari yuborilishi mumkin",
+      });
+    }
+
+    const backupDir = path.join(__dirname, "../../backups");
+    const filePath = path.join(backupDir, filename);
+
+    // Check if file exists
+    try {
+      await fs.access(filePath);
+    } catch {
+      return res.status(404).json({
+        success: false,
+        error: "Backup fayli topilmadi",
+      });
+    }
+
+    // Get file stats
+    const stats = await fs.stat(filePath);
+    const fileSize = stats.size;
+    const fileSizeMB = (fileSize / 1024 / 1024).toFixed(2);
+
+    // Telegram file size limit is 50MB for bots
+    if (fileSize >= 50 * 1024 * 1024) {
+      return res.status(400).json({
+        success: false,
+        error: `Fayl hajmi juda katta (${fileSizeMB} MB). Telegram boti uchun maksimal hajm 50 MB.`,
+      });
+    }
+
+    // Get log channel from settings
+    const Settings = require("../../models/Settings");
+    const logChannel = await Settings.getSetting("log_channel", null);
+
+    if (!logChannel) {
+      return res.status(400).json({
+        success: false,
+        error:
+          "Log kanal sozlanmagan. Avval Settings sahifasida log kanalini kiriting.",
+      });
+    }
+
+    // Send to Telegram
+    const { Telegraf } = require("telegraf");
+    const bot = new Telegraf(process.env.BOT_TOKEN);
+    const moment = require("moment-timezone");
+
+    const message = `
+🔐 <b>MongoDB Backup</b>
+
+📅 Sana: ${moment().tz("Asia/Tashkent").format("DD.MM.YYYY HH:mm:ss")}
+📦 Hajm: ${fileSizeMB} MB
+📁 Fayl: <code>${filename}</code>
+👤 Yubordi: ${req.user.username}
+
+✅ Backup manual yuborildi!
+    `.trim();
+
+    await bot.telegram.sendDocument(
+      logChannel,
+      {
+        source: filePath,
+        filename: filename,
+      },
+      {
+        caption: message,
+        parse_mode: "HTML",
+      }
+    );
+
+    logger.info("Backup sent to group", {
+      admin: req.user.username,
+      filename,
+      size: fileSizeMB + " MB",
+    });
+
+    res.json({
+      success: true,
+      message: "Backup muvaffaqiyatli log kanalga yuborildi",
+    });
+  } catch (error) {
+    logger.error("Error sending backup to group:", error);
+    res.status(500).json({
+      success: false,
+      error: error.message || "Backupni yuborishda xatolik yuz berdi",
     });
   }
 });

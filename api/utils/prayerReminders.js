@@ -22,16 +22,34 @@ async function schedulePrayerReminders(bot, user) {
       return;
     }
 
-    const latitude = user.location?.latitude || 41.2995;
-    const longitude = user.location?.longitude || 69.2401;
-    const timezone = user.location?.timezone || "Asia/Tashkent";
+    // ❗ Location MAJBURIY - default yo'q
+    if (!user.location || !user.location.latitude || !user.location.longitude) {
+      console.warn(
+        `⚠️ User ${user.userId} has no location set, skipping reminders`
+      );
+      return;
+    }
+
+    const latitude = user.location.latitude;
+    const longitude = user.location.longitude;
+    const timezone = user.location.timezone || "Asia/Tashkent";
     const lang = getUserLanguage(user);
     const minutesBefore = user.reminderSettings?.minutesBefore || 15;
 
     // Get today's prayer times
-    const prayerData = await getPrayerTimes(latitude, longitude);
-    if (!prayerData.success) {
-      console.error(`Failed to get prayer times for user ${user.userId}`);
+    let prayerData;
+    try {
+      prayerData = await getPrayerTimes(latitude, longitude);
+      if (!prayerData.success) {
+        console.error(`Failed to get prayer times for user ${user.userId}`);
+        return;
+      }
+    } catch (prayerError) {
+      console.error(
+        `Prayer time fetch error for user ${user.userId}:`,
+        prayerError.message
+      );
+      // DO NOT throw - just skip this user's reminders
       return;
     }
 
@@ -176,7 +194,15 @@ async function initializeAllReminders(bot) {
     console.log(`🔔 Initializing reminders for ${users.length} users...`);
 
     for (const user of users) {
-      await schedulePrayerReminders(bot, user);
+      try {
+        await schedulePrayerReminders(bot, user);
+      } catch (userError) {
+        console.error(
+          `Failed to initialize reminders for user ${user.userId}:`,
+          userError.message
+        );
+        // Continue with next user - DO NOT throw
+      }
       // Small delay to avoid overwhelming the system
       await new Promise((resolve) => setTimeout(resolve, 100));
     }
@@ -184,6 +210,7 @@ async function initializeAllReminders(bot) {
     console.log(`✅ Reminders initialized for all users`);
   } catch (error) {
     console.error("Error initializing reminders:", error);
+    // DO NOT throw - bot must continue
   }
 }
 

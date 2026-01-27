@@ -1,0 +1,1317 @@
+[
+  {
+    "name": "Toshkent",
+    "nameUz": "Toshkent",
+    "nameCr": "Тошкент",
+    "nameRu": "Ташкент",
+    "lat": 41.2995,
+    "lon": 69.2401,
+    "population": 2500000,
+    "region": "Toshkent shahar",
+    "priority": 1
+  },
+  {
+    "name": "Chirchiq",
+    "nameUz": "Chirchiq",
+    "nameCr": "Чирчиқ",
+    "nameRu": "Чирчик",
+    "lat": 41.4686,
+    "lon": 69.5828,
+    "population": 150000,
+    "region": "Toshkent viloyati"
+  },
+  {
+    "name": "Olmaliq",
+    "nameUz": "Olmaliq",
+    "nameCr": "Олмалиқ",
+    "nameRu": "Алмалык",
+    "lat": 40.8475,
+    "lon": 69.5983,
+    "population": 130000,
+    "region": "Toshkent viloyati"
+  },
+  {
+    "name": "Angren",
+    "nameUz": "Angren",
+    "nameCr": "Ангрен",
+    "nameRu": "Ангрен",
+    "lat": 41.0161,
+    "lon": 70.1436,
+    "population": 130000,
+    "region": "Toshkent viloyati"
+  },
+  {
+    "name": "Bekobod",
+    "nameUz": "Bekobod",
+    "nameCr": "Бекобод",
+    "nameRu": "Бекабад",
+    "lat": 40.2167,
+    "lon": 69.2,
+    "population": 80000,
+    "region": "Toshkent viloyati"
+  },
+  {
+    "name": "Yangiyo'l",
+    "nameUz": "Yangiyo'l",
+    "nameCr": "Янгийўл",
+    "nameRu": "Янгиюль",
+    "lat": 41.1117,
+    "lon": 69.0428,
+    "population": 60000,
+    "region": "Toshkent viloyati"
+  },
+  {
+    "name": "Ohangaron",
+    "nameUz": "Ohangaron",
+    "nameCr": "Оҳангарон",
+    "nameRu": "Ахангаран",
+    "lat": 40.9156,
+    "lon": 70.0097,
+    "population": 50000,
+    "region": "Toshkent viloyati"
+  },
+  {
+    "name": "Nurafshon",
+    "nameUz": "Nurafshon",
+    "nameCr": "Нурафшон",
+    "nameRu": "Нурафшан",
+    "lat": 41.3439,
+    "lon": 69.7644,
+    "population": 30000,
+    "region": "Toshkent viloyati"
+  },
+  {
+    "name": "Samarqand",
+    "nameUz": "Samarqand",
+    "nameCr": "Самарқанд",
+    "nameRu": "Самарканд",
+    "lat": 39.627,
+    "lon": 66.975,
+    "population": 550000,
+    "region": "Samarqand viloyati",
+    "priority": 2
+  },
+  {
+    "name": "Kattaqo'rg'on",
+    "nameUz": "Kattaqo'rg'on",
+    "nameCr": "Каттақўрғон",
+    "nameRu": "Каттакурган",
+    "lat": 39.8903,
+    "lon": 66.2597,
+    "population": 80000,
+    "region": "Samarqand viloyati"
+  },
+  {
+    "name": "Jomboy",
+    "nameUz": "Jomboy",
+    "nameCr": "Жомбой",
+    "nameRu": "Джамбай",
+    "lat": 39.7075,
+    "lon": 67.52,
+    "population": 25000,
+    "region": "Samarqand viloyati"
+  },
+  {
+    "name": "Urgut",
+    "nameUz": "Urgut",
+    "nameCr": "Урғут",
+    "nameRu": "Ургут",
+    "lat": 39.4008,
+    "lon": 67.2686,
+    "population": 45000,
+    "region": "Samarqand viloyati"
+  },
+  {
+    "name": "Ishtixon",
+    "nameUz": "Ishtixon",
+    "nameCr": "Иштихон",
+    "nameRu": "Иштыхан",
+    "lat": 39.9383,
+    "lon": 66.3658,
+    "population": 20000,
+    "region": "Samarqand viloyati"
+  },
+  {
+    "name": "Payariq",
+    "nameUz": "Payariq",
+    "nameCr": "Пайариқ",
+    "nameRu": "Паяарык",
+    "lat": 39.7547,
+    "lon": 67.3486,
+    "population": 18000,
+    "region": "Samarqand viloyati"
+  },
+  {
+    "name": "Buxoro",
+    "nameUz": "Buxoro",
+    "nameCr": "Бухоро",
+    "nameRu": "Бухара",
+    "lat": 39.7747,
+    "lon": 64.4286,
+    "population": 280000,
+    "region": "Buxoro viloyati",
+    "priority": 3
+  },
+  {
+    "name": "Kogon",
+    "nameUz": "Kogon",
+    "nameCr": "Когон",
+    "nameRu": "Каган",
+    "lat": 39.7208,
+    "lon": 64.5528,
+    "population": 60000,
+    "region": "Buxoro viloyati"
+  },
+  {
+    "name": "Olot",
+    "nameUz": "Olot",
+    "nameCr": "Олот",
+    "nameRu": "Алат",
+    "lat": 40.4472,
+    "lon": 64.4597,
+    "population": 35000,
+    "region": "Buxoro viloyati"
+  },
+  {
+    "name": "Galaosiyo",
+    "nameUz": "Galaosiyo",
+    "nameCr": "Галаосиё",
+    "nameRu": "Галаасия",
+    "lat": 40.0531,
+    "lon": 63.4528,
+    "population": 28000,
+    "region": "Buxoro viloyati"
+  },
+  {
+    "name": "Jondor",
+    "nameUz": "Jondor",
+    "nameCr": "Жондор",
+    "nameRu": "Жондар",
+    "lat": 39.6317,
+    "lon": 63.5942,
+    "population": 15000,
+    "region": "Buxoro viloyati"
+  },
+  {
+    "name": "Vobkent",
+    "nameUz": "Vobkent",
+    "nameCr": "Вобкент",
+    "nameRu": "Вабкент",
+    "lat": 40.0308,
+    "lon": 64.5136,
+    "population": 22000,
+    "region": "Buxoro viloyati"
+  },
+  {
+    "name": "Andijon",
+    "nameUz": "Andijon",
+    "nameCr": "Андижон",
+    "nameRu": "Андижан",
+    "lat": 40.7821,
+    "lon": 72.3442,
+    "population": 450000,
+    "region": "Andijon viloyati",
+    "priority": 4
+  },
+  {
+    "name": "Asaka",
+    "nameUz": "Asaka",
+    "nameCr": "Асака",
+    "nameRu": "Асака",
+    "lat": 40.6481,
+    "lon": 72.2386,
+    "population": 45000,
+    "region": "Andijon viloyati"
+  },
+  {
+    "name": "Xonobod",
+    "nameUz": "Xonobod",
+    "nameCr": "Хонобод",
+    "nameRu": "Ханабад",
+    "lat": 40.8356,
+    "lon": 72.0778,
+    "population": 40000,
+    "region": "Andijon viloyati"
+  },
+  {
+    "name": "Qo'rg'ontepa",
+    "nameUz": "Qo'rg'ontepa",
+    "nameCr": "Қўрғонтепа",
+    "nameRu": "Курганте​па",
+    "lat": 40.7381,
+    "lon": 72.7603,
+    "population": 35000,
+    "region": "Andijon viloyati"
+  },
+  {
+    "name": "Shahrixon",
+    "nameUz": "Shahrixon",
+    "nameCr": "Шаҳрихон",
+    "nameRu": "Шахрихан",
+    "lat": 40.7128,
+    "lon": 72.0558,
+    "population": 32000,
+    "region": "Andijon viloyati"
+  },
+  {
+    "name": "Paytug'",
+    "nameUz": "Paytug'",
+    "nameCr": "Пайтуғ",
+    "nameRu": "Пайтуг",
+    "lat": 40.3481,
+    "lon": 72.3528,
+    "population": 20000,
+    "region": "Andijon viloyati"
+  },
+  {
+    "name": "Namangan",
+    "nameUz": "Namangan",
+    "nameCr": "Наманган",
+    "nameRu": "Наманган",
+    "lat": 40.9983,
+    "lon": 71.6726,
+    "population": 475000,
+    "region": "Namangan viloyati",
+    "priority": 5
+  },
+  {
+    "name": "Kosonsoy",
+    "nameUz": "Kosonsoy",
+    "nameCr": "Косонсой",
+    "nameRu": "Касансай",
+    "lat": 41.2314,
+    "lon": 71.5486,
+    "population": 45000,
+    "region": "Namangan viloyati"
+  },
+  {
+    "name": "Uchqo'rg'on",
+    "nameUz": "Uchqo'rg'on",
+    "nameCr": "Учқўрғон",
+    "nameRu": "Учкурган",
+    "lat": 40.8578,
+    "lon": 72.4156,
+    "population": 38000,
+    "region": "Namangan viloyati"
+  },
+  {
+    "name": "To'raqo'rg'on",
+    "nameUz": "To'raqo'rg'on",
+    "nameCr": "Тўрақўрғон",
+    "nameRu": "Туракурган",
+    "lat": 40.5311,
+    "lon": 71.0886,
+    "population": 35000,
+    "region": "Namangan viloyati"
+  },
+  {
+    "name": "Chortoq",
+    "nameUz": "Chortoq",
+    "nameCr": "Чортоқ",
+    "nameRu": "Чартак",
+    "lat": 41.0614,
+    "lon": 71.8356,
+    "population": 30000,
+    "region": "Namangan viloyati"
+  },
+  {
+    "name": "Pop",
+    "nameUz": "Pop",
+    "nameCr": "Поп",
+    "nameRu": "Папп",
+    "lat": 40.8806,
+    "lon": 71.1086,
+    "population": 28000,
+    "region": "Namangan viloyati"
+  },
+  {
+    "name": "Farg'ona",
+    "nameUz": "Farg'ona",
+    "nameCr": "Фарғона",
+    "nameRu": "Фергана",
+    "lat": 40.3864,
+    "lon": 71.7864,
+    "population": 320000,
+    "region": "Farg'ona viloyati",
+    "priority": 6
+  },
+  {
+    "name": "Marg'ilon",
+    "nameUz": "Marg'ilon",
+    "nameCr": "Марғилон",
+    "nameRu": "Маргилан",
+    "lat": 40.4717,
+    "lon": 71.7244,
+    "population": 200000,
+    "region": "Farg'ona viloyati"
+  },
+  {
+    "name": "Qo'qon",
+    "nameUz": "Qo'qon",
+    "nameCr": "Қўқон",
+    "nameRu": "Коканд",
+    "lat": 40.5286,
+    "lon": 70.9425,
+    "population": 230000,
+    "region": "Farg'ona viloyati",
+    "priority": 7
+  },
+  {
+    "name": "Quvasoy",
+    "nameUz": "Quvasoy",
+    "nameCr": "Қувасой",
+    "nameRu": "Кувасай",
+    "lat": 40.2978,
+    "lon": 72.0383,
+    "population": 110000,
+    "region": "Farg'ona viloyati"
+  },
+  {
+    "name": "Beshariq",
+    "nameUz": "Beshariq",
+    "nameCr": "Бешариқ",
+    "nameRu": "Бешарык",
+    "lat": 40.4372,
+    "lon": 70.6106,
+    "population": 42000,
+    "region": "Farg'ona viloyati"
+  },
+  {
+    "name": "Oltiariq",
+    "nameUz": "Oltiariq",
+    "nameCr": "Олтиариқ",
+    "nameRu": "Алтыарык",
+    "lat": 40.3839,
+    "lon": 72.2394,
+    "population": 70000,
+    "region": "Farg'ona viloyati"
+  },
+  {
+    "name": "Rishton",
+    "nameUz": "Rishton",
+    "nameCr": "Риштон",
+    "nameRu": "Риштан",
+    "lat": 40.3664,
+    "lon": 71.2906,
+    "population": 50000,
+    "region": "Farg'ona viloyati"
+  },
+  {
+    "name": "Yaypan",
+    "nameUz": "Yaypan",
+    "nameCr": "Яйпан",
+    "nameRu": "Яйпан",
+    "lat": 40.5839,
+    "lon": 71.8053,
+    "population": 28000,
+    "region": "Farg'ona viloyati"
+  },
+  {
+    "name": "Toshloq",
+    "nameUz": "Toshloq",
+    "nameCr": "Тошлоқ",
+    "nameRu": "Ташлак",
+    "lat": 40.5481,
+    "lon": 72.4986,
+    "population": 25000,
+    "region": "Farg'ona viloyati"
+  },
+  {
+    "name": "Nukus",
+    "nameUz": "Nukus",
+    "nameCr": "Нукус",
+    "nameRu": "Нукус",
+    "lat": 42.4608,
+    "lon": 59.6105,
+    "population": 310000,
+    "region": "Qoraqalpog'iston",
+    "priority": 8
+  },
+  {
+    "name": "Xo'jayli",
+    "nameUz": "Xo'jayli",
+    "nameCr": "Хўжайли",
+    "nameRu": "Ходжейли",
+    "lat": 42.4067,
+    "lon": 59.4517,
+    "population": 35000,
+    "region": "Qoraqalpog'iston"
+  },
+  {
+    "name": "To'rtko'l",
+    "nameUz": "To'rtko'l",
+    "nameCr": "Тўрткўл",
+    "nameRu": "Турткуль",
+    "lat": 41.5525,
+    "lon": 61.1419,
+    "population": 30000,
+    "region": "Qoraqalpog'iston"
+  },
+  {
+    "name": "Taxiatosh",
+    "nameUz": "Taxiatosh",
+    "nameCr": "Тахиатош",
+    "nameRu": "Тахиаташ",
+    "lat": 41.9369,
+    "lon": 59.0706,
+    "population": 28000,
+    "region": "Qoraqalpog'iston"
+  },
+  {
+    "name": "Beruniy",
+    "nameUz": "Beruniy",
+    "nameCr": "Беруний",
+    "nameRu": "Беруни",
+    "lat": 41.6956,
+    "lon": 60.7508,
+    "population": 25000,
+    "region": "Qoraqalpog'iston"
+  },
+  {
+    "name": "Qarshi",
+    "nameUz": "Qarshi",
+    "nameCr": "Қарши",
+    "nameRu": "Карши",
+    "lat": 38.8606,
+    "lon": 65.7895,
+    "population": 280000,
+    "region": "Qashqadaryo viloyati",
+    "priority": 9
+  },
+  {
+    "name": "Shahrisabz",
+    "nameUz": "Shahrisabz",
+    "nameCr": "Шаҳрисабз",
+    "nameRu": "Шахрисабз",
+    "lat": 39.0572,
+    "lon": 66.8342,
+    "population": 100000,
+    "region": "Qashqadaryo viloyati"
+  },
+  {
+    "name": "Koson",
+    "nameUz": "Koson",
+    "nameCr": "Косон",
+    "nameRu": "Касан",
+    "lat": 39.0311,
+    "lon": 65.7369,
+    "population": 38000,
+    "region": "Qashqadaryo viloyati"
+  },
+  {
+    "name": "Muborak",
+    "nameUz": "Muborak",
+    "nameCr": "Муборак",
+    "nameRu": "Мубарек",
+    "lat": 39.2436,
+    "lon": 65.1689,
+    "population": 35000,
+    "region": "Qashqadaryo viloyati"
+  },
+  {
+    "name": "Qarshi tumani",
+    "nameUz": "Qarshi tumani",
+    "nameCr": "Қарши тумани",
+    "nameRu": "Каршинский район",
+    "lat": 38.9581,
+    "lon": 65.6794,
+    "population": 25000,
+    "region": "Qashqadaryo viloyati"
+  },
+  {
+    "name": "Termiz",
+    "nameUz": "Termiz",
+    "nameCr": "Термиз",
+    "nameRu": "Термез",
+    "lat": 37.2242,
+    "lon": 67.2783,
+    "population": 140000,
+    "region": "Surxondaryo viloyati",
+    "priority": 10
+  },
+  {
+    "name": "Denov",
+    "nameUz": "Denov",
+    "nameCr": "Денов",
+    "nameRu": "Денау",
+    "lat": 38.2719,
+    "lon": 67.8953,
+    "population": 80000,
+    "region": "Surxondaryo viloyati"
+  },
+  {
+    "name": "Angor",
+    "nameUz": "Angor",
+    "nameCr": "Ангор",
+    "nameRu": "Ангор",
+    "lat": 37.8894,
+    "lon": 67.4847,
+    "population": 25000,
+    "region": "Surxondaryo viloyati"
+  },
+  {
+    "name": "Boysun",
+    "nameUz": "Boysun",
+    "nameCr": "Бойсун",
+    "nameRu": "Байсун",
+    "lat": 38.2147,
+    "lon": 67.2044,
+    "population": 22000,
+    "region": "Surxondaryo viloyati"
+  },
+  {
+    "name": "Jarqo'rg'on",
+    "nameUz": "Jarqo'rg'on",
+    "nameCr": "Жарқўрғон",
+    "nameRu": "Джаркурган",
+    "lat": 37.4917,
+    "lon": 67.4325,
+    "population": 20000,
+    "region": "Surxondaryo viloyati"
+  },
+  {
+    "name": "Sho'rchi",
+    "nameUz": "Sho'rchi",
+    "nameCr": "Шўрчи",
+    "nameRu": "Шурчи",
+    "lat": 37.9944,
+    "lon": 67.7886,
+    "population": 18000,
+    "region": "Surxondaryo viloyati"
+  },
+  {
+    "name": "Urganch",
+    "nameUz": "Urganch",
+    "nameCr": "Урганч",
+    "nameRu": "Ургенч",
+    "lat": 41.55,
+    "lon": 60.6333,
+    "population": 150000,
+    "region": "Xorazm viloyati",
+    "priority": 11
+  },
+  {
+    "name": "Xiva",
+    "nameUz": "Xiva",
+    "nameCr": "Хива",
+    "nameRu": "Хива",
+    "lat": 41.3775,
+    "lon": 60.3639,
+    "population": 90000,
+    "region": "Xorazm viloyati",
+    "priority": 12
+  },
+  {
+    "name": "Xonqa",
+    "nameUz": "Xonqa",
+    "nameCr": "Хонқа",
+    "nameRu": "Ханка",
+    "lat": 41.2906,
+    "lon": 60.8669,
+    "population": 28000,
+    "region": "Xorazm viloyati"
+  },
+  {
+    "name": "Shovot",
+    "nameUz": "Shovot",
+    "nameCr": "Шовот",
+    "nameRu": "Шават",
+    "lat": 41.6808,
+    "lon": 60.3083,
+    "population": 25000,
+    "region": "Xorazm viloyati"
+  },
+  {
+    "name": "Bog'ot",
+    "nameUz": "Bog'ot",
+    "nameCr": "Боғот",
+    "nameRu": "Багат",
+    "lat": 41.5689,
+    "lon": 60.9917,
+    "population": 20000,
+    "region": "Xorazm viloyati"
+  },
+  {
+    "name": "Jizzax",
+    "nameUz": "Jizzax",
+    "nameCr": "Жиззах",
+    "nameRu": "Джизак",
+    "lat": 40.1158,
+    "lon": 67.8422,
+    "population": 180000,
+    "region": "Jizzax viloyati",
+    "priority": 13
+  },
+  {
+    "name": "Zarbdor",
+    "nameUz": "Zarbdor",
+    "nameCr": "Зарбдор",
+    "nameRu": "Зарбдар",
+    "lat": 40.1831,
+    "lon": 67.9764,
+    "population": 30000,
+    "region": "Jizzax viloyati"
+  },
+  {
+    "name": "Do'stlik",
+    "nameUz": "Do'stlik",
+    "nameCr": "Дўстлик",
+    "nameRu": "Дустлик",
+    "lat": 40.3944,
+    "lon": 68.3597,
+    "population": 28000,
+    "region": "Jizzax viloyati"
+  },
+  {
+    "name": "G'allaorol",
+    "nameUz": "G'allaorol",
+    "nameCr": "Ғаллаорол",
+    "nameRu": "Галляарал",
+    "lat": 40.0942,
+    "lon": 68.5361,
+    "population": 25000,
+    "region": "Jizzax viloyati"
+  },
+  {
+    "name": "Paxtakor",
+    "nameUz": "Paxtakor",
+    "nameCr": "Пахтакор",
+    "nameRu": "Пахтакор",
+    "lat": 40.3136,
+    "lon": 67.9683,
+    "population": 22000,
+    "region": "Jizzax viloyati"
+  },
+  {
+    "name": "Guliston",
+    "nameUz": "Guliston",
+    "nameCr": "Гулистон",
+    "nameRu": "Гулистан",
+    "lat": 40.4894,
+    "lon": 68.7842,
+    "population": 80000,
+    "region": "Sirdaryo viloyati",
+    "priority": 14
+  },
+  {
+    "name": "Yangiyer",
+    "nameUz": "Yangiyer",
+    "nameCr": "Янгиер",
+    "nameRu": "Янгиер",
+    "lat": 40.27,
+    "lon": 68.8236,
+    "population": 50000,
+    "region": "Sirdaryo viloyati"
+  },
+  {
+    "name": "Sirdaryo",
+    "nameUz": "Sirdaryo",
+    "nameCr": "Сирдарё",
+    "nameRu": "Сырдарья",
+    "lat": 40.8158,
+    "lon": 68.6458,
+    "population": 35000,
+    "region": "Sirdaryo viloyati"
+  },
+  {
+    "name": "Shirin",
+    "nameUz": "Shirin",
+    "nameCr": "Ширин",
+    "nameRu": "Ширин",
+    "lat": 40.1467,
+    "lon": 68.4917,
+    "population": 20000,
+    "region": "Sirdaryo viloyati"
+  },
+  {
+    "name": "Boyovut",
+    "nameUz": "Boyovut",
+    "nameCr": "Боёвут",
+    "nameRu": "Баяут",
+    "lat": 40.2186,
+    "lon": 68.6758,
+    "population": 18000,
+    "region": "Sirdaryo viloyati"
+  },
+  {
+    "name": "Navoiy",
+    "nameUz": "Navoiy",
+    "nameCr": "Навоий",
+    "nameRu": "Навои",
+    "lat": 40.0844,
+    "lon": 65.3792,
+    "population": 130000,
+    "region": "Navoiy viloyati",
+    "priority": 15
+  },
+  {
+    "name": "Zarafshon",
+    "nameUz": "Zarafshon",
+    "nameCr": "Зарафшон",
+    "nameRu": "Зарафшан",
+    "lat": 41.5722,
+    "lon": 64.205,
+    "population": 70000,
+    "region": "Navoiy viloyati"
+  },
+  {
+    "name": "Nurota",
+    "nameUz": "Nurota",
+    "nameCr": "Нурота",
+    "nameRu": "Нурата",
+    "lat": 40.5614,
+    "lon": 65.6883,
+    "population": 30000,
+    "region": "Navoiy viloyati"
+  },
+  {
+    "name": "Uchquduq",
+    "nameUz": "Uchquduq",
+    "nameCr": "Учқудуқ",
+    "nameRu": "Учкудук",
+    "lat": 42.1575,
+    "lon": 63.5556,
+    "population": 28000,
+    "region": "Navoiy viloyati"
+  },
+  {
+    "name": "Karmana",
+    "nameUz": "Karmana",
+    "nameCr": "Кармана",
+    "nameRu": "Кармана",
+    "lat": 40.1317,
+    "lon": 65.5183,
+    "population": 25000,
+    "region": "Navoiy viloyati"
+  },
+  {
+    "name": "Qiziltepa",
+    "nameUz": "Qiziltepa",
+    "nameCr": "Қизилтепа",
+    "nameRu": "Кызылтепа",
+    "lat": 40.0414,
+    "lon": 66.845,
+    "population": 45000,
+    "region": "Navoiy viloyati"
+  },
+  {
+    "name": "Kitob",
+    "nameUz": "Kitob",
+    "nameCr": "Китоб",
+    "nameRu": "Китаб",
+    "lat": 39.1317,
+    "lon": 66.8886,
+    "population": 22000,
+    "region": "Qashqadaryo viloyati"
+  },
+  {
+    "name": "Nishon",
+    "nameUz": "Nishon",
+    "nameCr": "Нишон",
+    "nameRu": "Нишан",
+    "lat": 38.6489,
+    "lon": 65.5569,
+    "population": 20000,
+    "region": "Qashqadaryo viloyati"
+  },
+  {
+    "name": "Chiroqchi",
+    "nameUz": "Chiroqchi",
+    "nameCr": "Чироқчи",
+    "nameRu": "Чиракчи",
+    "lat": 39.0411,
+    "lon": 66.5675,
+    "population": 28000,
+    "region": "Qashqadaryo viloyati"
+  },
+  {
+    "name": "Dehqonobod",
+    "nameUz": "Dehqonobod",
+    "nameCr": "Деҳқонобод",
+    "nameRu": "Дехканабад",
+    "lat": 38.2856,
+    "lon": 66.8128,
+    "population": 25000,
+    "region": "Qashqadaryo viloyati"
+  },
+  {
+    "name": "Qumqo'rg'on",
+    "nameUz": "Qumqo'rg'on",
+    "nameCr": "Қумқўрғон",
+    "nameRu": "Кумкурган",
+    "lat": 37.8344,
+    "lon": 67.5792,
+    "population": 22000,
+    "region": "Surxondaryo viloyati"
+  },
+  {
+    "name": "Muzrabod",
+    "nameUz": "Muzrabod",
+    "nameCr": "Музработ",
+    "nameRu": "Музрабад",
+    "lat": 37.2761,
+    "lon": 67.6922,
+    "population": 18000,
+    "region": "Surxondaryo viloyati"
+  },
+  {
+    "name": "Oltinsoy",
+    "nameUz": "Oltinsoy",
+    "nameCr": "Олтинсой",
+    "nameRu": "Алтынсай",
+    "lat": 37.3092,
+    "lon": 67.8247,
+    "population": 16000,
+    "region": "Surxondaryo viloyati"
+  },
+  {
+    "name": "Bandixon",
+    "nameUz": "Bandixon",
+    "nameCr": "Бандихон",
+    "nameRu": "Бандыхан",
+    "lat": 37.7708,
+    "lon": 67.6419,
+    "population": 15000,
+    "region": "Surxondaryo viloyati"
+  },
+  {
+    "name": "Qo'shko'pir",
+    "nameUz": "Qo'shko'pir",
+    "nameCr": "Қўшкўпир",
+    "nameRu": "Кушкупир",
+    "lat": 41.5417,
+    "lon": 60.3167,
+    "population": 30000,
+    "region": "Xorazm viloyati"
+  },
+  {
+    "name": "Gurlan",
+    "nameUz": "Gurlan",
+    "nameCr": "Гурлан",
+    "nameRu": "Гурлен",
+    "lat": 41.8453,
+    "lon": 60.3864,
+    "population": 28000,
+    "region": "Xorazm viloyati"
+  },
+  {
+    "name": "Yangiariq",
+    "nameUz": "Yangiariq",
+    "nameCr": "Янгиариқ",
+    "nameRu": "Янгиарык",
+    "lat": 41.1969,
+    "lon": 60.3458,
+    "population": 22000,
+    "region": "Xorazm viloyati"
+  },
+  {
+    "name": "Tuproqqal'a",
+    "nameUz": "Tuproqqal'a",
+    "nameCr": "Тупроққалъа",
+    "nameRu": "Турткале",
+    "lat": 41.9764,
+    "lon": 60.8583,
+    "population": 18000,
+    "region": "Xorazm viloyati"
+  },
+  {
+    "name": "Arnasoy",
+    "nameUz": "Arnasoy",
+    "nameCr": "Арнасой",
+    "nameRu": "Арнасай",
+    "lat": 40.2194,
+    "lon": 67.7506,
+    "population": 25000,
+    "region": "Jizzax viloyati"
+  },
+  {
+    "name": "Forish",
+    "nameUz": "Forish",
+    "nameCr": "Фориш",
+    "nameRu": "Фариш",
+    "lat": 40.3636,
+    "lon": 67.8019,
+    "population": 22000,
+    "region": "Jizzax viloyati"
+  },
+  {
+    "name": "Zafarobod",
+    "nameUz": "Zafarobod",
+    "nameCr": "Зафаробод",
+    "nameRu": "Зафарабад",
+    "lat": 40.1025,
+    "lon": 67.7647,
+    "population": 20000,
+    "region": "Jizzax viloyati"
+  },
+  {
+    "name": "Mirzacho'l",
+    "nameUz": "Mirzacho'l",
+    "nameCr": "Мирзачўл",
+    "nameRu": "Мирзачуль",
+    "lat": 40.6233,
+    "lon": 68.4189,
+    "population": 28000,
+    "region": "Jizzax viloyati"
+  },
+  {
+    "name": "Sharof Rashidov",
+    "nameUz": "Sharof Rashidov",
+    "nameCr": "Шароф Рашидов",
+    "nameRu": "Шараф Рашидов",
+    "lat": 40.4,
+    "lon": 68.6,
+    "population": 25000,
+    "region": "Jizzax viloyati"
+  },
+  {
+    "name": "Xovos",
+    "nameUz": "Xovos",
+    "nameCr": "Ховос",
+    "nameRu": "Хавас",
+    "lat": 40.0969,
+    "lon": 68.8908,
+    "population": 22000,
+    "region": "Sirdaryo viloyati"
+  },
+  {
+    "name": "Sardoba",
+    "nameUz": "Sardoba",
+    "nameCr": "Сардоба",
+    "nameRu": "Сардоба",
+    "lat": 40.5508,
+    "lon": 68.8311,
+    "population": 20000,
+    "region": "Sirdaryo viloyati"
+  },
+  {
+    "name": "Oqoltin",
+    "nameUz": "Oqoltin",
+    "nameCr": "Оқолтин",
+    "nameRu": "Акалтын",
+    "lat": 40.3086,
+    "lon": 68.3989,
+    "population": 15000,
+    "region": "Sirdaryo viloyati"
+  },
+  {
+    "name": "Qongirot",
+    "nameUz": "Qongirot",
+    "nameCr": "Қонгирот",
+    "nameRu": "Кунград",
+    "lat": 43.0742,
+    "lon": 58.985,
+    "population": 32000,
+    "region": "Qoraqalpog'iston"
+  },
+  {
+    "name": "Mo'ynoq",
+    "nameUz": "Mo'ynoq",
+    "nameCr": "Мўйноқ",
+    "nameRu": "Муйнак",
+    "lat": 43.7608,
+    "lon": 59.0228,
+    "population": 18000,
+    "region": "Qoraqalpog'iston"
+  },
+  {
+    "name": "Shumanay",
+    "nameUz": "Shumanay",
+    "nameCr": "Шуманай",
+    "nameRu": "Шуманай",
+    "lat": 42.1,
+    "lon": 59.95,
+    "population": 15000,
+    "region": "Qoraqalpog'iston"
+  },
+  {
+    "name": "Chimboy",
+    "nameUz": "Chimboy",
+    "nameCr": "Чимбой",
+    "nameRu": "Чимбай",
+    "lat": 42.9406,
+    "lon": 59.7878,
+    "population": 22000,
+    "region": "Qoraqalpog'iston"
+  },
+  {
+    "name": "Kegeyli",
+    "nameUz": "Kegeyli",
+    "nameCr": "Кегейли",
+    "nameRu": "Кегейли",
+    "lat": 42.8722,
+    "lon": 58.8708,
+    "population": 20000,
+    "region": "Qoraqalpog'iston"
+  },
+  {
+    "name": "Amudaryo",
+    "nameUz": "Amudaryo",
+    "nameCr": "Амударё",
+    "nameRu": "Амударья",
+    "lat": 41.675,
+    "lon": 60.6,
+    "population": 16000,
+    "region": "Qoraqalpog'iston"
+  },
+  {
+    "name": "Narpay",
+    "nameUz": "Narpay",
+    "nameCr": "Нарпай",
+    "nameRu": "Нарпай",
+    "lat": 40.6486,
+    "lon": 65.1758,
+    "population": 18000,
+    "region": "Samarqand viloyati"
+  },
+  {
+    "name": "Oqdaryo",
+    "nameUz": "Oqdaryo",
+    "nameCr": "Оқдарё",
+    "nameRu": "Акдарья",
+    "lat": 40.0883,
+    "lon": 67.2775,
+    "population": 22000,
+    "region": "Samarqand viloyati"
+  },
+  {
+    "name": "Tayloq",
+    "nameUz": "Tayloq",
+    "nameCr": "Тайлоқ",
+    "nameRu": "Тайлак",
+    "lat": 40.465,
+    "lon": 67.2883,
+    "population": 16000,
+    "region": "Samarqand viloyati"
+  },
+  {
+    "name": "Xatirchi",
+    "nameUz": "Xatirchi",
+    "nameCr": "Хатирчи",
+    "nameRu": "Хатырчи",
+    "lat": 40.3089,
+    "lon": 66.4894,
+    "population": 20000,
+    "region": "Navoiy viloyati"
+  },
+  {
+    "name": "Tomdi",
+    "nameUz": "Tomdi",
+    "nameCr": "Томди",
+    "nameRu": "Тамды",
+    "lat": 40.0417,
+    "lon": 64.6208,
+    "population": 18000,
+    "region": "Navoiy viloyati"
+  },
+  {
+    "name": "Qizilcha",
+    "nameUz": "Qizilcha",
+    "nameCr": "Қизилча",
+    "nameRu": "Кызылча",
+    "lat": 43.185,
+    "lon": 59.8,
+    "population": 14000,
+    "region": "Qoraqalpog'iston"
+  },
+  {
+    "name": "Bulungur",
+    "nameUz": "Bulungur",
+    "nameCr": "Булунғур",
+    "nameRu": "Булунгур",
+    "lat": 39.7564,
+    "lon": 67.2714,
+    "population": 22000,
+    "region": "Samarqand viloyati"
+  },
+  {
+    "name": "Paxtachi",
+    "nameUz": "Paxtachi",
+    "nameCr": "Пахтачи",
+    "nameRu": "Пахтачи",
+    "lat": 40.3147,
+    "lon": 67.1225,
+    "population": 19000,
+    "region": "Jizzax viloyati"
+  },
+  {
+    "name": "Zomin",
+    "nameUz": "Zomin",
+    "nameCr": "Зомин",
+    "nameRu": "Зомин",
+    "lat": 39.9514,
+    "lon": 68.4036,
+    "population": 20000,
+    "region": "Jizzax viloyati"
+  },
+  {
+    "name": "Baxmal",
+    "nameUz": "Baxmal",
+    "nameCr": "Бахмал",
+    "nameRu": "Бахмаль",
+    "lat": 40.5944,
+    "lon": 70.0167,
+    "population": 18000,
+    "region": "Jizzax viloyati"
+  },
+  {
+    "name": "Yangiobod",
+    "nameUz": "Yangiobod",
+    "nameCr": "Янгиобод",
+    "nameRu": "Янгиабад",
+    "lat": 41.115,
+    "lon": 69.0472,
+    "population": 25000,
+    "region": "Toshkent viloyati"
+  },
+  {
+    "name": "Parkent",
+    "nameUz": "Parkent",
+    "nameCr": "Паркент",
+    "nameRu": "Паркент",
+    "lat": 41.2908,
+    "lon": 69.6789,
+    "population": 30000,
+    "region": "Toshkent viloyati"
+  },
+  {
+    "name": "Zangiota",
+    "nameUz": "Zangiota",
+    "nameCr": "Зангиота",
+    "nameRu": "Зангиата",
+    "lat": 41.2042,
+    "lon": 69.4472,
+    "population": 22000,
+    "region": "Toshkent viloyati"
+  },
+  {
+    "name": "Chinoz",
+    "nameUz": "Chinoz",
+    "nameCr": "Чиноз",
+    "nameRu": "Чиназ",
+    "lat": 40.9378,
+    "lon": 68.7653,
+    "population": 35000,
+    "region": "Toshkent viloyati"
+  },
+  {
+    "name": "Bo'ka",
+    "nameUz": "Bo'ka",
+    "nameCr": "Бўка",
+    "nameRu": "Бука",
+    "lat": 40.775,
+    "lon": 69.2,
+    "population": 28000,
+    "region": "Toshkent viloyati"
+  },
+  {
+    "name": "Oqqo'rg'on",
+    "nameUz": "Oqqo'rg'on",
+    "nameCr": "Оққўрғон",
+    "nameRu": "Аккурган",
+    "lat": 40.905,
+    "lon": 69.7,
+    "population": 26000,
+    "region": "Toshkent viloyati"
+  },
+  {
+    "name": "Piskent",
+    "nameUz": "Piskent",
+    "nameCr": "Пискент",
+    "nameRu": "Пскент",
+    "lat": 41.0333,
+    "lon": 69.3333,
+    "population": 24000,
+    "region": "Toshkent viloyati"
+  },
+  {
+    "name": "Qibray",
+    "nameUz": "Qibray",
+    "nameCr": "Қибрай",
+    "nameRu": "Кибрай",
+    "lat": 41.3833,
+    "lon": 69.4667,
+    "population": 40000,
+    "region": "Toshkent viloyati"
+  },
+  {
+    "name": "Yangibozor",
+    "nameUz": "Yangibozor",
+    "nameCr": "Янгибозор",
+    "nameRu": "Янгибазар",
+    "lat": 41.0833,
+    "lon": 70.1333,
+    "population": 22000,
+    "region": "Toshkent viloyati"
+  },
+  {
+    "name": "Quyichirchiq",
+    "nameUz": "Quyichirchiq",
+    "nameCr": "Қуйичирчиқ",
+    "nameRu": "Куйчирчик",
+    "lat": 41.05,
+    "lon": 69.7,
+    "population": 20000,
+    "region": "Toshkent viloyati"
+  },
+  {
+    "name": "Yuqorichirchiq",
+    "nameUz": "Yuqorichirchiq",
+    "nameCr": "Юқоричирчиқ",
+    "nameRu": "Юкоричирчик",
+    "lat": 41.6167,
+    "lon": 70.1,
+    "population": 18000,
+    "region": "Toshkent viloyati"
+  },
+  {
+    "name": "Gijduvon",
+    "nameUz": "Gijduvon",
+    "nameCr": "Гиждувон",
+    "nameRu": "Гиждуван",
+    "lat": 40.0989,
+    "lon": 64.6772,
+    "population": 38000,
+    "region": "Buxoro viloyati"
+  },
+  {
+    "name": "Shofirkon",
+    "nameUz": "Shofirkon",
+    "nameCr": "Шофиркон",
+    "nameRu": "Шафиркан",
+    "lat": 39.8683,
+    "lon": 64.5203,
+    "population": 35000,
+    "region": "Buxoro viloyati"
+  },
+  {
+    "name": "Peshku",
+    "nameUz": "Peshku",
+    "nameCr": "Пешку",
+    "nameRu": "Пешку",
+    "lat": 40.7583,
+    "lon": 64.1833,
+    "population": 22000,
+    "region": "Buxoro viloyati"
+  },
+  {
+    "name": "Romitan",
+    "nameUz": "Romitan",
+    "nameCr": "Ромитан",
+    "nameRu": "Ромитан",
+    "lat": 39.9417,
+    "lon": 64.39,
+    "population": 28000,
+    "region": "Buxoro viloyati"
+  },
+  {
+    "name": "Qorako'l",
+    "nameUz": "Qorako'l",
+    "nameCr": "Қоракўл",
+    "nameRu": "Каракуль",
+    "lat": 39.5333,
+    "lon": 63.85,
+    "population": 24000,
+    "region": "Buxoro viloyati"
+  }
+]

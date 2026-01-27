@@ -1,0 +1,222 @@
+[
+  {
+    "name": "Toshkent",
+    "nameUz": "Toshkent",
+    "nameCr": "Тошкент",
+    "nameRu": "Ташкент",
+    "lat": 41.2995,
+    "lon": 69.2401,
+    "population": 2500000,
+    "region": "Toshkent shahar",
+    "priority": 1
+  },
+  {
+    "name": "Samarqand",
+    "nameUz": "Samarqand",
+    "nameCr": "Самарқанд",
+    "nameRu": "Самарканд",
+    "lat": 39.627,
+    "lon": 66.975,
+    "population": 550000,
+    "region": "Samarqand viloyati",
+    "priority": 2
+  },
+  {
+    "name": "Buxoro",
+    "nameUz": "Buxoro",
+    "nameCr": "Бухоро",
+    "nameRu": "Бухара",
+    "lat": 39.7747,
+    "lon": 64.4286,
+    "population": 280000,
+    "region": "Buxoro viloyati",
+    "priority": 3
+  },
+  {
+    "name": "Andijon",
+    "nameUz": "Andijon",
+    "nameCr": "Андижон",
+    "nameRu": "Андижан",
+    "lat": 40.7821,
+    "lon": 72.3442,
+    "population": 450000,
+    "region": "Andijon viloyati",
+    "priority": 4
+  },
+  {
+    "name": "Namangan",
+    "nameUz": "Namangan",
+    "nameCr": "Наманган",
+    "nameRu": "Наманган",
+    "lat": 40.9983,
+    "lon": 71.6726,
+    "population": 475000,
+    "region": "Namangan viloyati",
+    "priority": 5
+  },
+  {
+    "name": "Farg'ona",
+    "nameUz": "Farg'ona",
+    "nameCr": "Фарғона",
+    "nameRu": "Фергана",
+    "lat": 40.3864,
+    "lon": 71.7864,
+    "population": 320000,
+    "region": "Farg'ona viloyati",
+    "priority": 6
+  },
+  {
+    "name": "Qo'qon",
+    "nameUz": "Qo'qon",
+    "nameCr": "Қўқон",
+    "nameRu": "Коканд",
+    "lat": 40.5286,
+    "lon": 70.9425,
+    "population": 230000,
+    "region": "Farg'ona viloyati",
+    "priority": 7
+  },
+  {
+    "name": "Nukus",
+    "nameUz": "Nukus",
+    "nameCr": "Нукус",
+    "nameRu": "Нукус",
+    "lat": 42.4608,
+    "lon": 59.6105,
+    "population": 310000,
+    "region": "Qoraqalpog'iston",
+    "priority": 8
+  },
+  {
+    "name": "Qarshi",
+    "nameUz": "Qarshi",
+    "nameCr": "Қарши",
+    "nameRu": "Карши",
+    "lat": 38.8606,
+    "lon": 65.7895,
+    "population": 280000,
+    "region": "Qashqadaryo viloyati",
+    "priority": 9
+  },
+  {
+    "name": "Termiz",
+    "nameUz": "Termiz",
+    "nameCr": "Термиз",
+    "nameRu": "Термез",
+    "lat": 37.2242,
+    "lon": 67.2783,
+    "population": 140000,
+    "region": "Surxondaryo viloyati",
+    "priority": 10
+  },
+  {
+    "name": "Urganch",
+    "nameUz": "Urganch",
+    "nameCr": "Урганч",
+    "nameRu": "Ургенч",
+    "lat": 41.55,
+    "lon": 60.6333,
+    "population": 150000,
+    "region": "Xorazm viloyati",
+    "priority": 11
+  },
+  {
+    "name": "Xiva",
+    "nameUz": "Xiva",
+    "nameCr": "Хива",
+    "nameRu": "Хива",
+    "lat": 41.3775,
+    "lon": 60.3639,
+    "population": 90000,
+    "region": "Xorazm viloyati",
+    "priority": 12
+  },
+  {
+    "name": "Jizzax",
+    "nameUz": "Jizzax",
+    "nameCr": "Жиззах",
+    "nameRu": "Джизак",
+    "lat": 40.1158,
+    "lon": 67.8422,
+    "population": 180000,
+    "region": "Jizzax viloyati",
+    "priority": 13
+  },
+  {
+    "name": "Guliston",
+    "nameUz": "Guliston",
+    "nameCr": "Гулистон",
+    "nameRu": "Гулистан",
+    "lat": 40.4894,
+    "lon": 68.7842,
+    "population": 80000,
+    "region": "Sirdaryo viloyati",
+    "priority": 14
+  },
+  {
+    "name": "Navoiy",
+    "nameUz": "Navoiy",
+    "nameCr": "Навоий",
+    "nameRu": "Навои",
+    "lat": 40.0844,
+    "lon": 65.3792,
+    "population": 130000,
+    "region": "Navoiy viloyati",
+    "priority": 15
+  },
+  {
+    "name": "Marg'ilon",
+    "nameUz": "Marg'ilon",
+    "nameCr": "Марғилон",
+    "nameRu": "Маргилан",
+    "lat": 40.4717,
+    "lon": 71.7244,
+    "population": 200000,
+    "region": "Farg'ona viloyati",
+    "priority": 16
+  },
+  {
+    "name": "Oltiariq",
+    "nameUz": "Oltiariq",
+    "nameCr": "Олтиариқ",
+    "nameRu": "Алтыарык",
+    "lat": 40.3839,
+    "lon": 72.2394,
+    "population": 70000,
+    "region": "Farg'ona viloyati",
+    "priority": 17
+  },
+  {
+    "name": "Chirchiq",
+    "nameUz": "Chirchiq",
+    "nameCr": "Чирчиқ",
+    "nameRu": "Чирчик",
+    "lat": 41.4686,
+    "lon": 69.5828,
+    "population": 140000,
+    "region": "Toshkent viloyati",
+    "priority": 18
+  },
+  {
+    "name": "Olmaliq",
+    "nameUz": "Olmaliq",
+    "nameCr": "Олмалиқ",
+    "nameRu": "Алмалык",
+    "lat": 40.8475,
+    "lon": 69.5983,
+    "population": 130000,
+    "region": "Toshkent viloyati",
+    "priority": 19
+  },
+  {
+    "name": "Angren",
+    "nameUz": "Angren",
+    "nameCr": "Ангрен",
+    "nameRu": "Ангрен",
+    "lat": 41.0161,
+    "lon": 70.1436,
+    "population": 130000,
+    "region": "Toshkent viloyati",
+    "priority": 20
+  }
+]

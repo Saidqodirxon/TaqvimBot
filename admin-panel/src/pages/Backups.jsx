@@ -13,6 +13,7 @@ import {
   Settings,
   CheckCircle,
   XCircle,
+  Send,
 } from "lucide-react";
 import "./Backups.css";
 
@@ -87,6 +88,24 @@ function Backups() {
     },
   });
 
+  // Send backup to Telegram mutation
+  const sendBackupMutation = useMutation({
+    mutationFn: async (filename) => {
+      const response = await axios.post(
+        `${API_URL}/backups/send/${filename}`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      return response.data;
+    },
+    onSuccess: (data) => {
+      alert(data.message);
+    },
+    onError: (error) => {
+      alert(error.response?.data?.error || "Backup yuborishda xatolik");
+    },
+  });
+
   // Update schedule mutation
   const updateScheduleMutation = useMutation({
     mutationFn: async (settings) => {
@@ -121,6 +140,12 @@ function Backups() {
   const handleDelete = (filename) => {
     if (confirm(`${filename} faylini o'chirmoqchimisiz?`)) {
       deleteBackupMutation.mutate(filename);
+    }
+  };
+
+  const handleSendToGroup = (filename) => {
+    if (confirm(`${filename} faylini log kanalga yubormoqchimisiz?`)) {
+      sendBackupMutation.mutate(filename);
     }
   };
 
@@ -271,6 +296,14 @@ function Backups() {
                   title="Yuklab olish"
                 >
                   <Download size={20} />
+                </button>
+                <button
+                  className="btn-icon send"
+                  onClick={() => handleSendToGroup(backup.filename)}
+                  disabled={sendBackupMutation.isPending}
+                  title="Telegram guruhga yuborish"
+                >
+                  <Send size={20} />
                 </button>
                 <button
                   className="btn-icon delete"

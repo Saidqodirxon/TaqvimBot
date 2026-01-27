@@ -19,9 +19,11 @@
   "license": "ISC",
   "repository": "https://github.com/SaidqodirxonUz/RealCoderUz-ElonBot.git",
   "dependencies": {
+    "archiver": "^7.0.1",
     "axios": "^1.6.2",
     "bcrypt": "^6.0.0",
     "cors": "^2.8.5",
+    "cron-parser": "^5.5.0",
     "dotenv": "^16.3.1",
     "exceljs": "^4.4.0",
     "express": "^5.2.1",

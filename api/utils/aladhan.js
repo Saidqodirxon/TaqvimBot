@@ -1,7 +1,7 @@
 const axios = require("axios");
 const Location = require("../models/Location");
 const MonthlyPrayerTime = require("../models/MonthlyPrayerTime");
-const PrayerTimeCache = require("../models/PrayerTimeCache");
+const PrayerTimeData = require("../models/PrayerTimeData");
 
 /**
  * Aladhan API dan namoz vaqtlarini olish yoki manual vaqtlarni qaytarish
@@ -28,48 +28,48 @@ async function getPrayerTimes(
     const targetDate = date ? new Date(date.getTime()) : new Date();
     targetDate.setHours(0, 0, 0, 0);
 
-    // Create location key and date string for cache
+    // Create location key and date string for data lookup
     const locationKey = `${latitude.toFixed(4)}_${longitude.toFixed(4)}`;
     const dateStr = targetDate.toISOString().split("T")[0]; // YYYY-MM-DD
 
-    // Priority 0: Check cache first (fast and reliable)
+    // Priority 0: Check permanent data first (60-day prayer time data)
     try {
-      const cachedData = await PrayerTimeCache.findOne({
+      const prayerData = await PrayerTimeData.findOne({
         locationKey,
         date: dateStr,
-      });
+      }).lean();
 
-      // Use cache even if expired (for reliability)
-      if (cachedData) {
-        const isExpired = cachedData.expiresAt < new Date();
-        console.log(
-          `✅ Cache ${isExpired ? "(expired, but using)" : "hit"} for ${locationKey} on ${dateStr}`
-        );
+      if (prayerData) {
+        console.log(`✅ Prayer data found for ${locationKey} on ${dateStr}`);
         return {
           success: true,
           date:
-            cachedData.date ||
+            prayerData.date ||
             targetDate.toLocaleDateString("en-GB", {
               day: "2-digit",
               month: "short",
               year: "numeric",
             }),
-          hijri: cachedData.hijri?.date || "Unknown",
-          timings: cachedData.timings,
-          meta: cachedData.meta || {
-            latitude,
-            longitude,
+          hijri: "Unknown", // Can be added later if needed
+          timings: prayerData.timings,
+          meta: {
+            latitude: prayerData.latitude,
+            longitude: prayerData.longitude,
             timezone: "Asia/Tashkent",
+            method: {
+              id: prayerData.method || 3,
+              name: "Muslim World League (MWL)",
+            },
+            school: { id: prayerData.school || 1, name: "Hanafi" },
           },
           manual: false,
-          cached: true,
-          source: cachedData.source,
-          expired: isExpired,
+          cached: false,
+          source: "prayer_time_data",
         };
       }
-    } catch (cacheError) {
-      console.error("Cache read error:", cacheError.message);
-      // Continue to other methods if cache fails
+    } catch (dataError) {
+      console.error("Prayer data read error:", dataError.message);
+      // Continue to other methods if data lookup fails
     }
 
     // Find location by coordinates
@@ -233,30 +233,25 @@ async function getPrayerTimes(
 
     // FALLBACK STRATEGY when API fails:
 
-    // 1. Try to get cached data for this location (any date)
+    // 1. Try to get data for this location (any date)
     try {
       const locationKey = `${latitude.toFixed(4)}_${longitude.toFixed(4)}`;
-      const lastCache = await PrayerTimeCache.findOne({
+      const lastData = await PrayerTimeData.findOne({
         locationKey,
-        source: "aladhan-api",
-      }).sort({ fetchedAt: -1 });
+      })
+        .sort({ date: -1 })
+        .lean();
 
-      if (lastCache) {
-        console.log(`⚠️ API failed, using cached data from ${lastCache.date}`);
+      if (lastData) {
+        console.log(`⚠️ API failed, using saved data from ${lastData.date}`);
         return {
           success: true,
-          date:
-            lastCache.date ||
-            new Date().toLocaleDateString("en-GB", {
-              day: "2-digit",
-              month: "short",
-              year: "numeric",
-            }),
-          hijri: lastCache.hijri?.date || "Unknown",
-          timings: lastCache.timings,
-          meta: lastCache.meta || {
-            latitude,
-            longitude,
+          date: lastData.date,
+          hijri: "Unknown",
+          timings: lastData.timings,
+          meta: {
+            latitude: lastData.latitude,
+            longitude: lastData.longitude,
             timezone: "Asia/Tashkent",
           },
           manual: false,
@@ -265,36 +260,29 @@ async function getPrayerTimes(
           warning: "API ishlamadi, oxirgi saqlangan ma'lumot ko'rsatilmoqda",
         };
       }
-    } catch (cacheError) {
-      console.error("Fallback cache error:", cacheError.message);
+    } catch (dataError) {
+      console.error("Fallback data error:", dataError.message);
     }
 
-    // 2. Try to get nearby location's cache (within 50km)
+    // 2. Try to get nearby location's data (within 50km)
     try {
-      const nearbyCache = await PrayerTimeCache.findOne({
+      const nearbyData = await PrayerTimeData.findOne({
         latitude: { $gte: latitude - 0.5, $lte: latitude + 0.5 },
         longitude: { $gte: longitude - 0.5, $lte: longitude + 0.5 },
-        source: "aladhan-api",
-      }).sort({ fetchedAt: -1 });
+      })
+        .sort({ date: -1 })
+        .lean();
 
-      if (nearbyCache) {
-        console.log(
-          `⚠️ Using nearby location cache: ${nearbyCache.locationKey}`
-        );
+      if (nearbyData) {
+        console.log(`⚠️ Using nearby location data: ${nearbyData.locationKey}`);
         return {
           success: true,
-          date:
-            nearbyCache.date ||
-            new Date().toLocaleDateString("en-GB", {
-              day: "2-digit",
-              month: "short",
-              year: "numeric",
-            }),
-          hijri: nearbyCache.hijri?.date || "Unknown",
-          timings: nearbyCache.timings,
-          meta: nearbyCache.meta || {
-            latitude,
-            longitude,
+          date: nearbyData.date,
+          hijri: "Unknown",
+          timings: nearbyData.timings,
+          meta: {
+            latitude: nearbyData.latitude,
+            longitude: nearbyData.longitude,
             timezone: "Asia/Tashkent",
           },
           manual: false,
@@ -307,37 +295,21 @@ async function getPrayerTimes(
       console.error("Nearby cache error:", nearbyError.message);
     }
 
-    // 3. Use default Tashkent times as last resort
-    const targetDate = date ? new Date(date.getTime()) : new Date();
-    console.log(`⚠️ All fallbacks failed, using default Tashkent times`);
+    // 3. Last resort - return error (NO DEFAULT TASHKENT DATA!)
+    console.error(
+      `❌ All fallbacks failed for location: ${latitude}, ${longitude}`
+    );
+    console.error(
+      `User should be prompted to set a valid location or try again later.`
+    );
+
     return {
-      success: true,
-      date: targetDate.toLocaleDateString("en-GB", {
-        day: "2-digit",
-        month: "short",
-        year: "numeric",
-      }),
-      hijri: "Shaʿbān 6, 1447",
-      timings: {
-        fajr: "06:05",
-        sunrise: "07:41",
-        dhuhr: "12:35",
-        asr: "15:49",
-        maghrib: "17:30",
-        isha: "19:01",
-        midnight: "00:00",
-        imsak: "05:55",
-      },
-      meta: {
-        latitude,
-        longitude,
-        timezone: "Asia/Tashkent",
-        method: { id: 99, name: "Default Tashkent" },
-        school: { id: 1, name: "Hanafi" },
-      },
-      manual: true,
-      default: true,
-      warning: "API ishlamadi, standart Toshkent vaqtlari ko'rsatilmoqda",
+      success: false,
+      error: "API_UNAVAILABLE",
+      message:
+        "Prayer times temporarily unavailable. Please try again later or check your location.",
+      latitude,
+      longitude,
     };
   }
 }
@@ -355,6 +327,8 @@ async function getHijriDate() {
           .reverse()
           .join("-"),
       },
+      timeout: 5000, // 5 seconds timeout
+      validateStatus: (status) => status < 500,
     });
     if (response.data.code === 200) {
       const hijri = response.data.data.hijri;
@@ -386,7 +360,11 @@ async function getMonthlyPrayerTimes(latitude, longitude, month, year) {
       timezonestring: "Asia/Tashkent",
     };
 
-    const response = await axios.get(url, { params });
+    const response = await axios.get(url, {
+      params,
+      timeout: 10000, // 10 seconds timeout for monthly data
+      validateStatus: (status) => status < 500,
+    });
 
     if (response.data.code === 200) {
       const calendar = response.data.data.map((day) => {
@@ -411,7 +389,11 @@ async function getMonthlyPrayerTimes(latitude, longitude, month, year) {
         calendar,
       };
     } else {
-      throw new Error("API qaytardi: " + response.data.status);
+      console.error("Monthly prayer times API error:", response.data.status);
+      return {
+        success: false,
+        error: response.data.status || "API error",
+      };
     }
   } catch (error) {
     console.error("Aladhan API xatosi:", error.message);
@@ -623,7 +605,7 @@ const CALCULATION_METHODS = {
 };
 
 /**
- * Save prayer time to cache
+ * Save prayer time to permanent data storage (60-day data)
  * @param {string} locationKey - Location identifier
  * @param {string} dateStr - Date string (YYYY-MM-DD)
  * @param {Object} prayerData - Prayer time data
@@ -640,38 +622,39 @@ async function savePrayerTimeToCache(
   try {
     const [lat, lon] = locationKey.split("_").map(Number);
 
-    // Set expiration to end of day + 7 days (cache valid for longer period)
-    const expiresAt = new Date(dateStr);
-    expiresAt.setHours(23, 59, 59, 999);
-    expiresAt.setDate(expiresAt.getDate() + 7); // Extended to 7 days
+    // Get city info from Location model
+    const Location = require("../models/Location");
+    const location = await Location.findOne({
+      latitude: { $gte: lat - 0.001, $lte: lat + 0.001 },
+      longitude: { $gte: lon - 0.001, $lte: lon + 0.001 },
+      isActive: true,
+    }).lean();
 
-    const cacheData = {
+    const dataEntry = {
       locationKey,
       latitude: lat,
       longitude: lon,
+      cityName: location?.name || "Unknown",
+      cityNameUz: location?.nameUz || "",
+      cityNameRu: location?.nameRu || "",
+      region: location?.region || "",
       date: dateStr,
       timings: prayerData.timings,
-      hijri: {
-        date: prayerData.hijri,
-        month: { en: prayerData.hijri?.split(" ")[0] || "", uz: "" },
-        year: prayerData.hijri?.split(", ")[1] || "",
-      },
-      meta: prayerData.meta,
-      settings,
-      source,
-      expiresAt,
+      method: typeof settings?.method === "number" ? settings.method : 3,
+      school: typeof settings?.school === "number" ? settings.school : 1,
+      createdAt: new Date(),
     };
 
-    await PrayerTimeCache.findOneAndUpdate(
+    await PrayerTimeData.findOneAndUpdate(
       { locationKey, date: dateStr },
-      cacheData,
+      dataEntry,
       { upsert: true, new: true }
     );
 
-    console.log(`💾 Cached prayer times for ${locationKey} on ${dateStr}`);
+    console.log(`💾 Saved prayer data for ${locationKey} on ${dateStr}`);
   } catch (error) {
-    console.error("Failed to save cache:", error.message);
-    throw error;
+    console.error("Failed to save prayer data:", error.message);
+    // DO NOT throw - save is non-critical
   }
 }
 

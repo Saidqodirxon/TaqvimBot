@@ -1,0 +1,14 @@
+[
+  {
+    "_id": "694478183f4f01279479afc2",
+    "userId": 1551855614,
+    "username": "admin",
+    "password": "$2b$10$sgIZnU9FjhH6mh/J.LeJC.WIbSeWBHj/jR3vjokbGtCrmPZdKsmku",
+    "firstName": "Admin",
+    "role": "superadmin",
+    "isActive": true,
+    "createdAt": "2025-12-18T21:54:32.740Z",
+    "updatedAt": "2025-12-18T21:54:32.740Z",
+    "__v": 0
+  }
+]

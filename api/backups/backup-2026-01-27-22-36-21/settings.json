@@ -1,0 +1,285 @@
+[
+  {
+    "_id": "694477e5650bb77bd955c263",
+    "key": "required_channel",
+    "value": "-1001567572744",
+    "description": "Majburiy kanal",
+    "createdAt": "2025-12-18T21:53:41.283Z",
+    "updatedAt": "2025-12-21T20:36:07.960Z"
+  },
+  {
+    "_id": "694477e5650bb77bd955c266",
+    "key": "channel_info",
+    "value": {
+      "username": "BayramonaTabrik",
+      "title": "🎉 Tabrik kanali"
+    },
+    "description": "Kanal ma'lumotlari",
+    "createdAt": "2025-12-18T21:53:41.829Z",
+    "updatedAt": "2025-12-21T20:36:08.281Z"
+  },
+  {
+    "_id": "694477e6650bb77bd955c269",
+    "key": "greeting_channel",
+    "value": "-1001567572744",
+    "description": "Tabrik kanali",
+    "createdAt": "2025-12-18T21:53:42.370Z",
+    "updatedAt": "2025-12-21T20:33:29.046Z"
+  },
+  {
+    "_id": "6947bce32acc11cef8f45b37",
+    "key": "required_channel_enabled",
+    "value": false,
+    "description": "Majburiy kanal faolligi (true/false)",
+    "createdAt": "2025-12-21T09:24:51.407Z",
+    "updatedAt": "2025-12-21T09:24:51.407Z"
+  },
+  {
+    "_id": "6947bce42acc11cef8f45b3c",
+    "key": "about_bot_text",
+    "value": {
+      "uz": "RamazonBot — Ramazon oyini qulay va mazmunli o‘tkazish uchun yaratilgan Telegram bot.\n\nBotdagi Ramazon taqvimi va namoz vaqtlariga oid ma’lumotlar ishonchli manbalar asosida shakllantiriladi, jumladan Musulmonlar dunyosi ligasi tavsiyalari hisobga olinadi.\n\nLoyiha admin panel orqali boshqariladi:\n— taqvim va ma’lumotlarni yangilash\n— duolar va eslatmalarni boshqarish\n— foydalanuvchilar bilan bog‘liq sozlamalar\n\n⚠️ Hozirda bot BETA versiyada. Ma’lumotlar bosqichma-bosqich aniqlashtirib boriladi.\n",
+      "cr": "RamazonBot — Рамазон ойини қулай ва мазмунли ўтказиш учун яратилган Telegram бот.\n\nРамазон тақвими ва намоз вақтларига оид маълумотлар ишончли манбалар асосида шакллантирилади, жумладан Мусулмонлар дунёси лигаси тавсиялари ҳисобга олинади.\n\nЛойиҳа админ панел орқали бошқарилади:\n— тақвим ва маълумотларни янгилаш\n— дуолар ва эслатмаларни бошқариш\n— фойдаланувчи созламалари\n\n⚠️ Ҳозирда бот BETA версияда. Маълумотлар босқичма-босқич аниқлаштирилади.\n",
+      "ru": "RamazonBot — Telegram-бот для удобного и осознанного проведения месяца Рамадан.\n\nРасписание Рамадана и данные о времени намаза формируются на основе надежных источников, включая рекомендации Всемирной мусульманской лиги.\n\nПроект управляется через административную панель:\n— обновление календаря и данных\n— управление дуа и напоминаниями\n— настройки пользователей\n\n⚠️ В данный момент бот находится в BETA-версии. Данные постепенно уточняются.\n"
+    },
+    "description": "Bot haqida matn (uz, cr, ru)",
+    "createdAt": "2025-12-21T09:24:52.637Z",
+    "updatedAt": "2026-01-25T21:32:09.769Z"
+  },
+  {
+    "_id": "6947bce52acc11cef8f45b3f",
+    "key": "ramadan_start_date",
+    "value": "2026-02-18",
+    "description": "Ramazon boshlanish sanasi",
+    "createdAt": "2025-12-21T09:24:53.472Z",
+    "updatedAt": "2026-01-25T15:42:21.698Z"
+  },
+  {
+    "_id": "6976330126640d5b0209c069",
+    "key": "reminder_settings",
+    "createdAt": "2026-01-25T15:13:04.953Z",
+    "description": "Eslatma sozlamalari",
+    "updatedAt": "2026-01-25T15:13:04.953Z",
+    "value": {
+      "enabled": true,
+      "defaultMinutes": 15,
+      "notifyAtPrayerTime": true,
+      "offerReminders": true
+    }
+  },
+  {
+    "_id": "6976490126640d5b0209c162",
+    "key": "channels",
+    "createdAt": "2026-01-25T16:46:57.783Z",
+    "description": "Majburiy a'zolik kanallari",
+    "updatedAt": "2026-01-25T16:46:57.783Z",
+    "value": [
+      {
+        "id": "-1003042545238",
+        "username": "SaidQodiriy",
+        "title": "Blog",
+        "isActive": true
+      }
+    ]
+  },
+  {
+    "_id": "697651d38ba56df3515ab6b9",
+    "key": "log_channel",
+    "value": "-1002442219470",
+    "description": "Log kanali (error va event loglar)",
+    "createdAt": "2026-01-25T17:24:35.965Z",
+    "updatedAt": "2026-01-25T17:38:57.473Z"
+  },
+  {
+    "_id": "697651d48ba56df3515ab6bc",
+    "key": "channel_join_delay",
+    "value": {
+      "days": 2,
+      "hours": 0
+    },
+    "description": "Kanal a'zoligini tekshirish kechikishi (kun va soat)",
+    "createdAt": "2026-01-25T17:24:36.447Z",
+    "updatedAt": "2026-01-25T17:39:03.701Z"
+  },
+  {
+    "_id": "697651d48ba56df3515ab6bf",
+    "key": "cache_settings",
+    "value": {
+      "ttl": 604800,
+      "maxSize": 10000,
+      "autoClean": true
+    },
+    "description": "Cache sozlamalari (TTL, max size, auto clean)",
+    "createdAt": "2026-01-25T17:24:36.921Z",
+    "updatedAt": "2026-01-25T23:47:25.100Z"
+  },
+  {
+    "_id": "6976aae726640d5b0209c227",
+    "key": "terms_enabled",
+    "backupSchedule": {
+      "cronTime": "0 3 * * *",
+      "enabled": true,
+      "keepDays": 7
+    },
+    "createdAt": "2026-01-25T23:44:39.234Z",
+    "description": "",
+    "updatedAt": "2026-01-25T23:47:05.594Z",
+    "value": true
+  },
+  {
+    "_id": "6976aae726640d5b0209c228",
+    "key": "terms_url",
+    "backupSchedule": {
+      "cronTime": "0 3 * * *",
+      "enabled": true,
+      "keepDays": 7
+    },
+    "createdAt": "2026-01-25T23:44:39.472Z",
+    "description": "",
+    "updatedAt": "2026-01-25T23:47:05.829Z",
+    "value": "https://telegra.ph/Ramazon-taqvimi-01-25"
+  },
+  {
+    "_id": "6976aae726640d5b0209c229",
+    "key": "terms_recheck_days",
+    "backupSchedule": {
+      "cronTime": "0 3 * * *",
+      "enabled": true,
+      "keepDays": 7
+    },
+    "createdAt": "2026-01-25T23:44:39.704Z",
+    "description": "",
+    "updatedAt": "2026-01-25T23:47:06.061Z",
+    "value": 3
+  },
+  {
+    "_id": "6978e39226640d5b020a0310",
+    "key": "broadcast_location_message_uz",
+    "backupSchedule": {
+      "cronTime": "0 3 * * *",
+      "enabled": true,
+      "keepDays": 7
+    },
+    "createdAt": "2026-01-27T16:10:55.329Z",
+    "description": "",
+    "updatedAt": "2026-01-27T16:28:32.131Z",
+    "value": "🕌 <b>Muhim xabar!</b>\n\nBotimiz yangilandi va endi 232 ta O'zbekiston shahri uchun namoz vaqtlari mavjud!\n\n⚠️ <b>Joylashuvingizni tanlang</b>\nNamoz vaqtlarini olish uchun shaharingizni tanlashingiz kerak.\n\n👇 Quyidagi tugmani bosing:"
+  },
+  {
+    "_id": "6978e39226640d5b020a0311",
+    "key": "broadcast_location_message_ru",
+    "backupSchedule": {
+      "cronTime": "0 3 * * *",
+      "enabled": true,
+      "keepDays": 7
+    },
+    "createdAt": "2026-01-27T16:10:57.105Z",
+    "description": "",
+    "updatedAt": "2026-01-27T16:28:33.891Z",
+    "value": "🕌 <b>Важное сообщение!</b>\n\nНаш бот обновлен и теперь доступно время намаза для 232 городов Узбекистана!\n\n⚠️ <b>Выберите ваше местоположение</b>\nДля получения времени намаза нужно выбрать ваш город.\n\n👇 Нажмите кнопку:"
+  },
+  {
+    "_id": "6978e39226640d5b020a0312",
+    "key": "broadcast_location_message_cr",
+    "backupSchedule": {
+      "cronTime": "0 3 * * *",
+      "enabled": true,
+      "keepDays": 7
+    },
+    "createdAt": "2026-01-27T16:10:57.426Z",
+    "description": "",
+    "updatedAt": "2026-01-27T16:28:34.170Z",
+    "value": "🕌 <b>Муҳим хабар!</b>\n\nБотимиз янгиланди ва энди 232 та Ўзбекистон шаҳри учун намоз вақтлари мавжуд!\n\n⚠️ <b>Жойлашувингизни танланг</b>\nНамоз вақтларини олиш учун шаҳарингизни танлашингиз керак.\n\n👇 Қуйидаги тугмани босинг:"
+  },
+  {
+    "_id": "6978e39326640d5b020a0313",
+    "key": "broadcast_restart_button_text",
+    "backupSchedule": {
+      "cronTime": "0 3 * * *",
+      "enabled": true,
+      "keepDays": 7
+    },
+    "createdAt": "2026-01-27T16:10:57.739Z",
+    "description": "",
+    "updatedAt": "2026-01-27T16:28:34.506Z",
+    "value": "🔄 Botni qayta ishga tushirish"
+  },
+  {
+    "_id": "6978e53526640d5b020a0314",
+    "key": "broadcast_reminder_button_text_uz",
+    "backupSchedule": {
+      "cronTime": "0 3 * * *",
+      "enabled": true,
+      "keepDays": 7
+    },
+    "createdAt": "2026-01-27T16:17:55.367Z",
+    "description": "",
+    "updatedAt": "2026-01-27T16:28:34.786Z",
+    "value": "🔔 Eslatmalarni yoqish"
+  },
+  {
+    "_id": "6978e53526640d5b020a0315",
+    "key": "broadcast_reminder_button_text_ru",
+    "backupSchedule": {
+      "cronTime": "0 3 * * *",
+      "enabled": true,
+      "keepDays": 7
+    },
+    "createdAt": "2026-01-27T16:17:56.083Z",
+    "description": "",
+    "updatedAt": "2026-01-27T16:28:35.060Z",
+    "value": "🔔 Включить напоминания"
+  },
+  {
+    "_id": "6978e53726640d5b020a0316",
+    "key": "broadcast_reminder_button_text_cr",
+    "backupSchedule": {
+      "cronTime": "0 3 * * *",
+      "enabled": true,
+      "keepDays": 7
+    },
+    "createdAt": "2026-01-27T16:17:56.446Z",
+    "description": "",
+    "updatedAt": "2026-01-27T16:28:35.366Z",
+    "value": "🔔 Эслатмаларни ёқиш"
+  },
+  {
+    "_id": "6978e7b426640d5b020a031b",
+    "key": "broadcast_show_location_button",
+    "backupSchedule": {
+      "cronTime": "0 3 * * *",
+      "enabled": true,
+      "keepDays": 7
+    },
+    "createdAt": "2026-01-27T16:28:35.645Z",
+    "description": "",
+    "updatedAt": "2026-01-27T16:28:35.645Z",
+    "value": true
+  },
+  {
+    "_id": "6978e7b526640d5b020a031c",
+    "key": "broadcast_show_reminder_button",
+    "backupSchedule": {
+      "cronTime": "0 3 * * *",
+      "enabled": true,
+      "keepDays": 7
+    },
+    "createdAt": "2026-01-27T16:28:35.915Z",
+    "description": "",
+    "updatedAt": "2026-01-27T16:28:35.915Z",
+    "value": true
+  },
+  {
+    "_id": "6978e7b526640d5b020a031d",
+    "key": "broadcast_show_restart_button",
+    "backupSchedule": {
+      "cronTime": "0 3 * * *",
+      "enabled": true,
+      "keepDays": 7
+    },
+    "createdAt": "2026-01-27T16:28:36.187Z",
+    "description": "",
+    "updatedAt": "2026-01-27T16:28:36.187Z",
+    "value": true
+  }
+]

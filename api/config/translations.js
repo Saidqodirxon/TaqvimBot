@@ -24,6 +24,10 @@ module.exports = {
     btn_cancel: "❌ Bekor qilish",
     btn_confirm: "✅ Tasdiqlash",
     btn_reject: "❌ Rad etish",
+    btn_enable_reminders: "Eslatmalarni yoqish",
+    btn_reminder_settings: "⚙️ Eslatma sozlamalari",
+    reminders_enabled_success:
+      "Eslatmalar yoqildi! Namoz vaqti bo'lganda xabar beramiz.",
 
     // Prayers
     prayers_title: "🤲 Duolar",
@@ -144,6 +148,8 @@ module.exports = {
       "📱 Telefoningizni shimolga qarating va ko'rsatilgan burchak bo'yicha qiblani toping.",
     error_no_location:
       "❌ Joylashuvingiz aniqlanmagan!\n\nIltimos, joylashuvingizni kiriting.",
+    no_location_set:
+      "📍 Joylashuv kiritilmagan!\n\n🕌 Namoz vaqtlarini ko'rish uchun joylashuvingizni kiriting.\n\n❓ Joylashuv nima uchun kerak?\n✅ Sizning hududingizga mos namoz vaqtlarini ko'rsatish\n✅ To'g'ri qibla yo'nalishini aniqlash\n✅ Ramazon taqvimini moslash",
     btn_set_location: "📍 Joylashuvni kiriting",
 
     // Reminder settings
@@ -243,6 +249,10 @@ module.exports = {
     btn_cancel: "❌ Бекор қилиш",
     btn_confirm: "✅ Тасдиқлаш",
     btn_reject: "❌ Рад этиш",
+    btn_enable_reminders: "Эслатмаларни ёқиш",
+    btn_reminder_settings: "⚙️ Эслатма созламалари",
+    reminders_enabled_success:
+      "Эслатмалар ёқилди! Намоз вақти бўлганда хабар берамиз.",
 
     // Prayers
     prayers_title: "🤲 Дуолар",
@@ -358,6 +368,8 @@ module.exports = {
       "📱 Телефонингизни шимолга қаратинг ва кўрсатилган бурчак бўйича қиблани топинг.",
     error_no_location:
       "❌ Жойлашувингиз аниқланмаган!\n\nИлтимос, жойлашувингизни киритинг.",
+    no_location_set:
+      "📍 Жойлашув киритилмаган!\n\n🕌 Намоз вақтларини кўриш учун жойлашувингизни киритинг.\n\n❓ Жойлашув нима учун керак?\n✅ Сизнинг ҳудудингизга мос намоз вақтларини кўрсатиш\n✅ Тўғри қибла йўналишини аниқлаш\n✅ Рамазон тақвимини мослаш",
     btn_set_location: "📍 Жойлашувни киритинг",
 
     // Reminder settings
@@ -458,7 +470,10 @@ module.exports = {
     btn_cancel: "❌ Отменить",
     btn_confirm: "✅ Подтвердить",
     btn_reject: "❌ Отклонить",
-
+    btn_enable_reminders: "Включить напоминания",
+    btn_reminder_settings: "⚙️ Настройки напоминаний",
+    reminders_enabled_success:
+      "Напоминания включены! Мы сообщим вам о времени намаза.",
     // Prayers
     prayers_title: "🤲 Молитвы",
     prayers_select: "Выберите молитву:",
@@ -577,6 +592,8 @@ module.exports = {
       "📱 Направьте телефон на север и найдите киблу по указанному углу.",
     error_no_location:
       "❌ Ваше местоположение не определено!\n\nПожалуйста, введите ваше местоположение.",
+    no_location_set:
+      "📍 Местоположение не указано!\n\n🕌 Для просмотра времени намаза укажите ваше местоположение.\n\n❓ Зачем нужно местоположение?\n✅ Показать точное время намаза для вашего региона\n✅ Определить правильное направление киблы\n✅ Настроить календарь Рамадана",
     btn_set_location: "📍 Ввести местоположение",
 
     // Reminder settings

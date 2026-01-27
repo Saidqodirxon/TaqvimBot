@@ -9,6 +9,7 @@ import BotInfo from "./pages/BotInfo";
 import Channels from "./pages/Channels";
 import Prayers from "./pages/Prayers";
 import Broadcast from "./pages/Broadcast";
+import BroadcastLocation from "./pages/BroadcastLocation";
 import PrayerDefaults from "./pages/PrayerDefaults";
 import Admins from "./pages/Admins";
 import Locations from "./pages/Locations";
@@ -73,6 +74,7 @@ function App() {
         <Route path="/test" element={<Test />} />
         <Route path="/backups" element={<Backups />} />
         <Route path="/broadcast" element={<Broadcast />} />
+        <Route path="/broadcast-location" element={<BroadcastLocation />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

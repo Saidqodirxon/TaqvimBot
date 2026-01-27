@@ -227,6 +227,16 @@
   color: white;
 }
 
+.btn-icon.send {
+  background: #e3f2fd;
+  color: #2196f3;
+}
+
+.btn-icon.send:hover {
+  background: #2196f3;
+  color: white;
+}
+
 .btn-icon.delete {
   background: #ffebee;
   color: #f44336;

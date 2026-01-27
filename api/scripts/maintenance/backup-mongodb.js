@@ -2,6 +2,7 @@
 /**
  * MongoDB Backup Script
  * Har kuni avtomatik backup yaratadi va log kanaliga yuboradi
+ * Mongoose-based JSON backup (cross-platform, no mongodump required)
  */
 
 require("dotenv").config();
@@ -9,18 +10,20 @@ require("dotenv").config();
 // Set timezone to Uzbekistan
 process.env.TZ = "Asia/Tashkent";
 
-const { exec } = require("child_process");
 const fs = require("fs");
 const path = require("path");
 const { Telegraf } = require("telegraf");
-const logger = require("./utils/logger");
+const logger = require("../../utils/logger");
 const moment = require("moment-timezone");
+const mongoose = require("mongoose");
+const archiver = require("archiver");
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
-const BACKUP_DIR = path.join(__dirname, "backups");
+const BACKUP_DIR = path.join(__dirname, "../../backups");
 const MAX_BACKUPS = 7; // Keep last 7 days
 
 async function createBackup() {
+  let isConnected = false;
   try {
     console.log("🔄 Starting MongoDB backup...");
 
@@ -35,48 +38,79 @@ async function createBackup() {
     const backupName = `backup-${timestamp}`;
     const backupPath = path.join(BACKUP_DIR, backupName);
 
-    // Parse MongoDB URI
+    // Create backup directory
+    if (!fs.existsSync(backupPath)) {
+      fs.mkdirSync(backupPath, { recursive: true });
+    }
+
+    // Connect to MongoDB
     const mongoUri = process.env.MONGODB_URI || process.env.DB_URL;
     if (!mongoUri) {
       throw new Error("MONGODB_URI not found in environment");
     }
 
-    // Extract database name from URI
-    const dbMatch = mongoUri.match(/\/([^/?]+)(\?|$)/);
-    const dbName = dbMatch ? dbMatch[1] : "ramazonbot";
+    console.log("📦 Connecting to database...");
+    await mongoose.connect(mongoUri);
+    isConnected = true;
 
-    console.log(`📦 Creating backup for database: ${dbName}`);
+    const db = mongoose.connection.db;
+    const dbName = db.databaseName;
+    console.log(`📊 Database: ${dbName}`);
 
-    // Run mongodump
-    const dumpCommand = `mongodump --uri="${mongoUri}" --out="${backupPath}"`;
+    // Get all collections
+    const collections = await db.listCollections().toArray();
+    console.log(`📁 Found ${collections.length} collections`);
 
-    await new Promise((resolve, reject) => {
-      exec(dumpCommand, (error, stdout, stderr) => {
-        if (error) {
-          console.error("❌ Backup error:", stderr);
-          reject(error);
-        } else {
-          console.log("✅ Backup created successfully");
-          resolve(stdout);
-        }
-      });
-    });
+    let totalDocs = 0;
+    let totalSize = 0;
 
-    // Get backup size
-    const backupSize = await getDirectorySize(backupPath);
-    const sizeMB = (backupSize / 1024 / 1024).toFixed(2);
+    // Export each collection to JSON
+    for (const collInfo of collections) {
+      const collName = collInfo.name;
+      const collection = db.collection(collName);
 
-    // Compress backup
+      console.log(`   Exporting ${collName}...`);
+      const docs = await collection.find({}).toArray();
+
+      const jsonPath = path.join(backupPath, `${collName}.json`);
+      fs.writeFileSync(jsonPath, JSON.stringify(docs, null, 2), "utf8");
+
+      const fileSize = fs.statSync(jsonPath).size;
+      totalSize += fileSize;
+      totalDocs += docs.length;
+
+      console.log(
+        `      ✓ ${docs.length} documents (${formatBytes(fileSize)})`
+      );
+    }
+
+    console.log(`✅ Exported ${totalDocs} total documents`);
+
+    // Create metadata file
+    const metadata = {
+      database: dbName,
+      timestamp: timestamp,
+      date: moment().tz("Asia/Tashkent").format("YYYY-MM-DD HH:mm:ss"),
+      collections: collections.length,
+      totalDocuments: totalDocs,
+      size: totalSize,
+      sizeFormatted: formatBytes(totalSize),
+    };
+
+    fs.writeFileSync(
+      path.join(backupPath, "metadata.json"),
+      JSON.stringify(metadata, null, 2),
+      "utf8"
+    );
+
+    const sizeMB = (totalSize / 1024 / 1024).toFixed(2);
+
+    // Compress backup to .tar.gz
     const archiveName = `${backupName}.tar.gz`;
     const archivePath = path.join(BACKUP_DIR, archiveName);
 
-    await new Promise((resolve, reject) => {
-      const tarCommand = `tar -czf "${archivePath}" -C "${BACKUP_DIR}" "${backupName}"`;
-      exec(tarCommand, (error) => {
-        if (error) reject(error);
-        else resolve();
-      });
-    });
+    console.log("🗜️ Compressing backup...");
+    await compressDirectory(backupPath, archivePath);
 
     // Remove uncompressed backup
     fs.rmSync(backupPath, { recursive: true, force: true });
@@ -106,23 +140,44 @@ async function createBackup() {
     console.error("❌ Backup failed:", error);
     await logger.logError(error, "MongoDB Backup Failed");
     throw error;
+  } finally {
+    // Disconnect from MongoDB
+    if (isConnected) {
+      await mongoose.disconnect();
+      console.log("🔌 Disconnected from database");
+    }
   }
 }
 
-async function getDirectorySize(dirPath) {
-  let totalSize = 0;
-  const files = fs.readdirSync(dirPath, { withFileTypes: true });
+async function compressDirectory(sourceDir, outputPath) {
+  return new Promise((resolve, reject) => {
+    const output = fs.createWriteStream(outputPath);
+    const archive = archiver("tar", {
+      gzip: true,
+      gzipOptions: { level: 9 },
+    });
 
-  for (const file of files) {
-    const filePath = path.join(dirPath, file.name);
-    if (file.isDirectory()) {
-      totalSize += await getDirectorySize(filePath);
-    } else {
-      totalSize += fs.statSync(filePath).size;
-    }
-  }
+    output.on("close", () => {
+      resolve();
+    });
 
-  return totalSize;
+    archive.on("error", (err) => {
+      reject(err);
+    });
+
+    archive.pipe(output);
+    archive.directory(sourceDir, path.basename(sourceDir));
+    archive.finalize();
+  });
+}
+
+function formatBytes(bytes, decimals = 2) {
+  if (bytes === 0) return "0 Bytes";
+  const k = 1024;
+  const dm = decimals < 0 ? 0 : decimals;
+  const sizes = ["Bytes", "KB", "MB", "GB"];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
 }
 
 async function cleanOldBackups() {
@@ -160,7 +215,7 @@ async function sendBackupNotification(
   archivePath
 ) {
   try {
-    const Settings = require("./models/Settings");
+    const Settings = require("../../models/Settings");
     const logChannel = await Settings.getSetting("log_channel", null);
 
     if (!logChannel) {

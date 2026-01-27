@@ -115,7 +115,13 @@ class MessageQueue {
       };
     } catch (error) {
       console.error("Error in sendBulkMessage:", error);
-      throw error;
+      // DO NOT throw - return error info instead
+      return {
+        jobId: null,
+        total: 0,
+        error: error.message,
+        message: "Failed to queue bulk message",
+      };
     }
   }
 
