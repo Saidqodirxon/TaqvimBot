@@ -1,5 +1,7 @@
 const mongoose = require("mongoose");
-require("dotenv").config({ path: require("path").resolve(__dirname, "../../.env") });
+require("dotenv").config({
+  path: require("path").resolve(__dirname, "../../.env"),
+});
 const User = require("../../models/User");
 
 /**
@@ -24,16 +26,26 @@ async function testLocationReset() {
     console.log(`📊 Total users in database: ${totalUsers.toLocaleString()}\n`);
 
     // Current state analysis
-    const withLocation = await User.countDocuments({ locationId: { $ne: null } });
+    const withLocation = await User.countDocuments({
+      locationId: { $ne: null },
+    });
     const withoutLocation = await User.countDocuments({ locationId: null });
-    const needingUpdate = await User.countDocuments({ needsLocationUpdate: true });
-    const withCoordinates = await User.countDocuments({ "location.latitude": { $exists: true, $ne: null } });
+    const needingUpdate = await User.countDocuments({
+      needsLocationUpdate: true,
+    });
+    const withCoordinates = await User.countDocuments({
+      "location.latitude": { $exists: true, $ne: null },
+    });
 
     console.log("📈 CURRENT STATE:");
     console.log(`   Users with locationId: ${withLocation.toLocaleString()}`);
-    console.log(`   Users without locationId: ${withoutLocation.toLocaleString()}`);
+    console.log(
+      `   Users without locationId: ${withoutLocation.toLocaleString()}`
+    );
     console.log(`   Users needing update: ${needingUpdate.toLocaleString()}`);
-    console.log(`   Users with coordinates: ${withCoordinates.toLocaleString()}\n`);
+    console.log(
+      `   Users with coordinates: ${withCoordinates.toLocaleString()}\n`
+    );
 
     // Sample users with location
     if (withLocation > 0) {
@@ -41,12 +53,12 @@ async function testLocationReset() {
       const samples = await User.find({ locationId: { $ne: null } })
         .limit(3)
         .select("userId username location locationId needsLocationUpdate");
-      
+
       samples.forEach((user, i) => {
         console.log(`\n   ${i + 1}. User ID: ${user.userId}`);
-        console.log(`      Username: @${user.username || 'N/A'}`);
-        console.log(`      Location: ${user.location?.name || 'N/A'}`);
-        console.log(`      LocationId: ${user.locationId || 'N/A'}`);
+        console.log(`      Username: @${user.username || "N/A"}`);
+        console.log(`      Location: ${user.location?.name || "N/A"}`);
+        console.log(`      LocationId: ${user.locationId || "N/A"}`);
         console.log(`      Needs Update: ${user.needsLocationUpdate || false}`);
       });
       console.log();
@@ -58,12 +70,12 @@ async function testLocationReset() {
       const samples = await User.find({ locationId: null })
         .limit(3)
         .select("userId username location locationId needsLocationUpdate");
-      
+
       samples.forEach((user, i) => {
         console.log(`\n   ${i + 1}. User ID: ${user.userId}`);
-        console.log(`      Username: @${user.username || 'N/A'}`);
-        console.log(`      Location: ${user.location?.name || 'N/A'}`);
-        console.log(`      LocationId: ${user.locationId || 'N/A'}`);
+        console.log(`      Username: @${user.username || "N/A"}`);
+        console.log(`      Location: ${user.location?.name || "N/A"}`);
+        console.log(`      LocationId: ${user.locationId || "N/A"}`);
         console.log(`      Needs Update: ${user.needsLocationUpdate || false}`);
       });
       console.log();
@@ -72,13 +84,25 @@ async function testLocationReset() {
     console.log("=".repeat(70));
     console.log("🎯 WHAT WILL HAPPEN IF YOU RUN RESET:");
     console.log("=".repeat(70) + "\n");
-    console.log(`   ✅ ${totalUsers.toLocaleString()} users will have location set to NULL`);
-    console.log(`   ✅ ${totalUsers.toLocaleString()} users will have locationId set to NULL`);
-    console.log(`   ✅ ${totalUsers.toLocaleString()} users will have locationRequestedAt set to NULL`);
-    console.log(`   ✅ ${totalUsers.toLocaleString()} users will have needsLocationUpdate set to TRUE`);
+    console.log(
+      `   ✅ ${totalUsers.toLocaleString()} users will have location set to NULL`
+    );
+    console.log(
+      `   ✅ ${totalUsers.toLocaleString()} users will have locationId set to NULL`
+    );
+    console.log(
+      `   ✅ ${totalUsers.toLocaleString()} users will have locationRequestedAt set to NULL`
+    );
+    console.log(
+      `   ✅ ${totalUsers.toLocaleString()} users will have needsLocationUpdate set to TRUE`
+    );
     console.log();
-    console.log("   📱 All users will see location selection on next interaction");
-    console.log("   ⚠️  This cannot be easily undone without database backup!\n");
+    console.log(
+      "   📱 All users will see location selection on next interaction"
+    );
+    console.log(
+      "   ⚠️  This cannot be easily undone without database backup!\n"
+    );
 
     console.log("=".repeat(70));
     console.log("✅ TEST COMPLETED - NO DATA MODIFIED");
@@ -91,7 +115,7 @@ async function testLocationReset() {
     process.exit(0);
   } catch (error) {
     console.error("❌ Error:", error);
-    if (error.name === 'MongooseServerSelectionError') {
+    if (error.name === "MongooseServerSelectionError") {
       console.error("\n⚠️  Cannot connect to MongoDB Atlas!");
       console.error("   Check your MONGODB_URI in .env file");
       console.error("   Make sure your IP is whitelisted in Atlas");
