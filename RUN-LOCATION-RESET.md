@@ -132,6 +132,7 @@ pm2 logs ramazonbot-api-9999 | grep "location"
 ## ⚠️ Ehtiyot Choralari
 
 1. **Backup oling!** Script ishlatishdan oldin:
+
    ```bash
    cd /root/ramazonbot/api
    node backup-mongodb.js
@@ -140,12 +141,13 @@ pm2 logs ramazonbot-api-9999 | grep "location"
 2. **Test muhitda sinab ko'ring** (agar bor bo'lsa)
 
 3. **Foydalanuvchilarni ogohlantiring** - Telegram kanalda elon qiling:
+
    ```
    📢 Diqqat!
-   
-   Botda texnik ishlar olib borildi. 
+
+   Botda texnik ishlar olib borildi.
    Iltimos, joylashuvingizni qaytadan tanlang.
-   
+
    /start - Boshlash
    ```
 
@@ -161,7 +163,7 @@ pm2 logs ramazonbot-api-9999 | grep "location"
 Bu script default/xato location tanlanganlarni tozalaydi va userlardan **to'g'ri** location so'raydi. Natijada:
 
 - ✅ "undefined" xatolari yo'qoladi
-- ✅ Namoz vaqtlari to'g'ri ko'rsatiladi  
+- ✅ Namoz vaqtlari to'g'ri ko'rsatiladi
 - ✅ Qibla yo'nalishi aniq bo'ladi
 - ✅ Eslatmalar o'z vaqtida keladi
 

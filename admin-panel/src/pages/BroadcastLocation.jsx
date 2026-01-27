@@ -523,7 +523,9 @@ function BroadcastLocation() {
             disabled={testMutation.isLoading}
           >
             <Send size={18} />
-            {testMutation.isLoading ? "Yuborilmoqda..." : "Test yuborish (Admin)"}
+            {testMutation.isLoading
+              ? "Yuborilmoqda..."
+              : "Test yuborish (Admin)"}
           </button>
 
           <button className="btn-primary btn-broadcast" disabled>

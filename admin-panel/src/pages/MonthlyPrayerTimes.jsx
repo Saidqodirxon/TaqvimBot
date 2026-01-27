@@ -648,9 +648,7 @@ const MonthlyPrayerTimes = () => {
 
       {/* Prayer Times List */}
       <div className="prayer-times-list">
-        <h3>
-          📋 Namoz Vaqtlari Jadvali ({prayerTimes.length} kun saqlangan)
-        </h3>
+        <h3>📋 Namoz Vaqtlari Jadvali ({prayerTimes.length} kun saqlangan)</h3>
 
         {loading ? (
           <div className="loading">Yuklanmoqda...</div>

@@ -1,11 +1,13 @@
 # 🔧 Admin Panel 404 Xatosini Tuzatish
 
 ## 🎯 Muammo
+
 Admin panelda 404 xatosi - dist build qilingan lekin sahifalar ishlamayapti.
 
 ## ✅ Tuzatilgan O'zgarishlar
 
 ### 1. **vite.config.js** - Build sozlamalari qo'shildi
+
 ```javascript
 export default defineConfig({
   plugins: [react()],
@@ -30,11 +32,13 @@ export default defineConfig({
 ```
 
 ### 2. **.env.production** - Production API URL
+
 ```env
 VITE_API_URL=https://ramazonbot-api.saidqodirxon.uz/api
 ```
 
 ### 3. **nginx/server.main.js** - SPA routing tuzatildi
+
 ```javascript
 // OLDINGI (xato):
 app.get("/*", (req, res) => { ... }
@@ -49,6 +53,7 @@ app.get("*", (req, res) => { ... }
 ## 🚀 Deploy Komandalar
 
 ### Avtomatik Deploy (tavsiya etiladi):
+
 ```bash
 cd /root/ramazonbot
 chmod +x deploy-admin-panel.sh
@@ -56,6 +61,7 @@ chmod +x deploy-admin-panel.sh
 ```
 
 ### Qo'lda Deploy:
+
 ```bash
 # 1. Git pull
 cd /root/ramazonbot
@@ -83,6 +89,7 @@ chmod +x debug-admin-panel.sh
 ```
 
 ### Manual Debug:
+
 ```bash
 # 1. Check PM2 status
 pm2 status ramazonbot-admin-9998
@@ -110,6 +117,7 @@ pm2 logs ramazonbot-admin-9998 --lines 50
 Agar nginx orqali ishlayotgan bo'lsa:
 
 **`/etc/nginx/sites-available/ramazonbot-admin`**:
+
 ```nginx
 server {
     listen 80;
@@ -130,6 +138,7 @@ server {
 ```
 
 Qo'llash:
+
 ```bash
 sudo nginx -t
 sudo systemctl reload nginx
@@ -140,23 +149,28 @@ sudo systemctl reload nginx
 ## 🎯 Tekshirish
 
 ### 1. Localhost Test:
+
 ```bash
 curl http://localhost:9998
 # Kutilayotgan: HTML content
 ```
 
 ### 2. PM2 Status:
+
 ```bash
 pm2 status ramazonbot-admin-9998
 # Status: online ✅
 ```
 
 ### 3. Browser Test:
+
 - Direct: `http://SERVER_IP:9998`
 - Domain: `https://ramazonbot-admin.saidqodirxon.uz`
 
 ### 4. React Router Test:
+
 Agar `/login`, `/dashboard`, `/users` sahifalar ishlamasa:
+
 - Bu `nginx/server.main.js` muammosi
 - `app.get("*", ...)` ishlatish kerak (biz tuzatdik)
 
@@ -165,18 +179,22 @@ Agar `/login`, `/dashboard`, `/users` sahifalar ishlamasa:
 ## ⚠️ Keng Tarqalgan Xatolar
 
 ### Xato 1: `Cannot GET /dashboard`
+
 **Sabab**: Express `/*` o'rniga `*` ishlatishi kerak
 **Yechim**: `nginx/server.main.js` tuzatildi ✅
 
 ### Xato 2: `404 on refresh`
+
 **Sabab**: SPA routing to'g'ri sozlanmagan
 **Yechim**: Barcha route'lar index.html ga yo'naltirildi ✅
 
 ### Xato 3: `API 404 errors`
+
 **Sabab**: VITE_API_URL noto'g'ri
 **Yechim**: `.env.production` yaratildi ✅
 
 ### Xato 4: `Blank page`
+
 **Sabab**: Build muvaffaqiyatsiz yoki dist yo'q
 **Yechim**: `npm run build` qayta ishga tushiring
 
@@ -185,6 +203,7 @@ Agar `/login`, `/dashboard`, `/users` sahifalar ishlamasa:
 ## 📊 Kutilgan Natijalar
 
 ### Build Output:
+
 ```
 dist/index.html                   0.46 kB
 dist/assets/index-BvUL_3aR.css   69.22 kB
@@ -193,11 +212,13 @@ dist/assets/index-BNYQ_VZq.js   453.42 kB
 ```
 
 ### PM2 Status:
+
 ```
 │ ramazonbot-admin-9998 │ online │
 ```
 
 ### Browser:
+
 - ✅ Login page loads
 - ✅ Dashboard accessible
 - ✅ All routes work
@@ -209,12 +230,14 @@ dist/assets/index-BNYQ_VZq.js   453.42 kB
 ## 🆘 Agar Hali Ham Ishlamasa
 
 1. **PM2 to'liq restart**:
+
 ```bash
 pm2 delete ramazonbot-admin-9998
 pm2 start /root/ramazonbot/api/ecosystem.config.js --only ramazonbot-admin-9998
 ```
 
 2. **Cache tozalash**:
+
 ```bash
 cd /root/ramazonbot/admin-panel
 rm -rf dist node_modules
@@ -224,12 +247,14 @@ pm2 restart ramazonbot-admin-9998
 ```
 
 3. **Nginx restart**:
+
 ```bash
 sudo systemctl restart nginx
 sudo systemctl status nginx
 ```
 
 4. **Loglarni tekshiring**:
+
 ```bash
 # PM2 logs
 pm2 logs ramazonbot-admin-9998

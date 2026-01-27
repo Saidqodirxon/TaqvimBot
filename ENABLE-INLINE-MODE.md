@@ -61,6 +61,7 @@ Sozlamalardan keyin userlar inline mode ishlata oladi:
 ### Ishlash tartibi:
 
 1. **Istalgan chatda** (guruh yoki shaxsiy) yozadi:
+
    ```
    @RamazonCalendarBot bugun
    ```
@@ -74,14 +75,14 @@ Sozlamalardan keyin userlar inline mode ishlata oladi:
 
 ### Query variantlari:
 
-| Query | Natija |
-|-------|---------|
-| `@bot` yoki `@bot bugun` | Barcha 3 variant |
-| `@bot today` | Bugungi namoz vaqtlari |
-| `@bot ertaga` | Ertangi namoz vaqtlari |
-| `@bot tomorrow` | Ertangi namoz vaqtlari |
-| `@bot ramazon` | Ramazon hisobi |
-| `@bot ramadan` | Ramazon hisobi |
+| Query                    | Natija                 |
+| ------------------------ | ---------------------- |
+| `@bot` yoki `@bot bugun` | Barcha 3 variant       |
+| `@bot today`             | Bugungi namoz vaqtlari |
+| `@bot ertaga`            | Ertangi namoz vaqtlari |
+| `@bot tomorrow`          | Ertangi namoz vaqtlari |
+| `@bot ramazon`           | Ramazon hisobi         |
+| `@bot ramadan`           | Ramazon hisobi         |
 
 ## 📊 Inline Mode Xususiyatlari
 
@@ -142,15 +143,15 @@ Agar user botga `/start` bosmagan yoki location tanlamagan bo'lsa:
 ```
 ⚠️ Botga ro'yxatdan o'tish kerak
 
-📍 Namoz vaqtlarini ko'rish uchun avval 
-@RamazonCalendarBot ga o'ting va 
+📍 Namoz vaqtlarini ko'rish uchun avval
+@RamazonCalendarBot ga o'ting va
 joylashuvingizni tanlang.
 ```
 
 ### Redis Cache
 
 - Bugungi vaqtlar: **1 soat** cache
-- Ertangi vaqtlar: **12 soat** cache  
+- Ertangi vaqtlar: **12 soat** cache
 - Ramazon hisobi: **12 soat** cache
 - Xato: **10 soniya** cache
 
@@ -163,11 +164,13 @@ BotFather sozlamalaridan keyin:
 ### 1. Telegram da sinab ko'ring
 
 Istalgan chatda yozing:
+
 ```
 @RamazonCalendarBot
 ```
 
 Agar inline query paydo bo'lmasa:
+
 - ❌ BotFather da inline mode yoqilmagan
 - ✅ Qaytadan BotFather sozlamalarini tekshiring
 
@@ -178,6 +181,7 @@ pm2 logs ramazonbot-api-9999 | grep "inline"
 ```
 
 Inline query kelganida shu log chiqadi:
+
 ```
 Inline query from user: 123456789
 Inline query: "bugun"
@@ -225,6 +229,7 @@ redis-cli KEYS "inline:*" | wc -l
 Agar inline natijalarni o'zgartirmoqchi bo'lsangiz:
 
 `api/utils/inlineMode.js` faylini tahrirlang:
+
 - `getTodayPrayerTimes()` - Bugun uchun
 - `getTomorrowPrayerTimes()` - Ertaga uchun
 - `getRamadanCountdown()` - Ramazon uchun
@@ -256,12 +261,14 @@ Har bir funksiya `InlineQueryResult` object qaytaradi.
 ### Xato xabarlari
 
 Agar inline query xato bersa, bot graceful error message ko'rsatadi:
+
 ```
 ❌ Xatolik yuz berdi
 Ma'lumotlarni yuklashda muammo
 ```
 
 Logs tekshiring:
+
 ```bash
 pm2 logs ramazonbot-api-9999 --err
 ```

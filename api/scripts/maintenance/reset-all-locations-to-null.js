@@ -1,5 +1,7 @@
 const mongoose = require("mongoose");
-require("dotenv").config({ path: require("path").resolve(__dirname, "../../.env") });
+require("dotenv").config({
+  path: require("path").resolve(__dirname, "../../.env"),
+});
 const User = require("../../models/User");
 
 /**
@@ -40,17 +42,25 @@ async function resetAllLocations() {
     console.log(`   ✅ Matched: ${result.matchedCount} users\n`);
 
     // Verify reset
-    const withLocation = await User.countDocuments({ locationId: { $ne: null } });
-    const needingUpdate = await User.countDocuments({ needsLocationUpdate: true });
+    const withLocation = await User.countDocuments({
+      locationId: { $ne: null },
+    });
+    const needingUpdate = await User.countDocuments({
+      needsLocationUpdate: true,
+    });
 
     console.log("📊 Verification:");
     console.log(`   Users with location: ${withLocation} (should be 0)`);
-    console.log(`   Users needing update: ${needingUpdate} (should be ${totalUsers})`);
+    console.log(
+      `   Users needing update: ${needingUpdate} (should be ${totalUsers})`
+    );
 
     if (withLocation === 0 && needingUpdate === totalUsers) {
       console.log("\n✅ SUCCESS! All users reset correctly!\n");
     } else {
-      console.log("\n⚠️  WARNING! Some users may not have been reset correctly!\n");
+      console.log(
+        "\n⚠️  WARNING! Some users may not have been reset correctly!\n"
+      );
     }
 
     console.log("=".repeat(70));
@@ -58,7 +68,9 @@ async function resetAllLocations() {
     console.log("=".repeat(70) + "\n");
 
     console.log("📌 Next steps:");
-    console.log("   1. Users will see location selection on next bot interaction");
+    console.log(
+      "   1. Users will see location selection on next bot interaction"
+    );
     console.log("   2. Run broadcast-location-professional.js to notify users");
     console.log("   3. Monitor bot logs for location requests\n");
 
