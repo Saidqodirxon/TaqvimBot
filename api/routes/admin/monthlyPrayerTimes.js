@@ -17,16 +17,16 @@ router.get("/:locationId", async (req, res) => {
       query.date = { $gte: startDate, $lte: endDate };
     }
     const prayerTimes = await MonthlyPrayerTime.find(query)
-      .select('date hijriDate timings -_id') // Only essential fields
+      .select("date hijriDate timings -_id") // Only essential fields
       .sort({ date: 1 })
       .lean();
     logger.log(
       "API",
       `Monthly prayer times fetched for location ${locationId}: ${prayerTimes.length} records`
     );
-    
+
     // Cache for 1 hour (data rarely changes)
-    res.set('Cache-Control', 'public, max-age=3600');
+    res.set("Cache-Control", "public, max-age=3600");
     res.json(prayerTimes);
   } catch (error) {
     logger.error(`Error fetching monthly prayer times: ${error.message}`);
