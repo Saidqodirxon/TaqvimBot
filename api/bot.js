@@ -218,10 +218,16 @@ bot.use(async (ctx, next) => {
 
   // Check phone request (only if user hasn't provided phone)
   if (!user.phoneNumber) {
-    const phoneEnabled = await Settings.getSetting("phone_request_enabled", false);
-    
+    const phoneEnabled = await Settings.getSetting(
+      "phone_request_enabled",
+      false
+    );
+
     if (phoneEnabled) {
-      const phoneRecheckDays = await Settings.getSetting("phone_recheck_days", 180);
+      const phoneRecheckDays = await Settings.getSetting(
+        "phone_recheck_days",
+        180
+      );
       const shouldAskPhone =
         !user.phoneRequestedAt ||
         (user.phoneRequestedAt &&

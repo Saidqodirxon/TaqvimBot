@@ -196,10 +196,10 @@ async function initializeAllReminders(bot) {
 
     console.log(`🔔 Reminder system ready for ${count} users (lazy loading)`);
     console.log(`   Reminders will be scheduled when users interact with bot`);
-    
+
     // Store bot reference globally for lazy scheduling
     global.reminderBot = bot;
-    
+
     // Optional: Schedule a background job to initialize top active users
     // This runs in background after bot starts (non-blocking)
     setImmediate(async () => {
@@ -212,7 +212,7 @@ async function initializeAllReminders(bot) {
           "location.latitude": { $exists: true },
           last_active: { $gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) },
         }).limit(100);
-        
+
         let scheduled = 0;
         for (const user of recentUsers) {
           try {
@@ -224,7 +224,7 @@ async function initializeAllReminders(bot) {
           // Small delay
           await new Promise((resolve) => setTimeout(resolve, 50));
         }
-        
+
         console.log(`✅ Pre-scheduled reminders for ${scheduled} active users`);
       } catch (err) {
         console.error("Background reminder init error:", err.message);
