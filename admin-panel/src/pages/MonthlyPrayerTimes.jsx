@@ -15,6 +15,15 @@ const MonthlyPrayerTimes = () => {
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [showAddForm, setShowAddForm] = useState(false);
+  const [showLocationEdit, setShowLocationEdit] = useState(false);
+  const [locationFormData, setLocationFormData] = useState({
+    nameUz: "",
+    nameCr: "",
+    nameRu: "",
+    latitude: "",
+    longitude: "",
+    timezone: "Asia/Tashkent",
+  });
   const [formData, setFormData] = useState({
     date: "",
     hijriDate: {
@@ -59,6 +68,14 @@ const MonthlyPrayerTimes = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
       setLocation(response.data);
+      setLocationFormData({
+        nameUz: response.data.nameUz || response.data.name,
+        nameCr: response.data.nameCr || response.data.name,
+        nameRu: response.data.nameRu || response.data.name,
+        latitude: response.data.latitude,
+        longitude: response.data.longitude,
+        timezone: response.data.timezone || "Asia/Tashkent",
+      });
     } catch (error) {
       console.error("Error fetching location:", error);
       alert("Joylashuvni yuklashda xatolik!");
@@ -153,6 +170,22 @@ const MonthlyPrayerTimes = () => {
     });
   };
 
+  const handleLocationUpdate = async (e) => {
+    e.preventDefault();
+    try {
+      const token = localStorage.getItem("token");
+      await axios.put(`${API_URL}/locations/${locationId}`, locationFormData, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      alert("Joylashuv yangilandi!");
+      setShowLocationEdit(false);
+      fetchLocation();
+    } catch (error) {
+      console.error("Error updating location:", error);
+      alert("Xatolik: " + (error.response?.data?.error || error.message));
+    }
+  };
+
   if (loading && !location) {
     return <div className="loading">Yuklanmoqda...</div>;
   }
@@ -176,6 +209,150 @@ const MonthlyPrayerTimes = () => {
         >
           ➕ Sana qo'shish
         </button>
+      </div>
+
+      {/* Location Info Card */}
+      <div className="location-info-card card">
+        <div className="location-header">
+          <h3>📍 Joylashuv Ma'lumotlari</h3>
+          <button
+            className="btn-edit"
+            onClick={() => setShowLocationEdit(!showLocationEdit)}
+          >
+            {showLocationEdit ? "❌ Bekor qilish" : "✏️ Tahrirlash"}
+          </button>
+        </div>
+
+        {!showLocationEdit ? (
+          <div className="location-details">
+            <div className="detail-row">
+              <span className="label">O'zbekcha (Lotin):</span>
+              <span className="value">
+                {location?.nameUz || location?.name}
+              </span>
+            </div>
+            <div className="detail-row">
+              <span className="label">Ўзбекча (Кирилл):</span>
+              <span className="value">
+                {location?.nameCr || location?.name}
+              </span>
+            </div>
+            <div className="detail-row">
+              <span className="label">Русский:</span>
+              <span className="value">
+                {location?.nameRu || location?.name}
+              </span>
+            </div>
+            <div className="detail-row">
+              <span className="label">Latitude:</span>
+              <span className="value">{location?.latitude}</span>
+            </div>
+            <div className="detail-row">
+              <span className="label">Longitude:</span>
+              <span className="value">{location?.longitude}</span>
+            </div>
+            <div className="detail-row">
+              <span className="label">Timezone:</span>
+              <span className="value">
+                {location?.timezone || "Asia/Tashkent"}
+              </span>
+            </div>
+          </div>
+        ) : (
+          <form onSubmit={handleLocationUpdate} className="location-edit-form">
+            <div className="form-group">
+              <label>O'zbekcha (Lotin) *</label>
+              <input
+                type="text"
+                required
+                value={locationFormData.nameUz}
+                onChange={(e) =>
+                  setLocationFormData({
+                    ...locationFormData,
+                    nameUz: e.target.value,
+                  })
+                }
+              />
+            </div>
+            <div className="form-group">
+              <label>Ўзбекча (Кирилл) *</label>
+              <input
+                type="text"
+                required
+                value={locationFormData.nameCr}
+                onChange={(e) =>
+                  setLocationFormData({
+                    ...locationFormData,
+                    nameCr: e.target.value,
+                  })
+                }
+              />
+            </div>
+            <div className="form-group">
+              <label>Русский *</label>
+              <input
+                type="text"
+                required
+                value={locationFormData.nameRu}
+                onChange={(e) =>
+                  setLocationFormData({
+                    ...locationFormData,
+                    nameRu: e.target.value,
+                  })
+                }
+              />
+            </div>
+            <div className="form-row">
+              <div className="form-group">
+                <label>Latitude *</label>
+                <input
+                  type="number"
+                  step="any"
+                  required
+                  value={locationFormData.latitude}
+                  onChange={(e) =>
+                    setLocationFormData({
+                      ...locationFormData,
+                      latitude: e.target.value,
+                    })
+                  }
+                />
+              </div>
+              <div className="form-group">
+                <label>Longitude *</label>
+                <input
+                  type="number"
+                  step="any"
+                  required
+                  value={locationFormData.longitude}
+                  onChange={(e) =>
+                    setLocationFormData({
+                      ...locationFormData,
+                      longitude: e.target.value,
+                    })
+                  }
+                />
+              </div>
+            </div>
+            <div className="form-group">
+              <label>Timezone *</label>
+              <input
+                type="text"
+                required
+                value={locationFormData.timezone}
+                onChange={(e) =>
+                  setLocationFormData({
+                    ...locationFormData,
+                    timezone: e.target.value,
+                  })
+                }
+              />
+            </div>
+            <button type="submit" className="btn-save">
+              💾 Saqlash
+            </button>
+          </form>
+        )}
       </div>
 
       {/* Month/Year Selector */}

@@ -19,18 +19,23 @@ router.get("/", authMiddleware, async (req, res) => {
 
     const totalUsers = await User.countDocuments().maxTimeMS(5000);
     const activeUsers = await User.countDocuments({
-      is_block: false,
+      isActive: true,
     }).maxTimeMS(5000);
     const blockedUsers = await User.countDocuments({
       is_block: true,
+    }).maxTimeMS(5000);
+    const inactiveUsers = await User.countDocuments({
+      isActive: false,
     }).maxTimeMS(5000);
 
     // Activity statistics
     const activeToday = await User.countDocuments({
       last_active: { $gte: last24h },
+      isActive: true,
     }).maxTimeMS(5000);
     const activeLast7d = await User.countDocuments({
       last_active: { $gte: last7d },
+      isActive: true,
     }).maxTimeMS(5000);
 
     // New users
@@ -66,6 +71,7 @@ router.get("/", authMiddleware, async (req, res) => {
         total: totalUsers,
         active: activeUsers,
         blocked: blockedUsers,
+        inactive: inactiveUsers,
         activeToday,
         activeLast7d,
         newUsersToday,
@@ -125,8 +131,9 @@ router.get("/users-without-location", authMiddleware, async (req, res) => {
   try {
     const count = await User.countDocuments({
       $or: [
-        { "location.latitude": { $exists: false } },
-        { "location.latitude": null },
+        { needsLocationUpdate: true },
+        { locationId: null },
+        { locationId: { $exists: false } },
       ],
       isActive: { $ne: false },
     }).maxTimeMS(5000);

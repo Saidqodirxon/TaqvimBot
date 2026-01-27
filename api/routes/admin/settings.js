@@ -385,21 +385,25 @@ router.post("/bot-token", authMiddleware, superAdminOnly, async (req, res) => {
 // Set terms settings
 router.post("/terms", authMiddleware, superAdminOnly, async (req, res) => {
   try {
-    const { enabled, url, recheckDays } = req.body;
+    const { enabled, url, recheckDays, initialDelayDays } = req.body;
 
     await Settings.setSetting("terms_enabled", enabled);
     await Settings.setSetting("terms_url", url);
     await Settings.setSetting("terms_recheck_days", recheckDays);
+    await Settings.setSetting(
+      "terms_initial_delay_days",
+      initialDelayDays || 0
+    );
 
     await logger.logAdminAction(
       req.user,
       "Terms sozlamalari yangilandi",
-      `enabled: ${enabled}, url: ${url}, recheckDays: ${recheckDays}`
+      `enabled: ${enabled}, url: ${url}, recheckDays: ${recheckDays}, initialDelayDays: ${initialDelayDays}`
     );
 
     res.json({
       message: "Terms sozlamalari saqlandi!",
-      settings: { enabled, url, recheckDays },
+      settings: { enabled, url, recheckDays, initialDelayDays },
     });
   } catch (error) {
     logger.error("Set terms settings error:", error);

@@ -76,6 +76,13 @@ function Dashboard() {
       color: "#f44336",
       bg: "#ffebee",
     },
+    {
+      title: "Nofaol (Botni to'xtatgan)",
+      value: data?.users?.inactive || 0,
+      icon: <UserX size={24} />,
+      color: "#9e9e9e",
+      bg: "#f5f5f5",
+    },
   ];
 
   return (

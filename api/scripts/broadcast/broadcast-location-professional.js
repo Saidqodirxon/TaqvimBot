@@ -100,11 +100,12 @@ Namoz vaqtlarini olish uchun shaharingizni tanlashingiz kerak.
 👇 Қуйидаги тугмани босинг:`,
     };
 
-    // Get users without location
+    // Get users without location (using needsLocationUpdate field)
     const usersWithoutLocation = await User.find({
       $or: [
-        { "location.latitude": { $exists: false } },
-        { "location.latitude": null },
+        { needsLocationUpdate: true },
+        { locationId: null },
+        { locationId: { $exists: false } },
       ],
       isActive: { $ne: false }, // Skip deactivated users
     })
@@ -112,7 +113,7 @@ Namoz vaqtlarini olish uchun shaharingizni tanlashingiz kerak.
       .lean();
 
     const totalUsers = usersWithoutLocation.length;
-    console.log(`📊 Found ${totalUsers} users without location\n`);
+    console.log(`📊 Found ${totalUsers} users needing location update\n`);
 
     if (totalUsers === 0) {
       console.log("✅ All users have location set!");
@@ -201,10 +202,12 @@ Namoz vaqtlarini olish uchun shaharingizni tanlashingiz kerak.
         } catch (error) {
           failed++;
 
+          // Handle different error types
           if (
             error.response?.error_code === 403 ||
             error.message.includes("bot was blocked") ||
-            error.message.includes("user is deactivated")
+            error.message.includes("user is deactivated") ||
+            error.message.includes("Forbidden: bot was blocked by the user")
           ) {
             blocked++;
             // Mark user as inactive
@@ -212,6 +215,15 @@ Namoz vaqtlarini olish uchun shaharingizni tanlashingiz kerak.
               { userId: user.userId },
               { isActive: false }
             ).catch(() => {});
+          } else if (
+            error.response?.error_code === 400 &&
+            (error.message.includes("user not found") ||
+              error.message.includes("chat not found") ||
+              error.response?.description?.includes("user not found"))
+          ) {
+            // User deleted their account or can't be reached - remove from database
+            await User.deleteOne({ userId: user.userId }).catch(() => {});
+            console.log(`   🗑️  Removed unreachable user: ${user.userId}`);
           }
 
           return { success: false, userId: user.userId, error: error.message };

@@ -21,6 +21,7 @@ function Settings() {
   const [termsEnabled, setTermsEnabled] = useState(false);
   const [termsUrl, setTermsUrl] = useState("");
   const [termsRecheckDays, setTermsRecheckDays] = useState(90);
+  const [termsInitialDelayDays, setTermsInitialDelayDays] = useState(0);
 
   // Phone request settings state
   const [phoneRequestEnabled, setPhoneRequestEnabled] = useState(false);
@@ -99,6 +100,13 @@ function Settings() {
       );
       if (termsRecheckSetting) {
         setTermsRecheckDays(termsRecheckSetting.value ?? 90);
+      }
+
+      const termsInitialDelaySetting = data?.find(
+        (s) => s.key === "terms_initial_delay_days"
+      );
+      if (termsInitialDelaySetting) {
+        setTermsInitialDelayDays(termsInitialDelaySetting.value ?? 0);
       }
 
       // Phone request settings
@@ -191,6 +199,7 @@ function Settings() {
         enabled: termsEnabled,
         url: termsUrl,
         recheckDays: parseInt(termsRecheckDays),
+        initialDelayDays: parseInt(termsInitialDelayDays),
       }),
     onSuccess: () => {
       queryClient.invalidateQueries(["settings"]);
@@ -576,6 +585,21 @@ function Settings() {
             <small className="help-text">
               💡 Necha kundan keyin foydalanuvchilardan qayta shartlarni qabul
               qilishlarini so'rash (masalan: 90 kun)
+            </small>
+          </div>
+
+          <div className="form-group">
+            <label>⏰ Dastlabki kechiktirish (kunlarda)</label>
+            <input
+              type="number"
+              value={termsInitialDelayDays}
+              onChange={(e) => setTermsInitialDelayDays(e.target.value)}
+              min="0"
+              max="30"
+            />
+            <small className="help-text">
+              💡 Yangi foydalanuvchilarga shartlarni qabul qilishni necha kun
+              kechiktirib so'rash (masalan: 0 = darhol, 7 = 7 kundan keyin)
             </small>
           </div>
 

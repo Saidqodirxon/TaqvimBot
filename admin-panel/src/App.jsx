@@ -15,6 +15,7 @@ import Admins from "./pages/Admins";
 import Locations from "./pages/Locations";
 import MonthlyPrayerTimes from "./pages/MonthlyPrayerTimes";
 import Cache from "./pages/Cache";
+import RedisManagement from "./pages/RedisManagement";
 import Suggestions from "./pages/Suggestions";
 import Translations from "./pages/Translations";
 import Profile from "./pages/Profile";
@@ -67,6 +68,7 @@ function App() {
           element={<MonthlyPrayerTimes />}
         />
         <Route path="/cache" element={<Cache />} />
+        <Route path="/redis" element={<RedisManagement />} />
         <Route path="/suggestions" element={<Suggestions />} />
         <Route path="/translations" element={<Translations />} />
         <Route path="/profile" element={<Profile />} />

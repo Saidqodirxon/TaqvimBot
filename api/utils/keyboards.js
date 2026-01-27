@@ -176,7 +176,6 @@ async function getCalendarViewKeyboard(lang = "uz") {
       Markup.button.callback(await t(lang, "btn_daily"), "calendar_daily"),
       Markup.button.callback(await t(lang, "btn_weekly"), "calendar_weekly"),
     ],
-    [Markup.button.callback(await t(lang, "btn_qibla"), "show_qibla")],
   ];
 
   // Add WebApp button if HTTPS URL is configured

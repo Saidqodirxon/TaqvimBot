@@ -77,6 +77,16 @@ const UserSchema = new mongoose.Schema(
       type: mongoose.SchemaTypes.Date,
       default: null,
     },
+    needsLocationUpdate: {
+      type: mongoose.SchemaTypes.Boolean,
+      default: false,
+      index: true,
+    },
+    isActive: {
+      type: mongoose.SchemaTypes.Boolean,
+      default: true,
+      index: true,
+    },
     isAdmin: {
       type: mongoose.SchemaTypes.Boolean,
       default: false,
