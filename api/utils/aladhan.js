@@ -40,7 +40,7 @@ async function getPrayerTimes(
       }).lean();
 
       if (prayerData) {
-        console.log(`✅ Prayer data found for ${locationKey} on ${dateStr}`);
+        // console.log(`✅ Prayer data found for ${locationKey} on ${dateStr}`);
         return {
           success: true,
           date:
@@ -651,7 +651,7 @@ async function savePrayerTimeToCache(
       { upsert: true, new: true }
     );
 
-    console.log(`💾 Saved prayer data for ${locationKey} on ${dateStr}`);
+    // console.log(`💾 Saved prayer data for ${locationKey} on ${dateStr}`);
   } catch (error) {
     console.error("Failed to save prayer data:", error.message);
     // DO NOT throw - save is non-critical
