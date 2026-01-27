@@ -38,6 +38,7 @@ bot.use(updateUserInfo);
 ```
 
 **Location**: After these lines in bot.js:
+
 ```javascript
 const bot = new Telegraf(process.env.BOT_TOKEN);
 bot.use(session());
@@ -65,22 +66,26 @@ curl http://localhost:5173/  # or your admin URL
 ## 🔍 Quick Tests
 
 ### Test 1: Statistics
+
 - Open admin panel
 - Go to Dashboard
 - Verify "Nofaol (Botni to'xtatgan)" card shows
 
 ### Test 2: Redis Page
+
 - Sidebar → Redis
 - Toggle Redis on/off
 - Verify settings save
 
 ### Test 3: Location Edit
+
 - Joylashuvlar → Select location
 - Oylik Namoz Vaqtlari
 - Verify location card appears
 - Click "✏️ Tahrirlash"
 
 ### Test 4: Terms Delay
+
 - Settings → Terms section
 - Verify "⏰ Dastlabki kechiktirish" field exists
 
@@ -106,6 +111,7 @@ pm2 restart all
 ## 📊 Expected Numbers
 
 After deployment:
+
 - `needsLocationUpdate: true` → **64,605 users**
 - `isActive: true` → **~64,000 users** (minus blocked)
 - `isActive: false` → **~500-1000 users** (will grow over time)
