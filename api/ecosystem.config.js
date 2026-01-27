@@ -20,7 +20,7 @@ module.exports = {
     },
     {
       name: "ramazonbot-cache-refresh",
-      script: "./cache-refresh-scheduler.js",
+      script: "./scripts/cache/cache-refresh-scheduler.js",
       cwd: "/root/ramazonbot/api",
       instances: 1,
       exec_mode: "fork",

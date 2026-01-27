@@ -157,7 +157,7 @@ module.exports = {
     },
     {
       name: "ramazonbot-cache-refresh", // Cache yangilash
-      script: "./cache-refresh-scheduler.js",
+      script: "./scripts/cache/cache-refresh-scheduler.js",
     },
     {
       name: "ramazonbot-backup-scheduler", // Avtomatik backup

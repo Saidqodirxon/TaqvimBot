@@ -4,8 +4,8 @@ import axios from "axios";
 export const API_URL =
   import.meta.env.VITE_API_URL ||
   (window.location.hostname === "localhost"
-    ? "http://localhost:3000/api/admin"
-    : "https://ramazonbot-api.saidqodirxon.uz/api/admin");
+    ? "http://localhost:3000/api"
+    : "https://ramazonbot-api.saidqodirxon.uz/api");
 
 const api = axios.create({
   baseURL: API_URL,
