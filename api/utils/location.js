@@ -1,4 +1,7 @@
 const Location = require("../models/Location");
+const redisCache = require("./redis");
+const Settings = require("../models/Settings");
+const { getTimingsByCity } = require("./aladhan");
 
 /**
  * Calculate distance between two coordinates using Haversine formula
@@ -1069,7 +1072,183 @@ async function initializeDefaultLocations() {
 module.exports = {
   calculateDistance,
   findNearestCity,
+  findNearestCitiesWithinRadius,
+  searchLocationsByName,
+  getLocationsPaginated,
+  getOrCreateLocationFromAladhan,
   getAllLocations,
   addLocation,
   initializeDefaultLocations,
 };
+
+/**
+ * Find nearest cities within radius
+ * @param {number} latitude - User's latitude
+ * @param {number} longitude - User's longitude
+ * @param {number} radiusKm - Search radius in kilometers
+ * @param {number} limit - Maximum number of results
+ * @returns {Array} Nearest cities within radius
+ */
+async function findNearestCitiesWithinRadius(
+  latitude,
+  longitude,
+  radiusKm = 50,
+  limit = 5
+) {
+  try {
+    // Try Redis cache first
+    const cacheKey = `nearest:${latitude}:${longitude}:${radiusKm}:${limit}`;
+    const cached = await redisCache.get(cacheKey);
+    if (cached) return cached;
+
+    const cities = await Location.find();
+
+    const citiesWithDistance = cities
+      .map((city) => ({
+        ...city.toObject(),
+        distance: calculateDistance(
+          latitude,
+          longitude,
+          city.latitude,
+          city.longitude
+        ),
+      }))
+      .filter((city) => city.distance <= radiusKm)
+      .sort((a, b) => a.distance - b.distance)
+      .slice(0, limit);
+
+    // Cache for 1 hour
+    await redisCache.set(cacheKey, citiesWithDistance, 3600);
+
+    return citiesWithDistance;
+  } catch (error) {
+    console.error("Error finding nearest cities:", error);
+    return [];
+  }
+}
+
+/**
+ * Search locations by name (Uzbek or Russian)
+ * @param {string} query - Search query
+ * @param {number} limit - Maximum results
+ * @returns {Array} Matching locations
+ */
+async function searchLocationsByName(query, limit = 10) {
+  try {
+    if (!query || query.length < 2) return [];
+
+    const regex = new RegExp(query, "i");
+
+    const locations = await Location.find({
+      $or: [
+        { name_uz: regex },
+        { name_ru: regex },
+        { region_uz: regex },
+        { region_ru: regex },
+      ],
+    })
+      .limit(limit)
+      .lean();
+
+    return locations;
+  } catch (error) {
+    console.error("Error searching locations:", error);
+    return [];
+  }
+}
+
+/**
+ * Get locations with pagination
+ * @param {number} page - Page number (1-based)
+ * @param {number} limit - Items per page
+ * @returns {Object} Paginated locations
+ */
+async function getLocationsPaginated(page = 1, limit = 10) {
+  try {
+    const skip = (page - 1) * limit;
+
+    const [locations, total] = await Promise.all([
+      Location.find().sort({ name_uz: 1 }).skip(skip).limit(limit).lean(),
+      Location.countDocuments(),
+    ]);
+
+    return {
+      locations,
+      pagination: {
+        page,
+        limit,
+        total,
+        pages: Math.ceil(total / limit),
+        hasNext: page < Math.ceil(total / limit),
+        hasPrev: page > 1,
+      },
+    };
+  } catch (error) {
+    console.error("Error getting paginated locations:", error);
+    return { locations: [], pagination: { page, limit, total: 0, pages: 0 } };
+  }
+}
+
+/**
+ * Get or create location from Aladhan API
+ * Fallback when location not in database
+ * @param {number} latitude - Location latitude
+ * @param {number} longitude - Location longitude
+ * @param {string} cityName - City name
+ * @returns {Object} Location data
+ */
+async function getOrCreateLocationFromAladhan(
+  latitude,
+  longitude,
+  cityName = "Unknown"
+) {
+  try {
+    // Try to find existing location nearby (within 5km)
+    const nearby = await findNearestCitiesWithinRadius(
+      latitude,
+      longitude,
+      5,
+      1
+    );
+    if (nearby && nearby.length > 0) {
+      return nearby[0];
+    }
+
+    // Fetch from Aladhan
+    console.log(
+      `📍 Fetching location from Aladhan: ${cityName} (${latitude}, ${longitude})`
+    );
+
+    const prayerData = await getTimingsByCity(latitude, longitude);
+
+    if (!prayerData) {
+      throw new Error("Failed to fetch prayer times from Aladhan");
+    }
+
+    // Create new location in database
+    const newLocation = await Location.create({
+      name_uz: cityName,
+      name_ru: cityName,
+      region_uz: "Custom",
+      region_ru: "Пользовательская",
+      latitude,
+      longitude,
+      method: 3, // MWL
+      school: 0, // Shafi
+      isCustom: true,
+      isActive: true,
+    });
+
+    console.log(
+      `✅ Created new location: ${cityName} (ID: ${newLocation._id})`
+    );
+
+    // Cache the new location
+    await redisCache.setLocation(newLocation._id.toString(), newLocation);
+
+    return newLocation;
+  } catch (error) {
+    console.error("Error creating location from Aladhan:", error);
+    throw error;
+  }
+}

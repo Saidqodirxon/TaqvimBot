@@ -138,9 +138,7 @@ async function schedulePrayerReminders(bot, user) {
     // Store jobs for this user
     if (userJobs.length > 0) {
       activeJobs.set(user.userId, userJobs);
-      console.log(
-        `✅ Scheduled ${userJobs.length} reminders for user ${user.userId}`
-      );
+      // Silent - no log spam
     }
 
     // Schedule a job at midnight to reschedule for the next day

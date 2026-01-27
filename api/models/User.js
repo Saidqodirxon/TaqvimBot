@@ -67,6 +67,16 @@ const UserSchema = new mongoose.Schema(
       type: mongoose.SchemaTypes.Date,
       default: null,
     },
+    locationId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Location",
+      default: null,
+      index: true,
+    },
+    locationRequestedAt: {
+      type: mongoose.SchemaTypes.Date,
+      default: null,
+    },
     isAdmin: {
       type: mongoose.SchemaTypes.Boolean,
       default: false,

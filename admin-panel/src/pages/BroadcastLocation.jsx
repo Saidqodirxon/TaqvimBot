@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { settings } from "../api";
+import { settings, API_URL } from "../api";
 import {
   Save,
   MapPin,
@@ -44,12 +44,9 @@ function BroadcastLocation() {
     queryKey: ["users-without-location"],
     queryFn: async () => {
       const token = localStorage.getItem("token");
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL || "http://localhost:3000/api"}/stats/users-without-location`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      const response = await fetch(`${API_URL}/stats/users-without-location`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       return response.json();
     },
   });

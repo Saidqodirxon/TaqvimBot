@@ -74,6 +74,11 @@ const LocationSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    isCustom: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
     // Manual prayer times (optional - if not set, API will be used)
     manualPrayerTimes: {
       enabled: {
