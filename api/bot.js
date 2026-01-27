@@ -68,6 +68,7 @@ const {
   initializeAllReminders,
   updateUserReminders,
 } = require("./utils/prayerReminders");
+const { handleInlineQuery } = require("./utils/inlineMode");
 const logger = require("./utils/logger");
 const { initErrorLogger, logError } = require("./utils/errorLogger");
 
@@ -256,6 +257,11 @@ bot.use(async (ctx, next) => {
 });
 
 // ========== COMMANDS ==========
+
+/**
+ * Inline query handler - allows sharing prayer times in any chat
+ */
+bot.on("inline_query", handleInlineQuery);
 
 /**
  * Start command - OPTIMIZED for speed (< 200ms response)

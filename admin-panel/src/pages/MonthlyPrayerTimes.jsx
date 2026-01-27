@@ -597,9 +597,60 @@ const MonthlyPrayerTimes = () => {
         </div>
       )}
 
+      {/* Statistics */}
+      <div className="statistics-grid">
+        <div className="stat-card">
+          <div className="stat-icon">📊</div>
+          <div className="stat-info">
+            <p className="stat-label">Saqlangan Kunlar</p>
+            <h3 className="stat-value">{prayerTimes.length}</h3>
+          </div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-icon">📅</div>
+          <div className="stat-info">
+            <p className="stat-label">Tanlangan Oy</p>
+            <h3 className="stat-value">
+              {new Date(selectedYear, selectedMonth - 1).toLocaleDateString(
+                "uz-UZ",
+                { month: "long", year: "numeric" }
+              )}
+            </h3>
+          </div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-icon">📍</div>
+          <div className="stat-info">
+            <p className="stat-label">Joylashuv</p>
+            <h3 className="stat-value">{location?.nameUz || "..."}</h3>
+          </div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-icon">
+            {prayerTimes.length === 0
+              ? "❌"
+              : prayerTimes.length >= 28
+                ? "✅"
+                : "⚠️"}
+          </div>
+          <div className="stat-info">
+            <p className="stat-label">Holat</p>
+            <h3 className="stat-value">
+              {prayerTimes.length === 0
+                ? "Bo'sh"
+                : prayerTimes.length >= 28
+                  ? "To'liq"
+                  : "Qisman"}
+            </h3>
+          </div>
+        </div>
+      </div>
+
       {/* Prayer Times List */}
       <div className="prayer-times-list">
-        <h3>Saqlangan sanalar: {prayerTimes.length} ta</h3>
+        <h3>
+          📋 Namoz Vaqtlari Jadvali ({prayerTimes.length} kun saqlangan)
+        </h3>
 
         {loading ? (
           <div className="loading">Yuklanmoqda...</div>

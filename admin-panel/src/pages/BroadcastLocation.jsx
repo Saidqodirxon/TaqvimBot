@@ -149,6 +149,66 @@ function BroadcastLocation() {
       ? `~${estimatedMinutes} daqiqa`
       : `~${Math.floor(estimatedMinutes / 60)} soat ${estimatedMinutes % 60} daqiqa`;
 
+  // Test broadcast mutation
+  const testMutation = useMutation({
+    mutationFn: async () => {
+      const token = localStorage.getItem("token");
+      const lang = "uz"; // or get from user's preferred language
+      const message =
+        activeTab === "uz"
+          ? messageUz
+          : activeTab === "ru"
+            ? messageRu
+            : messageCr;
+
+      const response = await fetch(`${API_URL}/broadcast/send-test`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ message }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "Xatolik yuz berdi");
+      }
+
+      return response.json();
+    },
+    onSuccess: () => {
+      alert("✅ Test xabar sizga yuborildi! Telegram botni tekshiring.");
+    },
+    onError: (error) => {
+      alert("❌ Xatolik: " + error.message);
+    },
+  });
+
+  const handleTest = () => {
+    const currentMessage =
+      activeTab === "uz"
+        ? messageUz
+        : activeTab === "ru"
+          ? messageRu
+          : messageCr;
+
+    if (!currentMessage.trim()) {
+      alert("Avval xabar matnini to'ldiring!");
+      return;
+    }
+
+    if (
+      !confirm(
+        "Test xabar sizga yuboriladi. Telegram botingizni tekshirishga tayyor misiz?"
+      )
+    ) {
+      return;
+    }
+
+    testMutation.mutate();
+  };
+
   if (isLoading) {
     return (
       <div className="broadcast-location-page">
@@ -457,9 +517,13 @@ function BroadcastLocation() {
         </div>
 
         <div className="broadcast-actions">
-          <button className="btn-secondary" disabled>
+          <button
+            className="btn-secondary"
+            onClick={handleTest}
+            disabled={testMutation.isLoading}
+          >
             <Send size={18} />
-            Test yuborish (Admin)
+            {testMutation.isLoading ? "Yuborilmoqda..." : "Test yuborish (Admin)"}
           </button>
 
           <button className="btn-primary btn-broadcast" disabled>

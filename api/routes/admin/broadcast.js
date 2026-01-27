@@ -75,4 +75,59 @@ router.post("/send", authMiddleware, superAdminOnly, async (req, res) => {
     res.status(500).json({ error: error.message || "Server xatosi" });
   }
 });
+
+// Send test broadcast to admin
+router.post("/send-test", authMiddleware, async (req, res) => {
+  try {
+    const { message } = req.body;
+    if (!message) {
+      return res.status(400).json({ error: "Message maydoni majburiy" });
+    }
+
+    const bot = global.bot || require("../../bot");
+    const adminUserId = req.user.userId;
+
+    // Send test message to admin
+    await bot.telegram.sendMessage(adminUserId, message, {
+      parse_mode: "HTML",
+      reply_markup: {
+        inline_keyboard: [
+          [
+            {
+              text: "📍 Joylashuvni tanlash",
+              callback_data: "enter_location_scene",
+            },
+          ],
+          [
+            {
+              text: "🔔 Eslatmalarni yoqish",
+              callback_data: "enable_reminders_from_broadcast",
+            },
+          ],
+          [
+            {
+              text: "🔄 Botni qayta ishga tushirish",
+              callback_data: "restart_bot",
+            },
+          ],
+        ],
+      },
+    });
+
+    await logger.logAdminAction(
+      req.user,
+      "Test broadcast yuborildi",
+      `AdminID: ${adminUserId}`
+    );
+
+    res.json({
+      success: true,
+      message: "Test xabar yuborildi!",
+    });
+  } catch (error) {
+    logger.error("Send test broadcast error:", error);
+    res.status(500).json({ error: error.message || "Server xatosi" });
+  }
+});
+
 module.exports = router;

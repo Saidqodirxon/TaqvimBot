@@ -59,6 +59,7 @@ export const users = {
 export const settings = {
   getAll: () => api.get("/settings"),
   getByKey: (key) => api.get(`/settings/${key}`),
+  get: (key) => api.get(`/settings/${key}`),
   update: (key, value, description) =>
     api.put(`/settings/${key}`, { value, description }),
   setRequiredChannel: (channelId, channelUsername, channelTitle) =>
