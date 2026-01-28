@@ -143,7 +143,8 @@ async function getTodayPrayerTimes(user, latitude, longitude, timezone, lang) {
       throw new Error("Failed to fetch prayer times");
     }
 
-    const timings = prayerData.data.timings;
+    // timings is at the top level of prayerData, not under .data
+    const timings = prayerData.timings;
     const today = moment.tz(timezone).format("DD.MM.YYYY");
     const locationName = user.location.name || "Unknown";
 
@@ -151,19 +152,19 @@ async function getTodayPrayerTimes(user, latitude, longitude, timezone, lang) {
       `🕌 <b>Bugungi namoz vaqtlari</b>\n` +
       `📅 ${today}\n` +
       `📍 ${locationName}\n\n` +
-      `🌅 Bomdod: ${timings.Fajr}\n` +
-      `☀️ Quyosh chiqishi: ${timings.Sunrise}\n` +
-      `🌞 Peshin: ${timings.Dhuhr}\n` +
-      `🌤 Asr: ${timings.Asr}\n` +
-      `🌆 Shom: ${timings.Maghrib}\n` +
-      `🌙 Xufton: ${timings.Isha}\n\n` +
+      `🌅 Bomdod: ${timings.fajr}\n` +
+      `☀️ Quyosh chiqishi: ${timings.sunrise}\n` +
+      `🌞 Peshin: ${timings.dhuhr}\n` +
+      `🌤 Asr: ${timings.asr}\n` +
+      `🌆 Shom: ${timings.maghrib}\n` +
+      `🌙 Xufton: ${timings.isha}\n\n` +
       `@RamazonCalendarBot`;
 
     const result = {
       type: "article",
       id: "today",
       title: `📅 Bugungi namoz vaqtlari (${today})`,
-      description: `${locationName}: Bomdod ${timings.Fajr}, Peshin ${timings.Dhuhr}, Asr ${timings.Asr}`,
+      description: `${locationName}: Bomdod ${timings.fajr}, Peshin ${timings.dhuhr}, Asr ${timings.asr}`,
       input_message_content: {
         message_text: message,
         parse_mode: "HTML",
@@ -210,8 +211,8 @@ async function getTomorrowPrayerTimes(
 
     // Get tomorrow's date
     const tomorrow = moment.tz(timezone).add(1, "day");
-    const tomorrowStr = tomorrow.format("DD-MM-YYYY");
 
+    // Pass as Date object, not string
     const prayerData = await getPrayerTimes(
       latitude,
       longitude,
@@ -219,14 +220,15 @@ async function getTomorrowPrayerTimes(
       school,
       0,
       1,
-      tomorrowStr
+      tomorrow.toDate()
     );
 
     if (!prayerData || !prayerData.success) {
       throw new Error("Failed to fetch prayer times");
     }
 
-    const timings = prayerData.data.timings;
+    // timings is at the top level of prayerData, not under .data
+    const timings = prayerData.timings;
     const tomorrowDate = tomorrow.format("DD.MM.YYYY");
     const locationName = user.location.name || "Unknown";
 
@@ -234,19 +236,19 @@ async function getTomorrowPrayerTimes(
       `🕌 <b>Ertangi namoz vaqtlari</b>\n` +
       `📅 ${tomorrowDate}\n` +
       `📍 ${locationName}\n\n` +
-      `🌅 Bomdod: ${timings.Fajr}\n` +
-      `☀️ Quyosh chiqishi: ${timings.Sunrise}\n` +
-      `🌞 Peshin: ${timings.Dhuhr}\n` +
-      `🌤 Asr: ${timings.Asr}\n` +
-      `🌆 Shom: ${timings.Maghrib}\n` +
-      `🌙 Xufton: ${timings.Isha}\n\n` +
+      `🌅 Bomdod: ${timings.fajr}\n` +
+      `☀️ Quyosh chiqishi: ${timings.sunrise}\n` +
+      `🌞 Peshin: ${timings.dhuhr}\n` +
+      `🌤 Asr: ${timings.asr}\n` +
+      `🌆 Shom: ${timings.maghrib}\n` +
+      `🌙 Xufton: ${timings.isha}\n\n` +
       `@RamazonCalendarBot`;
 
     const result = {
       type: "article",
       id: "tomorrow",
       title: `📅 Ertangi namoz vaqtlari (${tomorrowDate})`,
-      description: `${locationName}: Bomdod ${timings.Fajr}, Peshin ${timings.Dhuhr}, Asr ${timings.Asr}`,
+      description: `${locationName}: Bomdod ${timings.fajr}, Peshin ${timings.dhuhr}, Asr ${timings.asr}`,
       input_message_content: {
         message_text: message,
         parse_mode: "HTML",

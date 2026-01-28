@@ -107,7 +107,7 @@ async function schedulePrayerReminders(bot, user) {
                           callback_data: "disable_all_reminders",
                         },
                       ],
-                    ]
+                    ],
                   },
                 });
               } catch (error) {

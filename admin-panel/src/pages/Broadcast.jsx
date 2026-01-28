@@ -23,7 +23,8 @@ function Broadcast() {
     hasJoinedChannel: undefined,
   });
   const [jobId, setJobId] = useState(null);
-  const [buttons, setButtons] = useState([{ text: "", url: "" }]);
+  const [buttons, setButtons] = useState([{ text: "", url: "", callback: "" }]);
+  const [buttonType, setButtonType] = useState("url"); // url or callback
 
   // Get current stats
   const { data: statsData, refetch: refetchStats } = useQuery({
@@ -45,16 +46,15 @@ function Broadcast() {
 
       // Prepare inline keyboard if buttons exist
       const validButtons = buttons.filter(
-        (btn) => btn.text.trim() && btn.url.trim()
+        (btn) => btn.text.trim() && (btn.url.trim() || btn.callback.trim())
       );
       const reply_markup =
         validButtons.length > 0
           ? {
               inline_keyboard: validButtons.map((btn) => [
-                {
-                  text: btn.text,
-                  url: btn.url,
-                },
+                btn.url.trim()
+                  ? { text: btn.text, url: btn.url }
+                  : { text: btn.text, callback_data: btn.callback },
               ]),
             }
           : undefined;
@@ -89,7 +89,7 @@ function Broadcast() {
 
   const addButton = () => {
     if (buttons.length < 5) {
-      setButtons([...buttons, { text: "", url: "" }]);
+      setButtons([...buttons, { text: "", url: "", callback: "" }]);
     }
   };
 
@@ -209,6 +209,68 @@ function Broadcast() {
             <LinkIcon size={20} />
             <h4>Inline tugmalar (ixtiyoriy)</h4>
           </div>
+          
+          <div className="button-type-selector" style={{ marginBottom: "15px" }}>
+            <label style={{ marginRight: "20px" }}>
+              <input
+                type="radio"
+                value="url"
+                checked={buttonType === "url"}
+                onChange={(e) => setButtonType(e.target.value)}
+              />
+              {" "}URL tugmalar (tashqi link)
+            </label>
+            <label>
+              <input
+                type="radio"
+                value="callback"
+                checked={buttonType === "callback"}
+                onChange={(e) => setButtonType(e.target.value)}
+              />
+              {" "}Callback tugmalar (bot amallar)
+            </label>
+          </div>
+
+          {buttonType === "callback" && (
+            <div className="preset-buttons" style={{ marginBottom: "15px", display: "flex", gap: "8px", flexWrap: "wrap" }}>
+              <button
+                type="button"
+                className="btn-preset"
+                style={{ background: "#e3f2fd", border: "1px solid #2196f3", padding: "6px 12px", borderRadius: "6px", cursor: "pointer" }}
+                onClick={() => setButtons([{ text: "📍 Joylashuvni tanlash", url: "", callback: "enter_location_scene" }])}
+              >
+                📍 Joylashuv
+              </button>
+              <button
+                type="button"
+                className="btn-preset"
+                style={{ background: "#e8f5e9", border: "1px solid #4caf50", padding: "6px 12px", borderRadius: "6px", cursor: "pointer" }}
+                onClick={() => setButtons([{ text: "🔔 Eslatmalarni yoqish", url: "", callback: "enable_reminders_from_broadcast" }])}
+              >
+                🔔 Eslatmalar
+              </button>
+              <button
+                type="button"
+                className="btn-preset"
+                style={{ background: "#fff3e0", border: "1px solid #ff9800", padding: "6px 12px", borderRadius: "6px", cursor: "pointer" }}
+                onClick={() => setButtons([{ text: "📅 Bugungi vaqtlar", url: "", callback: "today_times" }])}
+              >
+                📅 Bugungi
+              </button>
+              <button
+                type="button"
+                className="btn-preset"
+                style={{ background: "#fce4ec", border: "1px solid #e91e63", padding: "6px 12px", borderRadius: "6px", cursor: "pointer" }}
+                onClick={() => setButtons([
+                  { text: "📍 Joylashuvni tanlash", url: "", callback: "enter_location_scene" },
+                  { text: "🔔 Eslatmalarni yoqish", url: "", callback: "enable_reminders_from_broadcast" }
+                ])}
+              >
+                📍+🔔 Ikkalasi
+              </button>
+            </div>
+          )}
+
           {buttons.map((button, index) => (
             <div key={index} className="button-row">
               <input
@@ -217,14 +279,27 @@ function Broadcast() {
                 value={button.text}
                 onChange={(e) => updateButton(index, "text", e.target.value)}
                 disabled={stats?.isProcessing}
+                style={{ flex: 2 }}
               />
-              <input
-                type="url"
-                placeholder="https://example.com"
-                value={button.url}
-                onChange={(e) => updateButton(index, "url", e.target.value)}
-                disabled={stats?.isProcessing}
-              />
+              {buttonType === "url" ? (
+                <input
+                  type="url"
+                  placeholder="https://example.com"
+                  value={button.url}
+                  onChange={(e) => updateButton(index, "url", e.target.value)}
+                  disabled={stats?.isProcessing}
+                  style={{ flex: 3 }}
+                />
+              ) : (
+                <input
+                  type="text"
+                  placeholder="callback_data (masalan: enter_location_scene)"
+                  value={button.callback}
+                  onChange={(e) => updateButton(index, "callback", e.target.value)}
+                  disabled={stats?.isProcessing}
+                  style={{ flex: 3 }}
+                />
+              )}
               {buttons.length > 1 && (
                 <button
                   type="button"

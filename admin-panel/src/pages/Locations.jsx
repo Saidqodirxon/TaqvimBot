@@ -14,6 +14,9 @@ const Locations = () => {
   const [editingLocation, setEditingLocation] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [regionFilter, setRegionFilter] = useState("");
+  const [viewMode, setViewMode] = useState("table"); // table or grid
+  const [sortBy, setSortBy] = useState("userCount");
+  const [sortOrder, setSortOrder] = useState("desc");
   const [formData, setFormData] = useState({
     name: "",
     nameUz: "",
@@ -192,28 +195,54 @@ const Locations = () => {
     return <div className="loading">Yuklanmoqda...</div>;
   }
 
-  // Filter locations based on search and region
-  const filteredLocations = locations.filter((location) => {
-    const matchesSearch =
-      !searchQuery ||
-      location.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      location.nameUz.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      location.nameCr.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      location.nameRu.toLowerCase().includes(searchQuery.toLowerCase());
+  // Filter and sort locations
+  const filteredLocations = locations
+    .filter((location) => {
+      const matchesSearch =
+        !searchQuery ||
+        location.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        location.nameUz.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        location.nameCr.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        location.nameRu.toLowerCase().includes(searchQuery.toLowerCase());
 
-    const matchesRegion =
-      !regionFilter ||
-      location.name.toLowerCase().includes(regionFilter.toLowerCase());
+      const matchesRegion =
+        !regionFilter ||
+        location.name.toLowerCase().includes(regionFilter.toLowerCase());
 
-    return matchesSearch && matchesRegion;
-  });
+      return matchesSearch && matchesRegion;
+    })
+    .sort((a, b) => {
+      let valA, valB;
+      if (sortBy === "userCount") {
+        valA = a.userCount || 0;
+        valB = b.userCount || 0;
+      } else if (sortBy === "growth") {
+        valA = a.growth || 0;
+        valB = b.growth || 0;
+      } else {
+        valA = a.name?.toLowerCase() || "";
+        valB = b.name?.toLowerCase() || "";
+      }
+      if (sortOrder === "asc") return valA > valB ? 1 : -1;
+      return valA < valB ? 1 : -1;
+    });
+
+  // Calculate totals
+  const totalUsers = locations.reduce((sum, l) => sum + (l.userCount || 0), 0);
+  const thisMonthTotal = locations.reduce(
+    (sum, l) => sum + (l.monthlyStats?.thisMonth || 0),
+    0
+  );
+  const lastMonthTotal = locations.reduce(
+    (sum, l) => sum + (l.monthlyStats?.lastMonth || 0),
+    0
+  );
 
   // Extract unique regions from location names
   const regions = [
     ...new Set(
       locations
         .map((l) => {
-          // Extract region from name like "Toshkent, Olmaliq" -> "Toshkent"
           const parts = l.name.split(",");
           return parts[0].trim();
         })
@@ -224,40 +253,46 @@ const Locations = () => {
   return (
     <div className="locations-page">
       <div className="page-header">
-        <h1>📍 Joylashuvlar ({filteredLocations.length})</h1>
-        <button className="btn-add" onClick={openAddModal}>
-          + Yangi joylashuv
-        </button>
+        <div>
+          <h1>📍 Joylashuvlar ({filteredLocations.length})</h1>
+          <p className="subtitle">
+            Jami: {totalUsers.toLocaleString()} foydalanuvchi | Bu oy:{" "}
+            {thisMonthTotal.toLocaleString()} | O'tgan oy:{" "}
+            {lastMonthTotal.toLocaleString()}
+          </p>
+        </div>
+        <div className="header-actions">
+          <button
+            className={`btn-view ${viewMode === "table" ? "active" : ""}`}
+            onClick={() => setViewMode("table")}
+          >
+            📊 Jadval
+          </button>
+          <button
+            className={`btn-view ${viewMode === "grid" ? "active" : ""}`}
+            onClick={() => setViewMode("grid")}
+          >
+            🔲 Grid
+          </button>
+          <button className="btn-add" onClick={openAddModal}>
+            + Yangi joylashuv
+          </button>
+        </div>
       </div>
 
       {/* Filters */}
-      <div
-        className="filters-section"
-        style={{ marginBottom: "20px", display: "flex", gap: "10px" }}
-      >
+      <div className="filters-section">
         <input
           type="text"
           placeholder="🔍 Qidirish..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          style={{
-            flex: 2,
-            padding: "10px",
-            borderRadius: "8px",
-            border: "1px solid #ddd",
-            fontSize: "14px",
-          }}
+          className="filter-input"
         />
         <select
           value={regionFilter}
           onChange={(e) => setRegionFilter(e.target.value)}
-          style={{
-            flex: 1,
-            padding: "10px",
-            borderRadius: "8px",
-            border: "1px solid #ddd",
-            fontSize: "14px",
-          }}
+          className="filter-select"
         >
           <option value="">Barcha viloyatlar</option>
           {regions.map((region) => (
@@ -266,84 +301,208 @@ const Locations = () => {
             </option>
           ))}
         </select>
+        <select
+          value={sortBy}
+          onChange={(e) => setSortBy(e.target.value)}
+          className="filter-select"
+        >
+          <option value="userCount">Foydalanuvchilar</option>
+          <option value="growth">O'sish %</option>
+          <option value="name">Nomi</option>
+        </select>
+        <button
+          className="btn-sort"
+          onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
+        >
+          {sortOrder === "asc" ? "⬆️" : "⬇️"}
+        </button>
       </div>
 
-      <div className="locations-grid">
-        {filteredLocations.map((location) => (
-          <div key={location._id} className="location-card">
-            <div className="location-header">
-              <h3>
-                {location.name}
-                {location.isDefault && (
-                  <span className="default-badge">Default</span>
-                )}
-              </h3>
-              {location.userCount !== undefined && (
-                <div className="user-count-badge">
-                  👥 {location.userCount} foydalanuvchi
-                </div>
-              )}
-            </div>
-            <div className="location-body">
-              <p>
-                <strong>🇺🇿 O'zbekcha:</strong> {location.nameUz}
-              </p>
-              <p>
-                <strong>🇺🇿 Кирилл:</strong> {location.nameCr}
-              </p>
-              <p>
-                <strong>🇷🇺 Русский:</strong> {location.nameRu}
-              </p>
-              <p>
-                <strong>📍 Koordinatalar:</strong> {location.latitude},{" "}
-                {location.longitude}
-              </p>
-              <p>
-                <strong>🕐 Vaqt mintaqasi:</strong> {location.timezone}
-              </p>
-              <p>
-                <strong>🌍 Mamlakat:</strong> {location.country}
-              </p>
+      {/* Table View */}
+      {viewMode === "table" && (
+        <div className="table-container">
+          <table className="locations-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Nomi</th>
+                <th>Koordinatalar</th>
+                <th>Foydalanuvchilar</th>
+                <th>Bu oy</th>
+                <th>O'tgan oy</th>
+                <th>2 oy oldin</th>
+                <th>O'sish</th>
+                <th>Amallar</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredLocations.map((location, index) => (
+                <tr key={location._id}>
+                  <td>{index + 1}</td>
+                  <td>
+                    <div className="location-name">
+                      <strong>{location.name}</strong>
+                      {location.isDefault && (
+                        <span className="default-badge">Default</span>
+                      )}
+                      {location.manualPrayerTimes?.enabled && (
+                        <span className="manual-badge">Manual</span>
+                      )}
+                    </div>
+                    <small className="location-names">
+                      {location.nameUz} | {location.nameCr}
+                    </small>
+                  </td>
+                  <td className="coords">
+                    <code>
+                      {location.latitude?.toFixed(4)},{" "}
+                      {location.longitude?.toFixed(4)}
+                    </code>
+                  </td>
+                  <td className="user-count">
+                    <strong>
+                      {(location.userCount || 0).toLocaleString()}
+                    </strong>
+                  </td>
+                  <td className="stat">
+                    {(location.monthlyStats?.thisMonth || 0).toLocaleString()}
+                  </td>
+                  <td className="stat">
+                    {(location.monthlyStats?.lastMonth || 0).toLocaleString()}
+                  </td>
+                  <td className="stat">
+                    {(
+                      location.monthlyStats?.twoMonthsAgo || 0
+                    ).toLocaleString()}
+                  </td>
+                  <td>
+                    <span
+                      className={`growth-badge ${
+                        (location.growth || 0) > 0
+                          ? "positive"
+                          : (location.growth || 0) < 0
+                            ? "negative"
+                            : ""
+                      }`}
+                    >
+                      {(location.growth || 0) > 0 ? "+" : ""}
+                      {location.growth || 0}%
+                    </span>
+                  </td>
+                  <td className="actions">
+                    <button
+                      className="btn-icon"
+                      onClick={() =>
+                        navigate(`/locations/${location._id}/monthly-times`)
+                      }
+                      title="Oylik namoz vaqtlari"
+                    >
+                      📅
+                    </button>
+                    <button
+                      className="btn-icon"
+                      onClick={() => handleEdit(location)}
+                      title="Tahrirlash"
+                    >
+                      ✏️
+                    </button>
+                    <button
+                      className="btn-icon danger"
+                      onClick={() => handleDelete(location._id)}
+                      title="O'chirish"
+                    >
+                      🗑️
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
 
-              {location.manualPrayerTimes?.enabled && (
-                <div className="manual-times">
-                  <p>
-                    <strong>🕌 Qo'lda kiritilgan namoz vaqtlari:</strong>
-                  </p>
-                  <div className="times-grid">
-                    <span>Bomdod: {location.manualPrayerTimes.fajr}</span>
-                    <span>Quyosh: {location.manualPrayerTimes.sunrise}</span>
-                    <span>Peshin: {location.manualPrayerTimes.dhuhr}</span>
-                    <span>Asr: {location.manualPrayerTimes.asr}</span>
-                    <span>Shom: {location.manualPrayerTimes.maghrib}</span>
-                    <span>Xufton: {location.manualPrayerTimes.isha}</span>
+      {/* Grid View */}
+      {viewMode === "grid" && (
+        <div className="locations-grid">
+          {filteredLocations.map((location) => (
+            <div key={location._id} className="location-card">
+              <div className="location-header">
+                <h3>
+                  {location.name}
+                  {location.isDefault && (
+                    <span className="default-badge">Default</span>
+                  )}
+                </h3>
+                <div className="user-count-badge">
+                  👥 {(location.userCount || 0).toLocaleString()}
+                </div>
+              </div>
+              <div className="location-body">
+                <div className="monthly-stats">
+                  <div className="stat-item">
+                    <span className="stat-label">Bu oy</span>
+                    <span className="stat-value">
+                      {(location.monthlyStats?.thisMonth || 0).toLocaleString()}
+                    </span>
+                  </div>
+                  <div className="stat-item">
+                    <span className="stat-label">O'tgan oy</span>
+                    <span className="stat-value">
+                      {(location.monthlyStats?.lastMonth || 0).toLocaleString()}
+                    </span>
+                  </div>
+                  <div className="stat-item">
+                    <span className="stat-label">O'sish</span>
+                    <span
+                      className={`stat-value ${
+                        (location.growth || 0) > 0
+                          ? "positive"
+                          : (location.growth || 0) < 0
+                            ? "negative"
+                            : ""
+                      }`}
+                    >
+                      {(location.growth || 0) > 0 ? "+" : ""}
+                      {location.growth || 0}%
+                    </span>
                   </div>
                 </div>
-              )}
+                <p>
+                  <strong>📍</strong> {location.latitude?.toFixed(4)},{" "}
+                  {location.longitude?.toFixed(4)}
+                </p>
+                {location.manualPrayerTimes?.enabled && (
+                  <div className="manual-times">
+                    <small>🕌 Qo'lda kiritilgan vaqtlar</small>
+                  </div>
+                )}
+              </div>
+              <div className="location-actions">
+                <button
+                  className="btn-calendar"
+                  onClick={() =>
+                    navigate(`/locations/${location._id}/monthly-times`)
+                  }
+                >
+                  📅 Oylik
+                </button>
+                <button
+                  className="btn-edit"
+                  onClick={() => handleEdit(location)}
+                >
+                  ✏️
+                </button>
+                <button
+                  className="btn-delete"
+                  onClick={() => handleDelete(location._id)}
+                >
+                  🗑️
+                </button>
+              </div>
             </div>
-            <div className="location-actions">
-              <button
-                className="btn-calendar"
-                onClick={() =>
-                  navigate(`/locations/${location._id}/monthly-times`)
-                }
-                title="Oylik namoz vaqtlari"
-              >
-                📅 Oylik vaqtlar
-              </button>
-              <button className="btn-edit" onClick={() => handleEdit(location)}>
-                ✏️ Tahrirlash
-              </button>
-              <button
-                className="btn-delete"
-                onClick={() => handleDelete(location._id)}
-              >
-                🗑️ O'chirish
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
 
       {showModal && (
         <div className="modal-overlay" onClick={() => setShowModal(false)}>

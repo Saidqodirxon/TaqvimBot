@@ -252,4 +252,169 @@ router.post("/backup", adminAuth, async (req, res) => {
   }
 });
 
+/**
+ * Send test message with inline buttons
+ */
+router.post("/send-test-message-buttons", adminAuth, async (req, res) => {
+  try {
+    const adminId = process.env.ADMIN_ID;
+
+    if (!adminId) {
+      return res.status(400).json({
+        success: false,
+        error: "ADMIN_ID not configured",
+      });
+    }
+
+    await bot.telegram.sendMessage(
+      adminId,
+      `🧪 <b>Tugmali Test Xabar</b>\n\nInline tugmalarni tekshirish:\n\n⏰ ${new Date().toLocaleString("uz-UZ")}`,
+      { 
+        parse_mode: "HTML",
+        reply_markup: {
+          inline_keyboard: [
+            [{ text: "📍 Joylashuvni tanlash", callback_data: "enter_location_scene" }],
+            [{ text: "🔔 Eslatmalarni yoqish", callback_data: "enable_reminders_from_broadcast" }],
+            [{ text: "📅 Bugungi vaqtlar", callback_data: "today_times" }],
+          ]
+        }
+      }
+    );
+
+    res.json({
+      success: true,
+      message: "Tugmali test xabar adminga yuborildi",
+    });
+  } catch (error) {
+    logger.error("Send test message with buttons error:", error);
+    res.status(500).json({
+      success: false,
+      error: "Xabar yuborishda xatolik",
+      details: error.message,
+    });
+  }
+});
+
+/**
+ * Test prayer times API
+ */
+router.post("/prayer-times", adminAuth, async (req, res) => {
+  try {
+    const { getPrayerTimes } = require("../../utils/aladhan");
+    
+    // Test with Tashkent coordinates
+    const prayerData = await getPrayerTimes(41.2995, 69.2401);
+
+    if (!prayerData || !prayerData.success) {
+      return res.status(500).json({
+        success: false,
+        error: "Namoz vaqtlarini olishda xatolik",
+      });
+    }
+
+    res.json({
+      success: true,
+      message: "Prayer times API ishlayapti",
+      prayerTimes: prayerData.timings,
+      source: prayerData.manual ? "Manual" : prayerData.source || "Aladhan API",
+    });
+  } catch (error) {
+    logger.error("Test prayer times error:", error);
+    res.status(500).json({
+      success: false,
+      error: "Prayer times test xatosi",
+      details: error.message,
+    });
+  }
+});
+
+/**
+ * Test locations
+ */
+router.post("/locations", adminAuth, async (req, res) => {
+  try {
+    const Location = require("../../models/Location");
+    
+    const count = await Location.countDocuments({ isActive: true });
+    const defaultLocation = await Location.findOne({ isDefault: true });
+
+    res.json({
+      success: true,
+      message: "Locations ishlayapti",
+      locationsCount: count,
+      defaultLocation: defaultLocation?.name || "Yo'q",
+    });
+  } catch (error) {
+    logger.error("Test locations error:", error);
+    res.status(500).json({
+      success: false,
+      error: "Locations test xatosi",
+      details: error.message,
+    });
+  }
+});
+
+/**
+ * Test reminders system
+ */
+router.post("/reminders", adminAuth, async (req, res) => {
+  try {
+    const reminderUsers = await User.countDocuments({
+      "reminderSettings.enabled": true,
+      is_block: false,
+    });
+
+    res.json({
+      success: true,
+      message: "Reminders system ishlayapti",
+      reminderUsers,
+    });
+  } catch (error) {
+    logger.error("Test reminders error:", error);
+    res.status(500).json({
+      success: false,
+      error: "Reminders test xatosi",
+      details: error.message,
+    });
+  }
+});
+
+/**
+ * Send custom test message
+ */
+router.post("/send-custom-message", adminAuth, async (req, res) => {
+  try {
+    const { message } = req.body;
+    const adminId = process.env.ADMIN_ID;
+
+    if (!adminId) {
+      return res.status(400).json({
+        success: false,
+        error: "ADMIN_ID not configured",
+      });
+    }
+
+    if (!message) {
+      return res.status(400).json({
+        success: false,
+        error: "Xabar matni kerak",
+      });
+    }
+
+    await bot.telegram.sendMessage(adminId, message, { parse_mode: "HTML" });
+
+    res.json({
+      success: true,
+      message: "Maxsus test xabar yuborildi",
+    });
+  } catch (error) {
+    logger.error("Send custom message error:", error);
+    res.status(500).json({
+      success: false,
+      error: "Xabar yuborishda xatolik",
+      details: error.message,
+    });
+  }
+});
+
 module.exports = router;

@@ -17,14 +17,34 @@ router.get("/", authMiddleware, async (req, res) => {
     res.status(500).json({ error: "Server xatosi" });
   }
 });
+// Default values for settings that may not exist in DB
+const DEFAULT_SETTINGS = {
+  redis_enabled: false,
+  redis_host: "localhost",
+  redis_port: 6379,
+  redis_prayer_times_ttl_hours: 24,
+  redis_location_ttl_days: 7,
+  redis_user_data_ttl_hours: 1,
+};
+
 // Get setting by key
 router.get("/:key", authMiddleware, async (req, res) => {
   try {
     const setting = await Settings.findOne({ key: req.params.key });
+    
+    // Return default value if setting not found (especially for Redis)
     if (!setting) {
+      const key = req.params.key;
+      if (DEFAULT_SETTINGS.hasOwnProperty(key)) {
+        return res.json({ 
+          setting: { key, value: DEFAULT_SETTINGS[key] },
+          data: { value: DEFAULT_SETTINGS[key] },
+          isDefault: true 
+        });
+      }
       return res.status(404).json({ error: "Sozlama topilmadi" });
     }
-    res.json({ setting });
+    res.json({ setting, data: { value: setting.value } });
   } catch (error) {
     logger.error("Get setting error:", error);
     res.status(500).json({ error: "Server xatosi" });
