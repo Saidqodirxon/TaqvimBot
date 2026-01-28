@@ -143,13 +143,13 @@ async function getTodayPrayerTimes(user, latitude, longitude, timezone, lang) {
 
     // timings is at the top level of prayerData, not under .data
     const timings = prayerData.timings;
-    
+
     // Validate timings object has required properties
     if (!timings.fajr || !timings.dhuhr) {
       console.error("Missing timing properties:", timings);
       throw new Error("Invalid timings data");
     }
-    
+
     const today = moment.tz(timezone).format("DD.MM.YYYY");
     const locationName = user.location.name || "Unknown";
 
@@ -186,7 +186,8 @@ async function getTodayPrayerTimes(user, latitude, longitude, timezone, lang) {
       title: "❌ Bugungi vaqtlarni yuklash xatosi",
       description: error.message || "Ma'lumot topilmadi",
       input_message_content: {
-        message_text: "❌ Bugungi namoz vaqtlarini yuklashda xatolik: " + error.message,
+        message_text:
+          "❌ Bugungi namoz vaqtlarini yuklashda xatolik: " + error.message,
         parse_mode: "HTML",
       },
     };
@@ -228,13 +229,13 @@ async function getTomorrowPrayerTimes(
 
     // timings is at the top level of prayerData, not under .data
     const timings = prayerData.timings;
-    
+
     // Validate timings object has required properties
     if (!timings.fajr || !timings.dhuhr) {
       console.error("Missing tomorrow timing properties:", timings);
       throw new Error("Invalid timings data");
     }
-    
+
     const tomorrowDate = tomorrow.format("DD.MM.YYYY");
     const locationName = user.location.name || "Unknown";
 
@@ -271,7 +272,8 @@ async function getTomorrowPrayerTimes(
       title: "❌ Ertangi vaqtlarni yuklash xatosi",
       description: error.message || "Ma'lumot topilmadi",
       input_message_content: {
-        message_text: "❌ Ertangi namoz vaqtlarini yuklashda xatolik: " + error.message,
+        message_text:
+          "❌ Ertangi namoz vaqtlarini yuklashda xatolik: " + error.message,
         parse_mode: "HTML",
       },
     };

@@ -2,23 +2,35 @@ import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
 import { API_URL } from "../api";
-import { TestTube2, CheckCircle, XCircle, Loader, Send, Bell, MapPin, Calendar, MessageSquare } from "lucide-react";
+import {
+  TestTube2,
+  CheckCircle,
+  XCircle,
+  Loader,
+  Send,
+  Bell,
+  MapPin,
+  Calendar,
+  MessageSquare,
+  Database,
+  AlertTriangle,
+} from "lucide-react";
 import "./Test.css";
 
 function Test() {
   const [results, setResults] = useState({});
-  const [testMessage, setTestMessage] = useState("🧪 Test xabari - Admin paneldan yuborildi");
+  const [testMessage, setTestMessage] = useState(
+    "🧪 Test xabari - Admin paneldan yuborildi"
+  );
 
   const runTest = async (testName, endpoint, body = {}) => {
     try {
       setResults((prev) => ({ ...prev, [testName]: { loading: true } }));
 
       const token = localStorage.getItem("token");
-      const response = await axios.post(
-        `${API_URL}/test/${endpoint}`,
-        body,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      const response = await axios.post(`${API_URL}/test/${endpoint}`, body, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
       setResults((prev) => ({
         ...prev,
@@ -112,11 +124,18 @@ function Test() {
       icon: <Bell size={20} />,
     },
     {
+      name: "prayerDataCheck",
+      title: "📊 Ma'lumotlar To'liqligi",
+      description: "Namoz vaqtlari ma'lumotlarini tekshirish va alert yuborish",
+      endpoint: "prayer-data-check",
+      icon: <AlertTriangle size={20} />,
+    },
+    {
       name: "backup",
       title: "Backup",
       description: "MongoDB backup yaratish (background)",
       endpoint: "backup",
-      icon: <TestTube2 size={20} />,
+      icon: <Database size={20} />,
     },
   ];
 
@@ -135,7 +154,10 @@ function Test() {
             <TestTube2 size={32} />
             Test Tugmalari
           </h1>
-          <p>Tizim komponentlarini tekshirish - faqat admin va log kanalga yuboriladi</p>
+          <p>
+            Tizim komponentlarini tekshirish - faqat admin va log kanalga
+            yuboriladi
+          </p>
         </div>
         <button className="btn-primary" onClick={runAllTests}>
           🚀 Barchasini Test Qilish
@@ -143,7 +165,16 @@ function Test() {
       </div>
 
       {/* Custom test message input */}
-      <div className="custom-test-section" style={{ marginBottom: "20px", padding: "20px", background: "white", borderRadius: "12px", boxShadow: "0 2px 8px rgba(0,0,0,0.1)" }}>
+      <div
+        className="custom-test-section"
+        style={{
+          marginBottom: "20px",
+          padding: "20px",
+          background: "white",
+          borderRadius: "12px",
+          boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+        }}
+      >
         <h3 style={{ marginBottom: "15px" }}>📝 Maxsus Test Xabari</h3>
         <div style={{ display: "flex", gap: "10px" }}>
           <input
@@ -151,20 +182,36 @@ function Test() {
             value={testMessage}
             onChange={(e) => setTestMessage(e.target.value)}
             placeholder="Test xabarini kiriting..."
-            style={{ flex: 1, padding: "12px", borderRadius: "8px", border: "2px solid #e1e8ed" }}
+            style={{
+              flex: 1,
+              padding: "12px",
+              borderRadius: "8px",
+              border: "2px solid #e1e8ed",
+            }}
           />
           <button
             className="btn-primary"
-            onClick={() => runTest("customMessage", "send-custom-message", { message: testMessage })}
+            onClick={() =>
+              runTest("customMessage", "send-custom-message", {
+                message: testMessage,
+              })
+            }
             disabled={results.customMessage?.loading}
           >
             {results.customMessage?.loading ? "⏳..." : "📤 Yuborish"}
           </button>
         </div>
         {results.customMessage && !results.customMessage.loading && (
-          <div style={{ marginTop: "10px", padding: "10px", background: results.customMessage.success ? "#d4edda" : "#f8d7da", borderRadius: "6px" }}>
-            {results.customMessage.success 
-              ? `✅ ${results.customMessage.data?.message || "Yuborildi"}` 
+          <div
+            style={{
+              marginTop: "10px",
+              padding: "10px",
+              background: results.customMessage.success ? "#d4edda" : "#f8d7da",
+              borderRadius: "6px",
+            }}
+          >
+            {results.customMessage.success
+              ? `✅ ${results.customMessage.data?.message || "Yuborildi"}`
               : `❌ ${results.customMessage.error}`}
           </div>
         )}
@@ -219,19 +266,25 @@ function Test() {
                       )}
                       {result.data.prayerTimes && (
                         <div className="result-details">
-                          <strong>Bomdod:</strong> {result.data.prayerTimes.fajr}<br/>
-                          <strong>Peshin:</strong> {result.data.prayerTimes.dhuhr}<br/>
+                          <strong>Bomdod:</strong>{" "}
+                          {result.data.prayerTimes.fajr}
+                          <br />
+                          <strong>Peshin:</strong>{" "}
+                          {result.data.prayerTimes.dhuhr}
+                          <br />
                           <strong>Asr:</strong> {result.data.prayerTimes.asr}
                         </div>
                       )}
                       {result.data.locationsCount !== undefined && (
                         <div className="result-details">
-                          <strong>Joylashuvlar:</strong> {result.data.locationsCount}
+                          <strong>Joylashuvlar:</strong>{" "}
+                          {result.data.locationsCount}
                         </div>
                       )}
                       {result.data.reminderUsers !== undefined && (
                         <div className="result-details">
-                          <strong>Eslatma foydalanuvchilari:</strong> {result.data.reminderUsers}
+                          <strong>Eslatma foydalanuvchilari:</strong>{" "}
+                          {result.data.reminderUsers}
                         </div>
                       )}
                       {result.data.note && (

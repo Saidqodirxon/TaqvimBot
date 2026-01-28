@@ -31,15 +31,15 @@ const DEFAULT_SETTINGS = {
 router.get("/:key", authMiddleware, async (req, res) => {
   try {
     const setting = await Settings.findOne({ key: req.params.key });
-    
+
     // Return default value if setting not found (especially for Redis)
     if (!setting) {
       const key = req.params.key;
       if (DEFAULT_SETTINGS.hasOwnProperty(key)) {
-        return res.json({ 
+        return res.json({
           setting: { key, value: DEFAULT_SETTINGS[key] },
           data: { value: DEFAULT_SETTINGS[key] },
-          isDefault: true 
+          isDefault: true,
         });
       }
       return res.status(404).json({ error: "Sozlama topilmadi" });

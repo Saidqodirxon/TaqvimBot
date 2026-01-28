@@ -885,7 +885,12 @@ bot.action("today_times", async (ctx) => {
     const method = user.prayerSettings?.calculationMethod || 3;
     const school = user.prayerSettings?.school || 1;
 
-    const prayerData = await getPrayerTimes(latitude, longitude, method, school);
+    const prayerData = await getPrayerTimes(
+      latitude,
+      longitude,
+      method,
+      school
+    );
 
     if (!prayerData || !prayerData.success) {
       await ctx.reply("❌ Namoz vaqtlarini yuklashda xatolik yuz berdi");

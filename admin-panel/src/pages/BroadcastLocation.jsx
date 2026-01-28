@@ -209,6 +209,76 @@ function BroadcastLocation() {
     testMutation.mutate();
   };
 
+  // Broadcast mutation - send to all users without location
+  const broadcastMutation = useMutation({
+    mutationFn: async () => {
+      const token = localStorage.getItem("token");
+      
+      // Build inline keyboard based on settings
+      const inlineKeyboard = [];
+      if (showLocationBtn) {
+        inlineKeyboard.push([{ text: "📍 Joylashuvni tanlash", callback_data: "enter_location_scene" }]);
+      }
+      if (showReminderBtn) {
+        inlineKeyboard.push([{ text: reminderBtnUz || "🔔 Eslatmalarni yoqish", callback_data: "enable_reminders_from_broadcast" }]);
+      }
+      if (showRestartBtn) {
+        inlineKeyboard.push([{ text: restartButtonText || "🔄 Botni qayta ishga tushirish", callback_data: "restart_bot" }]);
+      }
+
+      const response = await fetch(`${API_URL}/broadcast/send`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          message: activeTab === "uz" ? messageUz : activeTab === "ru" ? messageRu : messageCr,
+          filters: {
+            $or: [
+              { "location.latitude": { $exists: false } },
+              { "location.latitude": null },
+              { location: null },
+            ],
+            is_block: false,
+          },
+          options: {
+            parse_mode: "HTML",
+            reply_markup: inlineKeyboard.length > 0 ? { inline_keyboard: inlineKeyboard } : undefined,
+          },
+        }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "Xatolik yuz berdi");
+      }
+
+      return response.json();
+    },
+    onSuccess: (data) => {
+      alert(`✅ Broadcast boshlandi! ${data.result?.total || estimatedUsers} ta foydalanuvchiga yuborilmoqda.`);
+    },
+    onError: (error) => {
+      alert("❌ Xatolik: " + error.message);
+    },
+  });
+
+  const handleBroadcast = () => {
+    const currentMessage = activeTab === "uz" ? messageUz : activeTab === "ru" ? messageRu : messageCr;
+    
+    if (!currentMessage.trim()) {
+      alert("Avval xabar matnini to'ldiring!");
+      return;
+    }
+
+    if (!confirm(`⚠️ DIQQAT!\n\n${estimatedUsers.toLocaleString()} ta foydalanuvchiga xabar yuboriladi.\n\nDavom etasizmi?`)) {
+      return;
+    }
+
+    broadcastMutation.mutate();
+  };
+
   if (isLoading) {
     return (
       <div className="broadcast-location-page">
@@ -528,15 +598,18 @@ function BroadcastLocation() {
               : "Test yuborish (Admin)"}
           </button>
 
-          <button className="btn-primary btn-broadcast" disabled>
+          <button 
+            className="btn-primary btn-broadcast" 
+            onClick={handleBroadcast}
+            disabled={saveMutation.isLoading}
+          >
             <Send size={18} />
             Broadcast Yuborish ({estimatedUsers.toLocaleString()} ta)
           </button>
         </div>
 
         <small className="help-text">
-          💡 Broadcast funksiyasi hozircha ishlab chiqilmoqda. Terminal orqali
-          ishga tushiring: <code>node broadcast-location-professional.js</code>
+          💡 Broadcast API orqali yuboriladi. Xavfsiz tezlik: 25 xabar/soniya
         </small>
       </div>
 

@@ -209,16 +209,19 @@ function Broadcast() {
             <LinkIcon size={20} />
             <h4>Inline tugmalar (ixtiyoriy)</h4>
           </div>
-          
-          <div className="button-type-selector" style={{ marginBottom: "15px" }}>
+
+          <div
+            className="button-type-selector"
+            style={{ marginBottom: "15px" }}
+          >
             <label style={{ marginRight: "20px" }}>
               <input
                 type="radio"
                 value="url"
                 checked={buttonType === "url"}
                 onChange={(e) => setButtonType(e.target.value)}
-              />
-              {" "}URL tugmalar (tashqi link)
+              />{" "}
+              URL tugmalar (tashqi link)
             </label>
             <label>
               <input
@@ -226,61 +229,155 @@ function Broadcast() {
                 value="callback"
                 checked={buttonType === "callback"}
                 onChange={(e) => setButtonType(e.target.value)}
-              />
-              {" "}Callback tugmalar (bot amallar)
+              />{" "}
+              Callback tugmalar (bot amallar)
             </label>
           </div>
 
           {buttonType === "callback" && (
-            <div className="preset-buttons" style={{ marginBottom: "15px", display: "flex", gap: "8px", flexWrap: "wrap" }}>
+            <div
+              className="preset-buttons"
+              style={{
+                marginBottom: "15px",
+                display: "flex",
+                gap: "8px",
+                flexWrap: "wrap",
+              }}
+            >
               <button
                 type="button"
                 className="btn-preset"
-                style={{ background: "#e3f2fd", border: "1px solid #2196f3", padding: "6px 12px", borderRadius: "6px", cursor: "pointer" }}
-                onClick={() => setButtons([{ text: "📍 Joylashuvni tanlash", url: "", callback: "enter_location_scene" }])}
+                style={{
+                  background: "#e3f2fd",
+                  border: "1px solid #2196f3",
+                  padding: "6px 12px",
+                  borderRadius: "6px",
+                  cursor: "pointer",
+                }}
+                onClick={() =>
+                  setButtons([
+                    {
+                      text: "📍 Joylashuvni tanlash",
+                      url: "",
+                      callback: "enter_location_scene",
+                    },
+                  ])
+                }
               >
                 📍 Joylashuv
               </button>
               <button
                 type="button"
                 className="btn-preset"
-                style={{ background: "#e8f5e9", border: "1px solid #4caf50", padding: "6px 12px", borderRadius: "6px", cursor: "pointer" }}
-                onClick={() => setButtons([{ text: "🔔 Eslatmalarni yoqish", url: "", callback: "enable_reminders_from_broadcast" }])}
+                style={{
+                  background: "#e8f5e9",
+                  border: "1px solid #4caf50",
+                  padding: "6px 12px",
+                  borderRadius: "6px",
+                  cursor: "pointer",
+                }}
+                onClick={() =>
+                  setButtons([
+                    {
+                      text: "🔔 Eslatmalarni yoqish",
+                      url: "",
+                      callback: "enable_reminders_from_broadcast",
+                    },
+                  ])
+                }
               >
                 🔔 Eslatmalar
               </button>
               <button
                 type="button"
                 className="btn-preset"
-                style={{ background: "#ffebee", border: "1px solid #f44336", padding: "6px 12px", borderRadius: "6px", cursor: "pointer" }}
-                onClick={() => setButtons([{ text: "🔕 Eslatmalarni o'chirish", url: "", callback: "disable_all_reminders" }])}
+                style={{
+                  background: "#ffebee",
+                  border: "1px solid #f44336",
+                  padding: "6px 12px",
+                  borderRadius: "6px",
+                  cursor: "pointer",
+                }}
+                onClick={() =>
+                  setButtons([
+                    {
+                      text: "🔕 Eslatmalarni o'chirish",
+                      url: "",
+                      callback: "disable_all_reminders",
+                    },
+                  ])
+                }
               >
                 🔕 O'chirish
               </button>
               <button
                 type="button"
                 className="btn-preset"
-                style={{ background: "#fff3e0", border: "1px solid #ff9800", padding: "6px 12px", borderRadius: "6px", cursor: "pointer" }}
-                onClick={() => setButtons([{ text: "📅 Bugungi vaqtlar", url: "", callback: "today_times" }])}
+                style={{
+                  background: "#fff3e0",
+                  border: "1px solid #ff9800",
+                  padding: "6px 12px",
+                  borderRadius: "6px",
+                  cursor: "pointer",
+                }}
+                onClick={() =>
+                  setButtons([
+                    {
+                      text: "📅 Bugungi vaqtlar",
+                      url: "",
+                      callback: "today_times",
+                    },
+                  ])
+                }
               >
                 📅 Bugungi
               </button>
               <button
                 type="button"
                 className="btn-preset"
-                style={{ background: "#f3e5f5", border: "1px solid #9c27b0", padding: "6px 12px", borderRadius: "6px", cursor: "pointer" }}
-                onClick={() => setButtons([{ text: "🌐 Tilni o'zgartirish", url: "", callback: "change_lang" }])}
+                style={{
+                  background: "#f3e5f5",
+                  border: "1px solid #9c27b0",
+                  padding: "6px 12px",
+                  borderRadius: "6px",
+                  cursor: "pointer",
+                }}
+                onClick={() =>
+                  setButtons([
+                    {
+                      text: "🌐 Tilni o'zgartirish",
+                      url: "",
+                      callback: "change_lang",
+                    },
+                  ])
+                }
               >
                 🌐 Til
               </button>
               <button
                 type="button"
                 className="btn-preset"
-                style={{ background: "#fce4ec", border: "1px solid #e91e63", padding: "6px 12px", borderRadius: "6px", cursor: "pointer" }}
-                onClick={() => setButtons([
-                  { text: "📍 Joylashuvni tanlash", url: "", callback: "enter_location_scene" },
-                  { text: "🔔 Eslatmalarni yoqish", url: "", callback: "enable_reminders_from_broadcast" }
-                ])}
+                style={{
+                  background: "#fce4ec",
+                  border: "1px solid #e91e63",
+                  padding: "6px 12px",
+                  borderRadius: "6px",
+                  cursor: "pointer",
+                }}
+                onClick={() =>
+                  setButtons([
+                    {
+                      text: "📍 Joylashuvni tanlash",
+                      url: "",
+                      callback: "enter_location_scene",
+                    },
+                    {
+                      text: "🔔 Eslatmalarni yoqish",
+                      url: "",
+                      callback: "enable_reminders_from_broadcast",
+                    },
+                  ])
+                }
               >
                 📍+🔔 Ikkalasi
               </button>
@@ -311,7 +408,9 @@ function Broadcast() {
                   type="text"
                   placeholder="callback_data (masalan: enter_location_scene)"
                   value={button.callback}
-                  onChange={(e) => updateButton(index, "callback", e.target.value)}
+                  onChange={(e) =>
+                    updateButton(index, "callback", e.target.value)
+                  }
                   disabled={stats?.isProcessing}
                   style={{ flex: 3 }}
                 />

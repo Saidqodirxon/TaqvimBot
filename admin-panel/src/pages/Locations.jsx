@@ -330,14 +330,21 @@ const Locations = () => {
                 <th>Foydalanuvchilar</th>
                 <th>Bu oy</th>
                 <th>O'tgan oy</th>
-                <th>2 oy oldin</th>
                 <th>O'sish</th>
+                <th>Ma'lumot %</th>
                 <th>Amallar</th>
               </tr>
             </thead>
             <tbody>
               {filteredLocations.map((location, index) => (
-                <tr key={location._id}>
+                <tr
+                  key={location._id}
+                  className={
+                    location.prayerDataStats?.firstMissingDate
+                      ? "has-warning"
+                      : ""
+                  }
+                >
                   <td>{index + 1}</td>
                   <td>
                     <div className="location-name">
@@ -347,6 +354,14 @@ const Locations = () => {
                       )}
                       {location.manualPrayerTimes?.enabled && (
                         <span className="manual-badge">Manual</span>
+                      )}
+                      {location.prayerDataStats?.firstMissingDate && (
+                        <span
+                          className="warning-badge"
+                          title={`Yaqinda ma'lumot yo'q: ${location.prayerDataStats.firstMissingDate}`}
+                        >
+                          ⚠️
+                        </span>
                       )}
                     </div>
                     <small className="location-names">
@@ -370,11 +385,6 @@ const Locations = () => {
                   <td className="stat">
                     {(location.monthlyStats?.lastMonth || 0).toLocaleString()}
                   </td>
-                  <td className="stat">
-                    {(
-                      location.monthlyStats?.twoMonthsAgo || 0
-                    ).toLocaleString()}
-                  </td>
                   <td>
                     <span
                       className={`growth-badge ${
@@ -388,6 +398,30 @@ const Locations = () => {
                       {(location.growth || 0) > 0 ? "+" : ""}
                       {location.growth || 0}%
                     </span>
+                  </td>
+                  <td>
+                    <div className="data-completeness">
+                      <span
+                        className={`completeness-badge ${
+                          (location.prayerDataStats?.completeness || 0) >= 90
+                            ? "good"
+                            : (location.prayerDataStats?.completeness || 0) >=
+                                50
+                              ? "warning"
+                              : "danger"
+                        }`}
+                        title={`PrayerTimeData: ${location.prayerDataStats?.prayerTimeDataDays || 0} kun, Monthly: ${location.prayerDataStats?.monthlyPrayerDays || 0} kun`}
+                      >
+                        {location.prayerDataStats?.hasManualTimes
+                          ? "✅ Manual"
+                          : `${location.prayerDataStats?.completeness || 0}%`}
+                      </span>
+                      {location.prayerDataStats?.firstMissingDate && (
+                        <small className="missing-date">
+                          ⚠️ {location.prayerDataStats.firstMissingDate}
+                        </small>
+                      )}
+                    </div>
                   </td>
                   <td className="actions">
                     <button
