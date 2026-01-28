@@ -10,7 +10,7 @@ const User = require("../../models/User");
 router.get("/", async (req, res) => {
   try {
     const locations = await Location.find({ isActive: true }).sort({ name: 1 });
-    
+
     // Get user count for each location
     const locationsWithStats = await Promise.all(
       locations.map(async (location) => {
@@ -18,14 +18,14 @@ router.get("/", async (req, res) => {
           "location.latitude": location.latitude,
           "location.longitude": location.longitude,
         });
-        
+
         return {
           ...location.toObject(),
           userCount,
         };
       })
     );
-    
+
     res.json(locationsWithStats);
   } catch (error) {
     logger.error("Error fetching locations:", error);

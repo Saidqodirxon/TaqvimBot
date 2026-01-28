@@ -17,7 +17,7 @@ async function setMenuButton() {
 
     // 1. Set default menu button for all users (Updated API format)
     console.log("1️⃣ Setting default menu button for ALL users...");
-    await bot.telegram.callApi('setChatMenuButton', {
+    await bot.telegram.callApi("setChatMenuButton", {
       menu_button: {
         type: "web_app",
         text: "📅 Taqvim",
@@ -30,7 +30,7 @@ async function setMenuButton() {
 
     // 2. Set for admin user specifically
     console.log("\n2️⃣ Setting menu button for admin user...");
-    await bot.telegram.callApi('setChatMenuButton', {
+    await bot.telegram.callApi("setChatMenuButton", {
       chat_id: ADMIN_USER_ID,
       menu_button: {
         type: "web_app",
@@ -44,7 +44,7 @@ async function setMenuButton() {
 
     // 3. Verify menu button
     console.log("\n3️⃣ Verifying menu button...");
-    const menuButton = await bot.telegram.callApi('getChatMenuButton', {
+    const menuButton = await bot.telegram.callApi("getChatMenuButton", {
       chat_id: ADMIN_USER_ID,
     });
     console.log("Current menu button:", JSON.stringify(menuButton, null, 2));

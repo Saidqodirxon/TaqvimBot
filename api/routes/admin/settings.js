@@ -450,8 +450,12 @@ router.get("/redis_enabled", authMiddleware, async (req, res) => {
 router.post("/redis", authMiddleware, superAdminOnly, async (req, res) => {
   try {
     const { enabled } = req.body;
-    await Settings.setSetting("redis_enabled", enabled, "Redis cache yoqish/o'chirish");
-    
+    await Settings.setSetting(
+      "redis_enabled",
+      enabled,
+      "Redis cache yoqish/o'chirish"
+    );
+
     res.json({
       message: enabled ? "Redis yoqildi" : "Redis o'chirildi",
       enabled,

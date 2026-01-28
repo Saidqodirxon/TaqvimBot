@@ -37,7 +37,7 @@ function Backups() {
     const h = parseInt(hour);
     const m = parseInt(minute);
     const timeStr = `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}`;
-    
+
     if (dayOfMonth === "*") {
       return `Har kuni soat ${timeStr} da`;
     } else {
@@ -175,7 +175,8 @@ function Backups() {
     if (scheduleData?.schedule) {
       setScheduleSettings(scheduleData.schedule);
       // Parse cron time
-      const [minute, hour, dayOfMonth] = scheduleData.schedule.cronTime.split(" ");
+      const [minute, hour, dayOfMonth] =
+        scheduleData.schedule.cronTime.split(" ");
       setScheduleHour(parseInt(hour));
       setScheduleMinute(parseInt(minute));
       setScheduleDayOfMonth(dayOfMonth);
@@ -184,7 +185,11 @@ function Backups() {
   };
 
   const handleSaveSchedule = () => {
-    const cronTime = toCronTime(scheduleHour, scheduleMinute, scheduleDayOfMonth);
+    const cronTime = toCronTime(
+      scheduleHour,
+      scheduleMinute,
+      scheduleDayOfMonth
+    );
     updateScheduleMutation.mutate({
       ...scheduleSettings,
       cronTime,
@@ -384,13 +389,24 @@ function Backups() {
 
               <div className="form-group">
                 <label>Backup vaqti</label>
-                <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+                <div
+                  style={{ display: "flex", gap: "10px", alignItems: "center" }}
+                >
                   <div style={{ flex: 1 }}>
-                    <label style={{ fontSize: "12px", color: "#666" }}>Soat</label>
+                    <label style={{ fontSize: "12px", color: "#666" }}>
+                      Soat
+                    </label>
                     <select
                       value={scheduleHour}
-                      onChange={(e) => setScheduleHour(parseInt(e.target.value))}
-                      style={{ width: "100%", padding: "8px", borderRadius: "4px", border: "1px solid #ddd" }}
+                      onChange={(e) =>
+                        setScheduleHour(parseInt(e.target.value))
+                      }
+                      style={{
+                        width: "100%",
+                        padding: "8px",
+                        borderRadius: "4px",
+                        border: "1px solid #ddd",
+                      }}
                     >
                       {Array.from({ length: 24 }, (_, i) => (
                         <option key={i} value={i}>
@@ -399,13 +415,24 @@ function Backups() {
                       ))}
                     </select>
                   </div>
-                  <span style={{ fontSize: "20px", fontWeight: "bold" }}>:</span>
+                  <span style={{ fontSize: "20px", fontWeight: "bold" }}>
+                    :
+                  </span>
                   <div style={{ flex: 1 }}>
-                    <label style={{ fontSize: "12px", color: "#666" }}>Daqiqa</label>
+                    <label style={{ fontSize: "12px", color: "#666" }}>
+                      Daqiqa
+                    </label>
                     <select
                       value={scheduleMinute}
-                      onChange={(e) => setScheduleMinute(parseInt(e.target.value))}
-                      style={{ width: "100%", padding: "8px", borderRadius: "4px", border: "1px solid #ddd" }}
+                      onChange={(e) =>
+                        setScheduleMinute(parseInt(e.target.value))
+                      }
+                      style={{
+                        width: "100%",
+                        padding: "8px",
+                        borderRadius: "4px",
+                        border: "1px solid #ddd",
+                      }}
                     >
                       {Array.from({ length: 60 }, (_, i) => (
                         <option key={i} value={i}>
@@ -422,7 +449,12 @@ function Backups() {
                 <select
                   value={scheduleDayOfMonth}
                   onChange={(e) => setScheduleDayOfMonth(e.target.value)}
-                  style={{ width: "100%", padding: "8px", borderRadius: "4px", border: "1px solid #ddd" }}
+                  style={{
+                    width: "100%",
+                    padding: "8px",
+                    borderRadius: "4px",
+                    border: "1px solid #ddd",
+                  }}
                 >
                   <option value="*">Har kuni</option>
                   {Array.from({ length: 31 }, (_, i) => i + 1).map((day) => (
@@ -431,8 +463,13 @@ function Backups() {
                     </option>
                   ))}
                 </select>
-                <small style={{ color: "#666", marginTop: "5px", display: "block" }}>
-                  ✅ {cronToReadable(toCronTime(scheduleHour, scheduleMinute, scheduleDayOfMonth))}
+                <small
+                  style={{ color: "#666", marginTop: "5px", display: "block" }}
+                >
+                  ✅{" "}
+                  {cronToReadable(
+                    toCronTime(scheduleHour, scheduleMinute, scheduleDayOfMonth)
+                  )}
                 </small>
               </div>
 

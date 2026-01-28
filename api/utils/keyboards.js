@@ -221,7 +221,10 @@ function getReminderSettingsKeyboard(lang = "uz", currentSettings) {
       Markup.button.callback(t(lang, "btn_reminder_30min"), "reminder_time_30"),
     ],
     [
-      Markup.button.callback("🗑 Barcha eslatmalarni o'chirish", "disable_all_reminders"),
+      Markup.button.callback(
+        "🗑 Barcha eslatmalarni o'chirish",
+        "disable_all_reminders"
+      ),
     ],
     [Markup.button.callback(t(lang, "btn_back"), "open_settings")],
   ]);

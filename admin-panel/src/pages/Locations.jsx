@@ -231,7 +231,10 @@ const Locations = () => {
       </div>
 
       {/* Filters */}
-      <div className="filters-section" style={{ marginBottom: "20px", display: "flex", gap: "10px" }}>
+      <div
+        className="filters-section"
+        style={{ marginBottom: "20px", display: "flex", gap: "10px" }}
+      >
         <input
           type="text"
           placeholder="🔍 Qidirish..."

@@ -26,8 +26,10 @@ router.get("/:locationId", async (req, res) => {
       .select("date hijriDate timings -_id") // Only essential fields
       .sort({ date: 1 })
       .lean();
-    
-    console.log(`Monthly prayer times fetched for location ${locationId}: ${prayerTimes.length} records`);
+
+    console.log(
+      `Monthly prayer times fetched for location ${locationId}: ${prayerTimes.length} records`
+    );
 
     // Cache for 1 hour (data rarely changes)
     res.set("Cache-Control", "public, max-age=3600");

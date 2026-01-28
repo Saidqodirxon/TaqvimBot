@@ -1,7 +1,9 @@
 const mongoose = require("mongoose");
 const axios = require("axios");
 const moment = require("moment-timezone");
-require("dotenv").config({ path: require("path").resolve(__dirname, "../../.env") });
+require("dotenv").config({
+  path: require("path").resolve(__dirname, "../../.env"),
+});
 
 const Location = require("../../models/Location");
 const MonthlyPrayerTime = require("../../models/MonthlyPrayerTime");
@@ -35,7 +37,7 @@ async function collectMonthlyPrayerData() {
     // Ask user for date range
     const currentMonth = new Date().getMonth() + 1;
     const currentYear = new Date().getFullYear();
-    
+
     console.log(`📅 Collecting data for: ${currentMonth}/${currentYear}`);
     console.log(`   (Current month and year)\n`);
 
@@ -50,11 +52,16 @@ async function collectMonthlyPrayerData() {
     // Process each location
     for (const location of locations) {
       console.log(`\n📍 Processing: ${location.nameUz || location.name}`);
-      console.log(`   Coordinates: ${location.latitude}, ${location.longitude}`);
+      console.log(
+        `   Coordinates: ${location.latitude}, ${location.longitude}`
+      );
 
       try {
         // Get number of days in month
-        const daysInMonth = moment().year(currentYear).month(currentMonth - 1).daysInMonth();
+        const daysInMonth = moment()
+          .year(currentYear)
+          .month(currentMonth - 1)
+          .daysInMonth();
         stats.totalDays += daysInMonth;
 
         let daySuccess = 0;
@@ -63,8 +70,8 @@ async function collectMonthlyPrayerData() {
         // Fetch each day
         for (let day = 1; day <= daysInMonth; day++) {
           try {
-            const dateStr = `${day.toString().padStart(2, '0')}-${currentMonth.toString().padStart(2, '0')}-${currentYear}`;
-            
+            const dateStr = `${day.toString().padStart(2, "0")}-${currentMonth.toString().padStart(2, "0")}-${currentYear}`;
+
             // Fetch from Aladhan API
             const response = await axios.get(
               `https://api.aladhan.com/v1/timings/${dateStr}`,
@@ -131,8 +138,7 @@ async function collectMonthlyPrayerData() {
             daySuccess++;
 
             // Small delay to avoid rate limiting
-            await new Promise(resolve => setTimeout(resolve, 100));
-
+            await new Promise((resolve) => setTimeout(resolve, 100));
           } catch (error) {
             console.error(`   ❌ Day ${day}: ${error.message}`);
             dayError++;
@@ -144,7 +150,6 @@ async function collectMonthlyPrayerData() {
         if (dayError > 0) {
           console.log(`   ⚠️  Errors: ${dayError} days`);
         }
-
       } catch (error) {
         console.error(`   ❌ Location error: ${error.message}`);
         stats.errors++;
@@ -168,7 +173,6 @@ async function collectMonthlyPrayerData() {
 
     await mongoose.disconnect();
     process.exit(0);
-
   } catch (error) {
     console.error("❌ Fatal error:", error);
     await mongoose.disconnect();

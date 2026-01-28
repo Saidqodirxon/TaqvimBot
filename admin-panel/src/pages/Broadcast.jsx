@@ -23,9 +23,7 @@ function Broadcast() {
     hasJoinedChannel: undefined,
   });
   const [jobId, setJobId] = useState(null);
-  const [buttons, setButtons] = useState([
-    { text: "", url: "" },
-  ]);
+  const [buttons, setButtons] = useState([{ text: "", url: "" }]);
 
   // Get current stats
   const { data: statsData, refetch: refetchStats } = useQuery({
@@ -44,16 +42,23 @@ function Broadcast() {
   const sendMutation = useMutation({
     mutationFn: async () => {
       const token = localStorage.getItem("token");
-      
+
       // Prepare inline keyboard if buttons exist
-      const validButtons = buttons.filter(btn => btn.text.trim() && btn.url.trim());
-      const reply_markup = validButtons.length > 0 ? {
-        inline_keyboard: validButtons.map(btn => [{
-          text: btn.text,
-          url: btn.url,
-        }]),
-      } : undefined;
-      
+      const validButtons = buttons.filter(
+        (btn) => btn.text.trim() && btn.url.trim()
+      );
+      const reply_markup =
+        validButtons.length > 0
+          ? {
+              inline_keyboard: validButtons.map((btn) => [
+                {
+                  text: btn.text,
+                  url: btn.url,
+                },
+              ]),
+            }
+          : undefined;
+
       const response = await axios.post(
         `${API_URL}/broadcast/send`,
         {

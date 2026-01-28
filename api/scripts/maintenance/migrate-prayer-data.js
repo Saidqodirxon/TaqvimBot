@@ -1,5 +1,7 @@
 const mongoose = require("mongoose");
-require("dotenv").config({ path: require("path").resolve(__dirname, "../../.env") });
+require("dotenv").config({
+  path: require("path").resolve(__dirname, "../../.env"),
+});
 
 const Location = require("../../models/Location");
 const PrayerTimeData = require("../../models/PrayerTimeData");
@@ -52,7 +54,9 @@ async function migrateToMonthlyPrayerTimes() {
       dataByLocation[key].push(data);
     }
 
-    console.log(`📦 Grouped into ${Object.keys(dataByLocation).length} unique locations\n`);
+    console.log(
+      `📦 Grouped into ${Object.keys(dataByLocation).length} unique locations\n`
+    );
 
     // Match with Location collection
     for (const location of locations) {
@@ -115,7 +119,9 @@ async function migrateToMonthlyPrayerTimes() {
 
           stats.processed++;
         } catch (error) {
-          console.error(`   ❌ Error processing ${item.date}: ${error.message}`);
+          console.error(
+            `   ❌ Error processing ${item.date}: ${error.message}`
+          );
         }
       }
 
@@ -146,26 +152,31 @@ async function migrateToMonthlyPrayerTimes() {
       const count = await MonthlyPrayerTime.countDocuments({
         locationId: location._id,
       });
-      
+
       if (count > 0) {
-        const first = await MonthlyPrayerTime.findOne({ locationId: location._id })
+        const first = await MonthlyPrayerTime.findOne({
+          locationId: location._id,
+        })
           .sort({ date: 1 })
           .lean();
-        const last = await MonthlyPrayerTime.findOne({ locationId: location._id })
+        const last = await MonthlyPrayerTime.findOne({
+          locationId: location._id,
+        })
           .sort({ date: -1 })
           .lean();
 
-        const firstDate = first.date.toISOString().split('T')[0];
-        const lastDate = last.date.toISOString().split('T')[0];
-        
-        console.log(`   ${location.nameUz}: ${count} days (${firstDate} to ${lastDate})`);
+        const firstDate = first.date.toISOString().split("T")[0];
+        const lastDate = last.date.toISOString().split("T")[0];
+
+        console.log(
+          `   ${location.nameUz}: ${count} days (${firstDate} to ${lastDate})`
+        );
       }
     }
     console.log();
 
     await mongoose.disconnect();
     process.exit(0);
-
   } catch (error) {
     console.error("❌ Fatal error:", error);
     await mongoose.disconnect();

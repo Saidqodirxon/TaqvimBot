@@ -307,8 +307,7 @@ locationScene.action("use_gps_coords", async (ctx) => {
     };
 
     await ctx.editMessageText(
-      `✅ Joylashuvingiz saqlandi!\n` +
-        `📍 Aniq GPS koordinatalari saqlandı`
+      `✅ Joylashuvingiz saqlandi!\n` + `📍 Aniq GPS koordinatalari saqlandı`
     );
 
     await ctx.reply(await t(lang, "main_menu"), {
