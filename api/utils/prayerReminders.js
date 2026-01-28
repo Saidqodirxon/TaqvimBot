@@ -97,7 +97,19 @@ async function schedulePrayerReminders(bot, user) {
                   minutes: minutesBefore,
                   time: prayer.time,
                 });
-                await bot.telegram.sendMessage(user.userId, message);
+                const { Markup } = require("telegraf");
+                await bot.telegram.sendMessage(user.userId, message, {
+                  reply_markup: {
+                    inline_keyboard: [
+                      [
+                        {
+                          text: "🔕 Eslatmalarni o'chirish",
+                          callback_data: "disable_all_reminders",
+                        },
+                      ],
+                    ],
+                  },
+                });
               } catch (error) {
                 console.error(
                   `Error sending before-prayer reminder to ${user.userId}:`,
@@ -109,15 +121,27 @@ async function schedulePrayerReminders(bot, user) {
           userJobs.push(beforeJob);
         }
 
-        // Schedule reminder AT prayer time
-        if (user.reminderSettings?.notifyAtPrayerTime !== false) {
+        // Schedule reminder AT prayer time (only if enabled)
+        if (user.reminderSettings?.notifyAtPrayerTime === true) {
           const atJob = schedule.scheduleJob(prayerTime.toDate(), async () => {
             try {
               const message = await t(lang, "reminder_prayer_time", {
                 prayer: prayer.name,
                 time: prayer.time,
               });
-              await bot.telegram.sendMessage(user.userId, message);
+              const { Markup } = require("telegraf");
+              await bot.telegram.sendMessage(user.userId, message, {
+                reply_markup: {
+                  inline_keyboard: [
+                    [
+                      {
+                        text: "🔕 Eslatmalarni o'chirish",
+                        callback_data: "disable_all_reminders",
+                      },
+                    ],
+                  },
+                },
+              });
             } catch (error) {
               console.error(
                 `Error sending at-prayer reminder to ${user.userId}:`,

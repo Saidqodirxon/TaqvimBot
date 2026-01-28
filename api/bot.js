@@ -1953,19 +1953,22 @@ async function startBot() {
       console.error("Reminder init error:", err.message);
     });
 
-    // Initialize Redis cache
+    // Initialize Redis cache (non-blocking)
     console.log("\n🔄 Initializing Redis cache...");
     const redisCache = new RedisCache();
-    await redisCache.initialize();
+    redisCache.initialize().then(() => {
+      // Set Redis cache for aladhan.js after initialization
+      setRedisCache(redisCache);
 
-    // Set Redis cache for aladhan.js
-    setRedisCache(redisCache);
-
-    if (redisCache.isAvailable()) {
-      console.log("✅ Redis cache enabled for prayer times");
-    } else {
-      console.log("⚠️ Redis cache disabled - using database only");
-    }
+      if (redisCache.isAvailable()) {
+        console.log("✅ Redis cache enabled for prayer times");
+      } else {
+        console.log("⚠️ Redis cache disabled - using database only");
+      }
+    }).catch((err) => {
+      console.error("❌ Redis initialization failed:", err.message);
+      console.log("⚠️ Continuing without Redis cache");
+    });
 
     // ==================== BOT ERROR HANDLER ====================
     // Bot ichidagi barcha xatolarni tutish
