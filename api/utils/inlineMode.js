@@ -63,7 +63,8 @@ async function handleInlineQuery(ctx) {
           title: "⚠️ Botga ro'yxatdan o'tish kerak",
           description: "Avval @RamazonCalendarBot ga /start bosing",
           input_message_content: {
-            message_text: "📍 Avval @RamazonCalendarBot ga o'ting va joylashuvingizni tanlang.",
+            message_text:
+              "📍 Avval @RamazonCalendarBot ga o'ting va joylashuvingizni tanlang.",
             parse_mode: "HTML",
           },
         },
@@ -134,7 +135,7 @@ async function handleInlineQuery(ctx) {
     if (query.includes("ertaga") || query.includes("tomorrow")) {
       const tomorrow = moment.tz(timezone).add(1, "day");
       const tomorrowStr = tomorrow.format("DD.MM.YYYY");
-      
+
       results.push({
         type: "article",
         id: "tomorrow",
@@ -151,7 +152,7 @@ async function handleInlineQuery(ctx) {
     if (query.includes("ramazon") || query.includes("ramadan")) {
       const ramadanDate = moment.tz("2026-02-28", timezone);
       const daysUntil = ramadanDate.diff(moment.tz(timezone), "days");
-      
+
       results.push({
         type: "article",
         id: "ramadan",
@@ -172,7 +173,7 @@ async function handleInlineQuery(ctx) {
     // Cache and respond
     setCache(cacheKey, results);
     await ctx.answerInlineQuery(results, { cache_time: 300 });
-    
+
     console.log(`⚡ Inline query: ${Date.now() - startTime}ms`);
   } catch (error) {
     console.error("Inline query error:", error);
