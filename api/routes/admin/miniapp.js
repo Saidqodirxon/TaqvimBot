@@ -208,39 +208,66 @@ router.post("/weekly-prayer-times", async (req, res) => {
 router.get("/check-channels/:userId", async (req, res) => {
   try {
     const { userId } = req.params;
-    
+
     if (!userId || isNaN(userId)) {
       return res.status(400).json({ error: "Invalid user ID" });
     }
 
+    // Get bot instance from app
+    const bot = req.app.get("bot");
+    if (!bot) {
+      logger.error("Bot instance not available in check-channels");
+      // Return success if bot not available - don't block app
+      return res.json({
+        required: false,
+        hasJoined: true,
+        channels: [],
+      });
+    }
+
     const Settings = require("../../models/Settings");
-    const channels = await Settings.getSetting("channels", []);
+    let channels = [];
+
+    try {
+      channels = await Settings.getSetting("channels", []);
+    } catch (err) {
+      logger.error("Failed to get channels setting:", err.message);
+      // Return success if settings fail - don't block app
+      return res.json({
+        required: false,
+        hasJoined: true,
+        channels: [],
+      });
+    }
+
     const activeChannels = channels.filter((ch) => ch.isActive === true);
 
     if (activeChannels.length === 0) {
       return res.json({
         required: false,
         hasJoined: true,
-        channels: []
+        channels: [],
       });
     }
 
     const channelsWithStatus = [];
     let allJoined = true;
 
-    // Get bot instance from app
-    const bot = req.app.get("bot");
-    if (!bot) {
-      return res.status(500).json({ error: "Bot instance not available" });
-    }
-
     for (const channel of activeChannels) {
       let isMember = false;
       try {
-        const member = await bot.telegram.getChatMember(channel.id, parseInt(userId));
-        isMember = ["creator", "administrator", "member"].includes(member.status);
+        const member = await bot.telegram.getChatMember(
+          channel.id,
+          parseInt(userId)
+        );
+        isMember = ["creator", "administrator", "member"].includes(
+          member.status
+        );
       } catch (error) {
-        logger.error(`Channel check error (${channel.username}):`, error.message);
+        logger.error(
+          `Channel check error (${channel.username}):`,
+          error.message
+        );
         isMember = false;
       }
 
@@ -253,27 +280,36 @@ router.get("/check-channels/:userId", async (req, res) => {
         title: channel.title,
         username: channel.username,
         link: channel.link || `https://t.me/${channel.username}`,
-        isMember
+        isMember,
       });
     }
 
     // Update user hasJoinedChannel status if all joined
     if (allJoined) {
-      await User.updateOne(
-        { userId: parseInt(userId) },
-        { $set: { hasJoinedChannel: true } }
-      );
+      try {
+        await User.updateOne(
+          { userId: parseInt(userId) },
+          { $set: { hasJoinedChannel: true } }
+        );
+      } catch (err) {
+        logger.error("Failed to update user channel status:", err.message);
+        // Don't fail the request
+      }
     }
 
     res.json({
       required: true,
       hasJoined: allJoined,
-      channels: channelsWithStatus
+      channels: channelsWithStatus,
     });
-
   } catch (error) {
     logger.error("Check channels error:", error);
-    res.status(500).json({ error: "Internal server error" });
+    // Don't block app on error - return success
+    res.json({
+      required: false,
+      hasJoined: true,
+      channels: [],
+    });
   }
 });
 

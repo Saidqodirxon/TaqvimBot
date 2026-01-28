@@ -16,12 +16,14 @@ bash server-debug.sh
 #### 1. MongoDB connection error
 
 **Alomat:**
+
 ```
 Error: connect ECONNREFUSED
 MongoServerError: Authentication failed
 ```
 
 **Yechim:**
+
 ```bash
 # .env faylni tekshiring
 cat /root/ramazonbot/api/.env | grep MONGODB_URI
@@ -35,12 +37,14 @@ cat /root/ramazonbot/api/.env | grep MONGODB_URI
 #### 2. BOT_TOKEN xato
 
 **Alomat:**
+
 ```
 Error: 401 Unauthorized
 Invalid token
 ```
 
 **Yechim:**
+
 ```bash
 # BotFather'dan yangi token oling va .env'ga qo'shing
 nano /root/ramazonbot/api/.env
@@ -51,11 +55,13 @@ nano /root/ramazonbot/api/.env
 #### 3. Port band
 
 **Alomat:**
+
 ```
 Error: listen EADDRINUSE: address already in use :::9999
 ```
 
 **Yechim:**
+
 ```bash
 # 9999 portni ishlatayotgan processni toping va to'xtating
 lsof -ti:9999 | xargs kill -9
@@ -67,12 +73,14 @@ lsof -ti:9999 | xargs kill -9
 #### 4. Dependency issues
 
 **Alomat:**
+
 ```
 Error: Cannot find module 'telegraf'
 Error: Cannot find module 'mongoose'
 ```
 
 **Yechim:**
+
 ```bash
 cd /root/ramazonbot/api
 rm -rf node_modules package-lock.json
@@ -83,11 +91,13 @@ pm2 restart all
 #### 5. Permission errors
 
 **Alomat:**
+
 ```
 EACCES: permission denied
 ```
 
 **Yechim:**
+
 ```bash
 # Ownershipni to'g'irlash
 chown -R root:root /root/ramazonbot
@@ -112,7 +122,7 @@ bash server-fix.sh
 # 1. To'xtatish
 pm2 stop all
 
-# 2. Yangi kodlarni olish  
+# 2. Yangi kodlarni olish
 cd /root/ramazonbot
 git pull
 
@@ -152,7 +162,7 @@ pm2 logs ramazonbot-api
 # Status
 pm2 status
 
-# List all processes  
+# List all processes
 pm2 list
 
 # Restart

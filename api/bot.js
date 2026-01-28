@@ -215,7 +215,11 @@ bot.use(async (ctx, next) => {
 
   // ONLY check terms on first TEXT message after language selection
   // Don't block mini app or data queries
-  if (user.termsAccepted !== true && ctx.message?.text && !ctx.message.text.startsWith("/")) {
+  if (
+    user.termsAccepted !== true &&
+    ctx.message?.text &&
+    !ctx.message.text.startsWith("/")
+  ) {
     const termsEnabled = await Settings.getSetting("terms_enabled", false);
     if (termsEnabled) {
       const termsUrl = await Settings.getSetting("terms_url", "");
@@ -246,13 +250,25 @@ bot.use(async (ctx, next) => {
 
   // Phone request - VERY LAZY, only ask on specific interactions
   // Never block mini app or inline queries
-  if (!user.phoneNumber && ctx.message?.text && !ctx.message.text.startsWith("/")) {
-    const phoneEnabled = await Settings.getSetting("phone_request_enabled", false);
+  if (
+    !user.phoneNumber &&
+    ctx.message?.text &&
+    !ctx.message.text.startsWith("/")
+  ) {
+    const phoneEnabled = await Settings.getSetting(
+      "phone_request_enabled",
+      false
+    );
     if (phoneEnabled) {
-      const phoneRecheckDays = await Settings.getSetting("phone_recheck_days", 180);
+      const phoneRecheckDays = await Settings.getSetting(
+        "phone_recheck_days",
+        180
+      );
       const shouldAskPhone =
         !user.phoneRequestedAt ||
-        (Date.now() - new Date(user.phoneRequestedAt).getTime()) / (1000 * 60 * 60 * 24) > phoneRecheckDays;
+        (Date.now() - new Date(user.phoneRequestedAt).getTime()) /
+          (1000 * 60 * 60 * 24) >
+          phoneRecheckDays;
 
       if (shouldAskPhone) {
         await ctx.reply(
@@ -914,16 +930,16 @@ bot.action("today_times", async (ctx) => {
       const timeoutPromise = new Promise((_, reject) =>
         setTimeout(() => reject(new Error("Prayer times fetch timeout")), 15000)
       );
-      
+
       prayerData = await Promise.race([
         getPrayerTimes(latitude, longitude, method, school),
-        timeoutPromise
+        timeoutPromise,
       ]);
     } catch (fetchError) {
       console.error("❌ Prayer times fetch error:", fetchError);
       await ctx.reply(
         "❌ Namoz vaqtlarini yuklashda xatolik yuz berdi. Iltimos, bir necha daqiqadan keyin qayta urinib ko'ring.\\n\\n" +
-        "Agar muammo davom etsa, /start bosing."
+          "Agar muammo davom etsa, /start bosing."
       );
       return;
     }
@@ -931,7 +947,7 @@ bot.action("today_times", async (ctx) => {
     console.log("📊 Prayer data received:", {
       success: prayerData?.success,
       hasTimings: !!prayerData?.timings,
-      source: prayerData?.source
+      source: prayerData?.source,
     });
 
     if (!prayerData || !prayerData.success) {
@@ -947,23 +963,29 @@ bot.action("today_times", async (ctx) => {
       console.error("❌ Timings is undefined in prayerData:", prayerData);
       await ctx.reply(
         "❌ Namoz vaqtlari ma'lumoti topilmadi.\\n\\n" +
-        "Iltimos, joylashuvingizni qayta tanlang: /start → ⚙️ Sozlamalar → 📍 Joylashuv"
+          "Iltimos, joylashuvingizni qayta tanlang: /start → ⚙️ Sozlamalar → 📍 Joylashuv"
       );
       return;
     }
 
     const timings = prayerData.timings;
-    
+
     // Log timings structure
     console.log("⏰ Timings structure:", Object.keys(timings));
     console.log("⏰ Timings values:", timings);
-    
+
     // Validate that required prayer times exist
-    if (!timings.fajr || !timings.dhuhr || !timings.asr || !timings.maghrib || !timings.isha) {
+    if (
+      !timings.fajr ||
+      !timings.dhuhr ||
+      !timings.asr ||
+      !timings.maghrib ||
+      !timings.isha
+    ) {
       console.error("❌ Missing required prayer times:", timings);
       await ctx.reply(
         "❌ Namoz vaqtlari to'liq emas. Administrator bilan bog'laning.\\n\\n" +
-        `Debug info: ${JSON.stringify(timings)}`
+          `Debug info: ${JSON.stringify(timings)}`
       );
       return;
     }
@@ -979,7 +1001,7 @@ bot.action("today_times", async (ctx) => {
       `📅 ${today}\\n` +
       `📍 ${locationName}\\n\\n` +
       `🌅 Bomdod: ${timings.fajr}\\n` +
-      `☀️ Quyosh: ${timings.sunrise || timings.Sunrise || 'N/A'}\\n` +
+      `☀️ Quyosh: ${timings.sunrise || timings.Sunrise || "N/A"}\\n` +
       `🌞 Peshin: ${timings.dhuhr}\\n` +
       `🌤 Asr: ${timings.asr}\\n` +
       `🌆 Shom: ${timings.maghrib}\\n` +
@@ -1288,7 +1310,8 @@ bot.action("calendar_daily", async (ctx) => {
     await ctx.answerCbQuery();
     const lang = getUserLanguage(ctx.session.user);
     const user = ctx.session.user;
-    const miniAppUrl = process.env.MINI_APP_URL || "https://ramazon-taqvim.netlify.app";
+    const miniAppUrl =
+      process.env.MINI_APP_URL || "https://ramazon-taqvim.netlify.app";
 
     // ❗ LOCATION MAJBURIY - default Tashkent yo'q
     if (!user.location || !user.location.latitude || !user.location.longitude) {
@@ -1703,14 +1726,14 @@ bot.action("toggle_reminders", async (ctx) => {
 bot.action("disable_all_reminders", async (ctx) => {
   try {
     await ctx.answerCbQuery("⏳ O'chirilmoqda...");
-    
+
     // Get user from DB directly (notification callback might not have session)
     const userId = ctx.from?.id;
     if (!userId) {
       console.error("disable_all_reminders: No user ID");
       return;
     }
-    
+
     // Load user from database
     const user = await User.findOne({ userId });
     if (!user) {
@@ -1718,7 +1741,7 @@ bot.action("disable_all_reminders", async (ctx) => {
       await ctx.answerCbQuery("❌ Foydalanuvchi topilmadi");
       return;
     }
-    
+
     const lang = getUserLanguage(user);
 
     // Disable all reminders
@@ -1729,7 +1752,7 @@ bot.action("disable_all_reminders", async (ctx) => {
     };
 
     await updateUserReminders(bot, userId, newSettings);
-    
+
     // Update session if exists
     if (ctx.session?.user) {
       ctx.session.user.reminderSettings = newSettings;
@@ -1753,7 +1776,7 @@ bot.action("disable_all_reminders", async (ctx) => {
           "Agar kerak bo'lsa, sozlamalar orqali qayta yoqishingiz mumkin."
       );
     }
-    
+
     console.log(`✅ Reminders disabled for user ${userId}`);
   } catch (error) {
     console.error("Error disabling all reminders:", error);
@@ -1769,48 +1792,55 @@ bot.action("disable_all_reminders", async (ctx) => {
 bot.action("enable_reminders", async (ctx) => {
   try {
     await ctx.answerCbQuery("⏳ Yoqilmoqda...");
-    
+
     const userId = ctx.from?.id;
     if (!userId) return;
-    
+
     // Load user from database
     const user = await User.findOne({ userId });
     if (!user) {
       await ctx.answerCbQuery("❌ Foydalanuvchi topilmadi");
       return;
     }
-    
+
     const lang = getUserLanguage(user);
-    
+
     // Check if user has location
     if (!user.location || !user.location.latitude) {
       try {
         await ctx.editMessageText(
           "📍 Eslatmalarni yoqish uchun avval lokatsiyangizni kiriting.",
           Markup.inlineKeyboard([
-            [Markup.button.callback("📍 Lokatsiya kiritish", "enter_location_scene")],
+            [
+              Markup.button.callback(
+                "📍 Lokatsiya kiritish",
+                "enter_location_scene"
+              ),
+            ],
           ])
         );
       } catch (e) {
-        await ctx.reply("📍 Eslatmalarni yoqish uchun avval lokatsiyangizni kiriting.");
+        await ctx.reply(
+          "📍 Eslatmalarni yoqish uchun avval lokatsiyangizni kiriting."
+        );
       }
       return;
     }
-    
+
     // Enable reminders
     const newSettings = {
       enabled: true,
       minutesBefore: user.reminderSettings?.minutesBefore || 15,
       notifyAtPrayerTime: false,
     };
-    
+
     await updateUserReminders(bot, userId, newSettings);
-    
+
     // Update session if exists
     if (ctx.session?.user) {
       ctx.session.user.reminderSettings = newSettings;
     }
-    
+
     try {
       await ctx.editMessageText(
         "✅ Eslatmalar qayta yoqildi\n\n" +
@@ -1825,7 +1855,7 @@ bot.action("enable_reminders", async (ctx) => {
           `📌 Namoz vaqtidan ${newSettings.minutesBefore} daqiqa oldin eslatma yuboriladi.`
       );
     }
-    
+
     console.log(`✅ Reminders enabled for user ${userId}`);
   } catch (error) {
     console.error("Error enabling reminders:", error);
@@ -2341,6 +2371,9 @@ async function startAdminAPI() {
 
   const app = express();
   const PORT = process.env.PORT || 3001;
+
+  // Make bot instance available to routes
+  app.set("bot", bot);
 
   // Create default admin (non-blocking)
   setTimeout(async () => {

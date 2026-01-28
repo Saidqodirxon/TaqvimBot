@@ -10,6 +10,7 @@ node analyze-locations.js
 ```
 
 This will show:
+
 - ❌ Locations with NO prayer data (0%)
 - ⚠️ Locations with LOW prayer data (<50%)
 - 🔄 Duplicate location names
@@ -26,6 +27,7 @@ node add-missing-prayer-data.js
 ```
 
 Features:
+
 - Fetches 60 days of prayer times from Aladhan API
 - Rate limited (1 request/second)
 - Skips already existing data
@@ -42,6 +44,7 @@ node merge-duplicate-locations.js --by-name
 ```
 
 Interactive mode:
+
 - Shows all duplicate groups
 - Asks which to keep
 - Automatically migrates users
@@ -83,9 +86,9 @@ node merge-duplicate-locations.js --by-name
 # 📍 Duplicate: "sirdaryo" (2 locations)
 # [1] Sirdaryo | Сирдарё
 #     40.8167, 68.7500 - 100 users, 60 days
-# [2] Sirdaryo | Sirdaryo  
+# [2] Sirdaryo | Sirdaryo
 #     40.8167, 68.7500 - 0 users, 58 days
-# 
+#
 # Merge these locations? (y/n): y
 # ✅ Keeping: Sirdaryo | Сирдарё
 # 🔄 Merging → Updated 0 users
@@ -107,6 +110,7 @@ node analyze-locations.js
 ## 🎯 What Each Script Does
 
 ### analyze-locations.js
+
 - ✅ Counts prayer data for each location
 - ✅ Calculates completeness percentage
 - ✅ Identifies duplicates (by name and coordinates)
@@ -114,6 +118,7 @@ node analyze-locations.js
 - ✅ Generates JSON report
 
 ### add-missing-prayer-data.js
+
 - ✅ Reads locations from report
 - ✅ Fetches from Aladhan API
 - ✅ Caches in PrayerTimeData collection
@@ -121,6 +126,7 @@ node analyze-locations.js
 - ✅ Rate limited to avoid API ban
 
 ### merge-duplicate-locations.js
+
 - ✅ Interactive merge process
 - ✅ Keeps location with most users + data
 - ✅ Migrates users to kept location
@@ -130,13 +136,14 @@ node analyze-locations.js
 ## 🚨 Important Notes
 
 1. **Backup first!** Always backup before merging:
+
    ```bash
    mongodump --uri="YOUR_MONGODB_URI"
    ```
 
 2. **API limits:** Aladhan API allows 1 request/second. Script respects this.
 
-3. **Time estimate:** 
+3. **Time estimate:**
    - Analyze: < 1 minute
    - Add data: ~1 minute per location
    - Merge: depends on user input
@@ -149,23 +156,20 @@ If you prefer manual approach:
 
 ```javascript
 // Delete a duplicate location
-await Location.updateOne(
-  { _id: 'LOCATION_ID' },
-  { $set: { isActive: false } }
-);
+await Location.updateOne({ _id: "LOCATION_ID" }, { $set: { isActive: false } });
 
 // Migrate users to different location
 await User.updateMany(
   {
-    'location.latitude': OLD_LAT,
-    'location.longitude': OLD_LNG
+    "location.latitude": OLD_LAT,
+    "location.longitude": OLD_LNG,
   },
   {
     $set: {
-      'location.latitude': NEW_LAT,
-      'location.longitude': NEW_LNG,
-      'location.name': NEW_NAME
-    }
+      "location.latitude": NEW_LAT,
+      "location.longitude": NEW_LNG,
+      "location.name": NEW_NAME,
+    },
   }
 );
 ```
@@ -173,6 +177,7 @@ await User.updateMany(
 ## 📈 Expected Results
 
 Before:
+
 ```
 ❌ Yaypan: 0% (0 users)
 ❌ Sirdaryo: 0% (0 users)
@@ -180,6 +185,7 @@ Before:
 ```
 
 After:
+
 ```
 ✅ Yaypan: 100% (0 users)
 ✅ Sirdaryo: 100% (100 users)
@@ -188,12 +194,14 @@ After:
 ## ❓ Troubleshooting
 
 **Error: Report not found**
+
 ```bash
 # Run analyze first
 node analyze-locations.js
 ```
 
 **API timeout errors**
+
 ```bash
 # Increase timeout or reduce rate limit
 # Edit add-missing-prayer-data.js:
@@ -201,6 +209,7 @@ node analyze-locations.js
 ```
 
 **Merge mistakes**
+
 ```bash
 # Restore from backup
 mongorestore --uri="YOUR_MONGODB_URI" dump/

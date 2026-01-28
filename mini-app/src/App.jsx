@@ -104,7 +104,7 @@ function App() {
 
       const response = await axios.get(
         `${API_BASE}/api/miniapp/user/${userId}`,
-        { timeout: 10000 }
+        { timeout: 5000 }
       );
       const user = response.data;
       setUserData(user);
@@ -114,7 +114,7 @@ function App() {
         try {
           const channelResponse = await axios.get(
             `${API_BASE}/api/miniapp/check-channels/${userId}`,
-            { timeout: 10000 }
+            { timeout: 3000 }
           );
 
           if (
@@ -132,7 +132,8 @@ function App() {
           }
         } catch (channelErr) {
           console.error("Error checking channels:", channelErr);
-          // If channel check fails, proceed anyway
+          // If channel check fails, skip and proceed with app
+          console.log("Skipping channel check due to error");
         }
       }
 
@@ -156,7 +157,7 @@ function App() {
               latitude: response.data.location.latitude,
               longitude: response.data.location.longitude,
             },
-            { timeout: 10000 }
+            { timeout: 5000 }
           );
           setPrayerTimes(prayerResponse.data);
         } catch (prayerErr) {
@@ -169,6 +170,11 @@ function App() {
       }
     } catch (err) {
       console.error("Error fetching data:", err);
+      console.error("Error details:", {
+        code: err.code,
+        status: err.response?.status,
+        message: err.message,
+      });
 
       // Better error messages based on error type
       let errorMessage =
@@ -176,7 +182,12 @@ function App() {
 
       if (err.code === "ECONNABORTED" || err.message.includes("timeout")) {
         errorMessage =
-          "❌ Serverga ulanishda xatolik. Internet tezligingizni tekshiring.";
+          "❌ Server javob bermadi. 2 soniyadan keyin qayta uriniladi...";
+        // Auto retry after 2 seconds on timeout
+        setTimeout(() => {
+          console.log("Auto-retrying after timeout...");
+          fetchUserData(userId);
+        }, 2000);
       } else if (err.response?.status === 404) {
         errorMessage =
           "❌ Foydalanuvchi topilmadi. Iltimos, botda /start bosing.";
@@ -206,7 +217,7 @@ function App() {
             latitude: userData.location.latitude,
             longitude: userData.location.longitude,
           },
-          { timeout: 10000 }
+          { timeout: 5000 }
         )
         .then((response) => {
           setPrayerTimes(response.data);
@@ -333,7 +344,7 @@ function App() {
                 try {
                   const response = await axios.get(
                     `${API_BASE}/api/miniapp/check-channels/${userId}`,
-                    { timeout: 10000 }
+                    { timeout: 3000 }
                   );
 
                   if (response.data.hasJoined) {

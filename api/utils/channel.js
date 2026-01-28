@@ -166,11 +166,8 @@ async function handleCheckSubscription(ctx) {
 
     // Update user data in database AND session
     const User = require("../models/User");
-    await User.updateOne(
-      { userId },
-      { $set: { hasJoinedChannel: true } }
-    );
-    
+    await User.updateOne({ userId }, { $set: { hasJoinedChannel: true } });
+
     if (ctx.session?.user) {
       ctx.session.user.hasJoinedChannel = true;
     }
@@ -188,13 +185,13 @@ async function handleCheckSubscription(ctx) {
       getPhoneRequestKeyboard,
       getMainMenuKeyboard,
     } = require("./keyboards");
-    
+
     // Always show main menu
     await ctx.reply(
       await t(lang, "main_menu"),
       await getMainMenuKeyboard(lang)
     );
-    
+
     // If phone not provided, show request separately (non-blocking)
     if (!ctx.session?.user?.phoneNumber) {
       setTimeout(async () => {

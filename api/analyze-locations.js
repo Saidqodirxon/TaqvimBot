@@ -5,17 +5,17 @@
  * Analyzes prayer data completeness and identifies duplicates
  */
 
-const mongoose = require('mongoose');
-require('dotenv').config();
+const mongoose = require("mongoose");
+require("dotenv").config();
 
-const Location = require('./models/Location');
-const PrayerTimeData = require('./models/PrayerTimeData');
-const User = require('./models/User');
+const Location = require("./models/Location");
+const PrayerTimeData = require("./models/PrayerTimeData");
+const User = require("./models/User");
 
 async function analyzeLocations() {
   try {
     await mongoose.connect(process.env.MONGODB_URI);
-    console.log('✅ Connected to MongoDB\n');
+    console.log("✅ Connected to MongoDB\n");
 
     // Get all active locations
     const locations = await Location.find({ isActive: true }).sort({ name: 1 });
@@ -26,35 +26,35 @@ async function analyzeLocations() {
     today.setHours(0, 0, 0, 0);
     const endDate = new Date(today);
     endDate.setDate(endDate.getDate() + 60);
-    
-    const todayStr = today.toISOString().split('T')[0];
-    const endDateStr = endDate.toISOString().split('T')[0];
+
+    const todayStr = today.toISOString().split("T")[0];
+    const endDateStr = endDate.toISOString().split("T")[0];
 
     const issues = {
       noPrayerData: [],
       lowData: [],
       duplicateNames: {},
-      duplicateCoordinates: {}
+      duplicateCoordinates: {},
     };
 
-    console.log('🔍 Analyzing locations...\n');
+    console.log("🔍 Analyzing locations...\n");
 
     for (const location of locations) {
       const locationKey = `${location.latitude.toFixed(4)}_${location.longitude.toFixed(4)}`;
-      
+
       // Check prayer data
       const prayerDataCount = await PrayerTimeData.countDocuments({
         locationKey,
-        date: { $gte: todayStr, $lte: endDateStr }
+        date: { $gte: todayStr, $lte: endDateStr },
       });
 
       const completeness = Math.round((prayerDataCount / 60) * 100);
 
       // Check user count
       const userCount = await User.countDocuments({
-        'location.latitude': location.latitude,
-        'location.longitude': location.longitude,
-        isActive: true
+        "location.latitude": location.latitude,
+        "location.longitude": location.longitude,
+        isActive: true,
       });
 
       // Identify issues
@@ -67,7 +67,7 @@ async function analyzeLocations() {
           lat: location.latitude,
           lng: location.longitude,
           locationKey,
-          users: userCount
+          users: userCount,
         });
       } else if (completeness < 50) {
         issues.lowData.push({
@@ -78,7 +78,7 @@ async function analyzeLocations() {
           locationKey,
           count: prayerDataCount,
           completeness: `${completeness}%`,
-          users: userCount
+          users: userCount,
         });
       }
 
@@ -95,7 +95,7 @@ async function analyzeLocations() {
         lat: location.latitude,
         lng: location.longitude,
         users: userCount,
-        prayerData: prayerDataCount
+        prayerData: prayerDataCount,
       });
 
       // Check for duplicate coordinates
@@ -107,7 +107,7 @@ async function analyzeLocations() {
         id: location._id,
         name: location.name,
         users: userCount,
-        prayerData: prayerDataCount
+        prayerData: prayerDataCount,
       });
     }
 
@@ -127,92 +127,112 @@ async function analyzeLocations() {
       }, {});
 
     // Print results
-    console.log('=' .repeat(80));
-    console.log('📊 ANALYSIS RESULTS');
-    console.log('=' .repeat(80));
-    console.log('');
+    console.log("=".repeat(80));
+    console.log("📊 ANALYSIS RESULTS");
+    console.log("=".repeat(80));
+    console.log("");
 
     // 1. Locations with NO prayer data
     if (issues.noPrayerData.length > 0) {
-      console.log(`❌ ${issues.noPrayerData.length} locations with NO prayer data (0%):\n`);
+      console.log(
+        `❌ ${issues.noPrayerData.length} locations with NO prayer data (0%):\n`
+      );
       issues.noPrayerData.sort((a, b) => b.users - a.users);
-      issues.noPrayerData.forEach(loc => {
+      issues.noPrayerData.forEach((loc) => {
         console.log(`   📍 ${loc.name} (${loc.nameUz} | ${loc.nameRu})`);
         console.log(`      Coordinates: ${loc.lat}, ${loc.lng}`);
         console.log(`      Location Key: ${loc.locationKey}`);
         console.log(`      Users: ${loc.users}`);
         console.log(`      ID: ${loc.id}`);
-        console.log('');
+        console.log("");
       });
     }
 
     // 2. Locations with low data
     if (issues.lowData.length > 0) {
-      console.log(`⚠️  ${issues.lowData.length} locations with LOW prayer data (<50%):\n`);
+      console.log(
+        `⚠️  ${issues.lowData.length} locations with LOW prayer data (<50%):\n`
+      );
       issues.lowData.sort((a, b) => b.users - a.users);
-      issues.lowData.forEach(loc => {
-        console.log(`   📍 ${loc.name}: ${loc.completeness} (${loc.count}/60 days)`);
+      issues.lowData.forEach((loc) => {
+        console.log(
+          `   📍 ${loc.name}: ${loc.completeness} (${loc.count}/60 days)`
+        );
         console.log(`      Coordinates: ${loc.lat}, ${loc.lng}`);
         console.log(`      Users: ${loc.users}`);
-        console.log('');
+        console.log("");
       });
     }
 
     // 3. Duplicate names
     if (Object.keys(issues.duplicateNames).length > 0) {
-      console.log(`🔄 ${Object.keys(issues.duplicateNames).length} duplicate location names:\n`);
+      console.log(
+        `🔄 ${Object.keys(issues.duplicateNames).length} duplicate location names:\n`
+      );
       Object.entries(issues.duplicateNames).forEach(([name, locs]) => {
         console.log(`   📍 "${name}" - ${locs.length} locations:`);
-        locs.forEach(loc => {
+        locs.forEach((loc) => {
           console.log(`      - ${loc.name} (${loc.nameUz} | ${loc.nameRu})`);
-          console.log(`        ${loc.lat}, ${loc.lng} - ${loc.users} users, ${loc.prayerData} prayer times`);
+          console.log(
+            `        ${loc.lat}, ${loc.lng} - ${loc.users} users, ${loc.prayerData} prayer times`
+          );
           console.log(`        ID: ${loc.id}`);
         });
-        console.log('');
+        console.log("");
       });
     }
 
     // 4. Duplicate coordinates
     if (Object.keys(issues.duplicateCoordinates).length > 0) {
-      console.log(`🔄 ${Object.keys(issues.duplicateCoordinates).length} duplicate coordinates:\n`);
+      console.log(
+        `🔄 ${Object.keys(issues.duplicateCoordinates).length} duplicate coordinates:\n`
+      );
       Object.entries(issues.duplicateCoordinates).forEach(([coords, locs]) => {
         console.log(`   📍 ${coords} - ${locs.length} locations:`);
-        locs.forEach(loc => {
-          console.log(`      - ${loc.name} - ${loc.users} users, ${loc.prayerData} prayer times`);
+        locs.forEach((loc) => {
+          console.log(
+            `      - ${loc.name} - ${loc.users} users, ${loc.prayerData} prayer times`
+          );
           console.log(`        ID: ${loc.id}`);
         });
-        console.log('');
+        console.log("");
       });
     }
 
     // Summary and recommendations
-    console.log('=' .repeat(80));
-    console.log('💡 RECOMMENDATIONS');
-    console.log('=' .repeat(80));
-    console.log('');
+    console.log("=".repeat(80));
+    console.log("💡 RECOMMENDATIONS");
+    console.log("=".repeat(80));
+    console.log("");
 
     if (issues.noPrayerData.length > 0) {
-      console.log('1. ❌ Locations with NO data:');
-      console.log('   Run: node scripts/add-missing-prayer-data.js');
-      console.log('   This will fetch and cache prayer times for locations without data\n');
+      console.log("1. ❌ Locations with NO data:");
+      console.log("   Run: node scripts/add-missing-prayer-data.js");
+      console.log(
+        "   This will fetch and cache prayer times for locations without data\n"
+      );
     }
 
     if (issues.lowData.length > 0) {
-      console.log('2. ⚠️  Locations with LOW data:');
-      console.log('   Run: node scripts/refresh-prayer-cache.js --incomplete');
-      console.log('   This will refresh incomplete prayer data\n');
+      console.log("2. ⚠️  Locations with LOW data:");
+      console.log("   Run: node scripts/refresh-prayer-cache.js --incomplete");
+      console.log("   This will refresh incomplete prayer data\n");
     }
 
     if (Object.keys(issues.duplicateNames).length > 0) {
-      console.log('3. 🔄 Duplicate names:');
-      console.log('   Run: node scripts/merge-duplicate-locations.js --by-name');
-      console.log('   This will merge locations with same name\n');
+      console.log("3. 🔄 Duplicate names:");
+      console.log(
+        "   Run: node scripts/merge-duplicate-locations.js --by-name"
+      );
+      console.log("   This will merge locations with same name\n");
     }
 
     if (Object.keys(issues.duplicateCoordinates).length > 0) {
-      console.log('4. 🔄 Duplicate coordinates:');
-      console.log('   Run: node scripts/merge-duplicate-locations.js --by-coords');
-      console.log('   This will merge locations with same coordinates\n');
+      console.log("4. 🔄 Duplicate coordinates:");
+      console.log(
+        "   Run: node scripts/merge-duplicate-locations.js --by-coords"
+      );
+      console.log("   This will merge locations with same coordinates\n");
     }
 
     // Save report to file
@@ -222,18 +242,18 @@ async function analyzeLocations() {
       noPrayerData: issues.noPrayerData,
       lowData: issues.lowData,
       duplicateNames: issues.duplicateNames,
-      duplicateCoordinates: issues.duplicateCoordinates
+      duplicateCoordinates: issues.duplicateCoordinates,
     };
 
-    const fs = require('fs');
-    const reportPath = './location-analysis-report.json';
+    const fs = require("fs");
+    const reportPath = "./location-analysis-report.json";
     fs.writeFileSync(reportPath, JSON.stringify(report, null, 2));
     console.log(`📄 Full report saved to: ${reportPath}`);
 
     await mongoose.disconnect();
     process.exit(0);
   } catch (error) {
-    console.error('❌ Error:', error);
+    console.error("❌ Error:", error);
     process.exit(1);
   }
 }

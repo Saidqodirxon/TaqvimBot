@@ -90,12 +90,12 @@ settingsScene.action(/toggle_prayer_(.+)/, async (ctx) => {
 
   user.reminderSettings.prayers[prayerKey] =
     !user.reminderSettings.prayers[prayerKey];
-  
+
   // Auto-enable/disable global flag based on any prayer being enabled
   const prayers = ["fajr", "dhuhr", "asr", "maghrib", "isha"];
   const anyEnabled = prayers.some((p) => user.reminderSettings.prayers[p]);
   user.reminderSettings.enabled = anyEnabled;
-  
+
   await user.save();
 
   // Schedule/cancel reminders
