@@ -101,7 +101,10 @@ function App() {
       }
 
       // Check if user needs to setup reminders (if not configured)
-      if (user.reminderSettings === undefined || user.reminderSettings.enabled === undefined) {
+      if (
+        user.reminderSettings === undefined ||
+        user.reminderSettings.enabled === undefined
+      ) {
         setShowReminderPrompt(true);
         setLoading(false);
         return;
@@ -130,20 +133,24 @@ function App() {
       }
     } catch (err) {
       console.error("Error fetching data:", err);
-      
+
       // Better error messages based on error type
-      let errorMessage = "❌ Ma'lumot yuklashda xatolik. Iltimos, qayta urinib ko'ring.";
-      
-      if (err.code === 'ECONNABORTED' || err.message.includes('timeout')) {
-        errorMessage = "❌ Serverga ulanishda xatolik. Internet tezligingizni tekshiring.";
+      let errorMessage =
+        "❌ Ma'lumot yuklashda xatolik. Iltimos, qayta urinib ko'ring.";
+
+      if (err.code === "ECONNABORTED" || err.message.includes("timeout")) {
+        errorMessage =
+          "❌ Serverga ulanishda xatolik. Internet tezligingizni tekshiring.";
       } else if (err.response?.status === 404) {
-        errorMessage = "❌ Foydalanuvchi topilmadi. Iltimos, botda /start bosing.";
+        errorMessage =
+          "❌ Foydalanuvchi topilmadi. Iltimos, botda /start bosing.";
       } else if (!navigator.onLine) {
-        errorMessage = "❌ Internet aloqasi yo'q. Iltimos, internetingizni tekshiring.";
+        errorMessage =
+          "❌ Internet aloqasi yo'q. Iltimos, internetingizni tekshiring.";
       } else if (err.response?.data?.error) {
         errorMessage = "❌ " + err.response.data.error;
       }
-      
+
       setError(errorMessage);
     } finally {
       setLoading(false);
@@ -156,25 +163,30 @@ function App() {
       setLoading(true);
 
       axios
-        .post(`${API_BASE}/api/miniapp/prayer-times`, {
-          userId: userData.userId,
-          latitude: userData.location.latitude,
-          longitude: userData.location.longitude,
-        }, { timeout: 10000 })
+        .post(
+          `${API_BASE}/api/miniapp/prayer-times`,
+          {
+            userId: userData.userId,
+            latitude: userData.location.latitude,
+            longitude: userData.location.longitude,
+          },
+          { timeout: 10000 }
+        )
         .then((response) => {
           setPrayerTimes(response.data);
           setLoading(false);
         })
         .catch((err) => {
           console.error("Retry error:", err);
-          
+
           let errorMsg = "Namoz vaqtlarini yuklashda xatolik";
-          if (err.code === 'ECONNABORTED' || err.message.includes('timeout')) {
-            errorMsg = "Serverga ulanishda xatolik. Internet tezligingizni tekshiring.";
+          if (err.code === "ECONNABORTED" || err.message.includes("timeout")) {
+            errorMsg =
+              "Serverga ulanishda xatolik. Internet tezligingizni tekshiring.";
           } else if (err.response?.data?.error) {
             errorMsg = err.response.data.error;
           }
-          
+
           setPrayerError(errorMsg);
           setLoading(false);
         });
@@ -219,7 +231,10 @@ function App() {
       <div className="app prompt">
         <div className="prompt-card">
           <h2>📢 Kanalga obuna bo'ling</h2>
-          <p>Taqvimdan foydalanish uchun rasmiy kanalimizga obuna bo'lishingiz kerak.</p>
+          <p>
+            Taqvimdan foydalanish uchun rasmiy kanalimizga obuna bo'lishingiz
+            kerak.
+          </p>
           <button
             className="primary-button"
             onClick={() => {

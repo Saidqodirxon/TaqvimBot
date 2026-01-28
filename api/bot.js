@@ -279,7 +279,7 @@ bot.command("start", async (ctx) => {
     try {
       const miniAppUrl = process.env.MINI_APP_URL;
       if (miniAppUrl) {
-        await ctx.telegram.callApi('setChatMenuButton', {
+        await ctx.telegram.callApi("setChatMenuButton", {
           chat_id: ctx.from.id,
           menu_button: {
             type: "web_app",
@@ -379,7 +379,9 @@ bot.command("start", async (ctx) => {
     logger.error("Start command error", error);
     // Send error message to user
     try {
-      await ctx.reply("⚠️ Xatolik yuz berdi. Iltimos, /start buyrug'ini qayta yuboring.");
+      await ctx.reply(
+        "⚠️ Xatolik yuz berdi. Iltimos, /start buyrug'ini qayta yuboring."
+      );
     } catch (e) {
       // Ignore if can't send error message
     }
@@ -1567,10 +1569,10 @@ bot.action("disable_all_reminders", async (ctx) => {
 
     await ctx.editMessageText(
       "✅ Barcha eslatmalar o'chirildi\n\n" +
-      "📌 Namoz vaqtlari haqida eslatmalar endi yuborilmaydi.\n\n" +
-      "Agar kerak bo'lsa, sozlamalar orqali qayta yoqishingiz mumkin.",
+        "📌 Namoz vaqtlari haqida eslatmalar endi yuborilmaydi.\n\n" +
+        "Agar kerak bo'lsa, sozlamalar orqali qayta yoqishingiz mumkin.",
       Markup.inlineKeyboard([
-        [Markup.button.callback("◀️ Orqaga", "back_to_settings")]
+        [Markup.button.callback("◀️ Orqaga", "back_to_settings")],
       ])
     );
   } catch (error) {
@@ -1955,10 +1957,10 @@ async function startBot() {
     console.log("\n🔄 Initializing Redis cache...");
     const redisCache = new RedisCache();
     await redisCache.initialize();
-    
+
     // Set Redis cache for aladhan.js
     setRedisCache(redisCache);
-    
+
     if (redisCache.isAvailable()) {
       console.log("✅ Redis cache enabled for prayer times");
     } else {
@@ -2011,7 +2013,7 @@ async function startBot() {
           if (miniAppUrl && miniAppUrl.startsWith("https://")) {
             // Set default menu button with userId parameter
             // When user opens, we'll set their specific userId
-            await bot.telegram.callApi('setChatMenuButton', {
+            await bot.telegram.callApi("setChatMenuButton", {
               menu_button: {
                 type: "web_app",
                 text: "📅 Taqvim",

@@ -93,8 +93,14 @@ const Qibla = ({ userData }) => {
   };
 
   const calculateQibla = () => {
-    if (!userData?.location || !userData.location.latitude || !userData.location.longitude) {
-      setError("📍 Joylashuvingizni kiritmadingiz.\n\nQibla yo'nalishini aniqlash uchun botda joylashuvingizni kiriting.");
+    if (
+      !userData?.location ||
+      !userData.location.latitude ||
+      !userData.location.longitude
+    ) {
+      setError(
+        "📍 Joylashuvingizni kiritmadingiz.\n\nQibla yo'nalishini aniqlash uchun botda joylashuvingizni kiriting."
+      );
       return;
     }
 
