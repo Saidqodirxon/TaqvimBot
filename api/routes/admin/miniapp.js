@@ -105,9 +105,18 @@ router.post("/prayer-times", async (req, res) => {
         errorMsg,
         prayerData,
       });
+      
+      // Don't expose internal errors to user, just log them
       return res.status(500).json({
         error: "Namoz vaqtlarini yuklashda xatolik",
-        details: errorMsg,
+      });
+    }
+
+    // Log if prayer times are outdated
+    if (prayerData.outdated) {
+      logger.warn("Prayer times outdated", {
+        userId,
+        warning: prayerData.warning,
       });
     }
 

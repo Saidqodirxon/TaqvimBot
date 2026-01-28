@@ -13,6 +13,18 @@ function App() {
   const [error, setError] = useState(null);
   const [prayerError, setPrayerError] = useState(null);
   const [currentView, setCurrentView] = useState("calendar"); // "calendar" or "qibla"
+  const [showChannelPrompt, setShowChannelPrompt] = useState(false);
+  const [showReminderPrompt, setShowReminderPrompt] = useState(false);
+
+  useEffect(() => {
+    // Log outdated prayer times warning to console
+    if (prayerTimes?.outdated) {
+      console.warn(
+        "⚠️ Prayer times outdated:",
+        prayerTimes.warning || "API ishlamadi, yaqin joylashuv ma'lumotlari"
+      );
+    }
+  }, [prayerTimes]);
 
   useEffect(() => {
     // Initialize Telegram WebApp
@@ -77,10 +89,25 @@ function App() {
       const response = await axios.get(
         `${API_BASE}/api/miniapp/user/${userId}`
       );
-      setUserData(response.data);
+      const user = response.data;
+      setUserData(user);
+
+      // Check if user needs to join channel
+      if (!user.hasJoinedChannel) {
+        setShowChannelPrompt(true);
+        setLoading(false);
+        return;
+      }
+
+      // Check if user needs to setup reminders (if not configured)
+      if (user.reminderSettings === undefined || user.reminderSettings.enabled === undefined) {
+        setShowReminderPrompt(true);
+        setLoading(false);
+        return;
+      }
 
       // Fetch prayer times only if location exists
-      if (response.data.location && response.data.location.latitude) {
+      if (user.location && user.location.latitude) {
         try {
           const prayerResponse = await axios.post(
             `${API_BASE}/api/miniapp/prayer-times`,
@@ -151,6 +178,53 @@ function App() {
     );
   }
 
+  if (showChannelPrompt) {
+    return (
+      <div className="app prompt">
+        <div className="prompt-card">
+          <h2>📢 Kanalga obuna bo'ling</h2>
+          <p>Taqvimdan foydalanish uchun rasmiy kanalimizga obuna bo'lishingiz kerak.</p>
+          <button
+            className="primary-button"
+            onClick={() => {
+              const tg = window.Telegram.WebApp;
+              tg.close();
+            }}
+          >
+            Botga qaytish
+          </button>
+          <p className="hint">Botda "Kanalga obuna bo'lish" tugmasini bosing</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (showReminderPrompt) {
+    return (
+      <div className="app prompt">
+        <div className="prompt-card">
+          <h2>🔔 Eslatmalarni sozlang</h2>
+          <p>Namoz vaqtlari haqida eslatma olishni xohlaysizmi?</p>
+          <button
+            className="primary-button"
+            onClick={() => {
+              const tg = window.Telegram.WebApp;
+              tg.close();
+            }}
+          >
+            Botda sozlash
+          </button>
+          <button
+            className="secondary-button"
+            onClick={() => setShowReminderPrompt(false)}
+          >
+            Keyinroq
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="app">
       <header className="app-header">
@@ -185,16 +259,7 @@ function App() {
             </button>
           </div>
         ) : prayerTimes ? (
-          <>
-            {prayerTimes.outdated && (
-              <div className="warning-banner">
-                ⚠️{" "}
-                {prayerTimes.warning ||
-                  "API ishlamadi, oxirgi ma'lumot ko'rsatilmoqda"}
-              </div>
-            )}
-            <Calendar prayerTimes={prayerTimes} userData={userData} />
-          </>
+          <Calendar prayerTimes={prayerTimes} userData={userData} />
         ) : (
           <div className="no-location">
             <p>📍 Joylashuvingizni kiriting</p>

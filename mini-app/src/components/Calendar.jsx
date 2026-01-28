@@ -16,7 +16,7 @@ const Calendar = ({ prayerTimes, userData }) => {
       0: "Jafari",
       1: "Karachi",
       2: "ISNA",
-      3: "MWL",
+      3: "Musulmon dunyosi ligasi",
       4: "Makka",
       5: "Misr",
       7: "Tehran",
