@@ -12,6 +12,8 @@ const Locations = () => {
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingLocation, setEditingLocation] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [regionFilter, setRegionFilter] = useState("");
   const [formData, setFormData] = useState({
     name: "",
     nameUz: "",
@@ -190,17 +192,81 @@ const Locations = () => {
     return <div className="loading">Yuklanmoqda...</div>;
   }
 
+  // Filter locations based on search and region
+  const filteredLocations = locations.filter((location) => {
+    const matchesSearch =
+      !searchQuery ||
+      location.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      location.nameUz.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      location.nameCr.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      location.nameRu.toLowerCase().includes(searchQuery.toLowerCase());
+
+    const matchesRegion =
+      !regionFilter ||
+      location.name.toLowerCase().includes(regionFilter.toLowerCase());
+
+    return matchesSearch && matchesRegion;
+  });
+
+  // Extract unique regions from location names
+  const regions = [
+    ...new Set(
+      locations
+        .map((l) => {
+          // Extract region from name like "Toshkent, Olmaliq" -> "Toshkent"
+          const parts = l.name.split(",");
+          return parts[0].trim();
+        })
+        .filter((r) => r)
+    ),
+  ].sort();
+
   return (
     <div className="locations-page">
       <div className="page-header">
-        <h1>📍 Joylashuvlar</h1>
+        <h1>📍 Joylashuvlar ({filteredLocations.length})</h1>
         <button className="btn-add" onClick={openAddModal}>
           + Yangi joylashuv
         </button>
       </div>
 
+      {/* Filters */}
+      <div className="filters-section" style={{ marginBottom: "20px", display: "flex", gap: "10px" }}>
+        <input
+          type="text"
+          placeholder="🔍 Qidirish..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          style={{
+            flex: 2,
+            padding: "10px",
+            borderRadius: "8px",
+            border: "1px solid #ddd",
+            fontSize: "14px",
+          }}
+        />
+        <select
+          value={regionFilter}
+          onChange={(e) => setRegionFilter(e.target.value)}
+          style={{
+            flex: 1,
+            padding: "10px",
+            borderRadius: "8px",
+            border: "1px solid #ddd",
+            fontSize: "14px",
+          }}
+        >
+          <option value="">Barcha viloyatlar</option>
+          {regions.map((region) => (
+            <option key={region} value={region}>
+              {region}
+            </option>
+          ))}
+        </select>
+      </div>
+
       <div className="locations-grid">
-        {locations.map((location) => (
+        {filteredLocations.map((location) => (
           <div key={location._id} className="location-card">
             <div className="location-header">
               <h3>

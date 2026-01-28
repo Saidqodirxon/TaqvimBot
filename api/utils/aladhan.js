@@ -65,7 +65,7 @@ async function getPrayerTimes(
             timezone: "Asia/Tashkent",
             method: {
               id: prayerData.method || 3,
-              name: "Muslim World League (MWL)",
+              name: CALCULATION_METHODS[prayerData.method || 3]?.uz || "Musulmon dunyosi ligasi",
             },
             school: { id: prayerData.school || 1, name: "Hanafi" },
           },

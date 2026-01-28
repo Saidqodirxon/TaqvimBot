@@ -24,9 +24,31 @@ function Backups() {
     cronTime: "0 3 * * *",
     keepDays: 7,
   });
+  const [scheduleHour, setScheduleHour] = useState(3);
+  const [scheduleMinute, setScheduleMinute] = useState(0);
+  const [scheduleDayOfMonth, setScheduleDayOfMonth] = useState("*");
 
   const queryClient = useQueryClient();
   const token = localStorage.getItem("token");
+
+  // Convert cron to readable format
+  const cronToReadable = (cronTime) => {
+    const [minute, hour, dayOfMonth] = cronTime.split(" ");
+    const h = parseInt(hour);
+    const m = parseInt(minute);
+    const timeStr = `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}`;
+    
+    if (dayOfMonth === "*") {
+      return `Har kuni soat ${timeStr} da`;
+    } else {
+      return `Har oyning ${dayOfMonth}-kuni soat ${timeStr} da`;
+    }
+  };
+
+  // Convert hour/minute to cron
+  const toCronTime = (hour, minute, dayOfMonth) => {
+    return `${minute} ${hour} ${dayOfMonth} * *`;
+  };
 
   // Get all backups
   const { data: backupsData, isLoading } = useQuery({
@@ -152,12 +174,21 @@ function Backups() {
   const handleOpenSchedule = () => {
     if (scheduleData?.schedule) {
       setScheduleSettings(scheduleData.schedule);
+      // Parse cron time
+      const [minute, hour, dayOfMonth] = scheduleData.schedule.cronTime.split(" ");
+      setScheduleHour(parseInt(hour));
+      setScheduleMinute(parseInt(minute));
+      setScheduleDayOfMonth(dayOfMonth);
     }
     setShowScheduleModal(true);
   };
 
   const handleSaveSchedule = () => {
-    updateScheduleMutation.mutate(scheduleSettings);
+    const cronTime = toCronTime(scheduleHour, scheduleMinute, scheduleDayOfMonth);
+    updateScheduleMutation.mutate({
+      ...scheduleSettings,
+      cronTime,
+    });
   };
 
   const formatDate = (dateString) => {
@@ -171,8 +202,7 @@ function Backups() {
   };
 
   const parseCronTime = (cronTime) => {
-    const [minute, hour, dayOfMonth, month, dayOfWeek] = cronTime.split(" ");
-    return `Har kuni ${hour.padStart(2, "0")}:${minute.padStart(2, "0")} da`;
+    return cronToReadable(cronTime);
   };
 
   if (isLoading) {
@@ -353,22 +383,56 @@ function Backups() {
               </div>
 
               <div className="form-group">
-                <label>Cron Time (vaqtni belgilash)</label>
-                <input
-                  type="text"
-                  value={scheduleSettings.cronTime}
-                  onChange={(e) =>
-                    setScheduleSettings({
-                      ...scheduleSettings,
-                      cronTime: e.target.value,
-                    })
-                  }
-                  placeholder="0 3 * * *"
-                />
-                <small>
-                  Format: minute hour day month weekday
-                  <br />
-                  Misol: "0 3 * * *" - har kuni 03:00 da
+                <label>Backup vaqti</label>
+                <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+                  <div style={{ flex: 1 }}>
+                    <label style={{ fontSize: "12px", color: "#666" }}>Soat</label>
+                    <select
+                      value={scheduleHour}
+                      onChange={(e) => setScheduleHour(parseInt(e.target.value))}
+                      style={{ width: "100%", padding: "8px", borderRadius: "4px", border: "1px solid #ddd" }}
+                    >
+                      {Array.from({ length: 24 }, (_, i) => (
+                        <option key={i} value={i}>
+                          {i.toString().padStart(2, "0")}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <span style={{ fontSize: "20px", fontWeight: "bold" }}>:</span>
+                  <div style={{ flex: 1 }}>
+                    <label style={{ fontSize: "12px", color: "#666" }}>Daqiqa</label>
+                    <select
+                      value={scheduleMinute}
+                      onChange={(e) => setScheduleMinute(parseInt(e.target.value))}
+                      style={{ width: "100%", padding: "8px", borderRadius: "4px", border: "1px solid #ddd" }}
+                    >
+                      {Array.from({ length: 60 }, (_, i) => (
+                        <option key={i} value={i}>
+                          {i.toString().padStart(2, "0")}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label>Backup qilish kuni (oylik)</label>
+                <select
+                  value={scheduleDayOfMonth}
+                  onChange={(e) => setScheduleDayOfMonth(e.target.value)}
+                  style={{ width: "100%", padding: "8px", borderRadius: "4px", border: "1px solid #ddd" }}
+                >
+                  <option value="*">Har kuni</option>
+                  {Array.from({ length: 31 }, (_, i) => i + 1).map((day) => (
+                    <option key={day} value={day}>
+                      Har oyning {day}-kuni
+                    </option>
+                  ))}
+                </select>
+                <small style={{ color: "#666", marginTop: "5px", display: "block" }}>
+                  ✅ {cronToReadable(toCronTime(scheduleHour, scheduleMinute, scheduleDayOfMonth))}
                 </small>
               </div>
 

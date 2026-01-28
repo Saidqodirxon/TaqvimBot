@@ -1286,34 +1286,34 @@ bot.action("calendar_weekly", async (ctx) => {
     let message =
       (await t(lang, "calendar_weekly_title")) + `\n📍 ${locationName}\n\n`;
 
-    // Week day names
+    // Week day names with emojis
     const weekDays = {
       uz: [
-        "yakshanba",
-        "dushanba",
-        "seshanba",
-        "chorshanba",
-        "payshanba",
-        "juma",
-        "shanba",
+        "Yakshanba",
+        "Dushanba",
+        "Seshanba",
+        "Chorshanba",
+        "Payshanba",
+        "Juma",
+        "Shanba",
       ],
       cr: [
-        "якшанба",
-        "душанба",
-        "сешанба",
-        "чоршанба",
-        "пайшанба",
-        "жума",
-        "шанба",
+        "Якшанба",
+        "Душанба",
+        "Сешанба",
+        "Чоршанба",
+        "Пайшанба",
+        "Жума",
+        "Шанба",
       ],
       ru: [
-        "воскресенье",
-        "понедельник",
-        "вторник",
-        "среда",
-        "четверг",
-        "пятница",
-        "суббота",
+        "Воскресенье",
+        "Понедельник",
+        "Вторник",
+        "Среда",
+        "Четверг",
+        "Пятница",
+        "Суббота",
       ],
     };
 
@@ -1334,9 +1334,11 @@ bot.action("calendar_weekly", async (ctx) => {
           const dayOfWeek = date.day();
           const dayName =
             weekDays[lang]?.[dayOfWeek] || weekDays["uz"][dayOfWeek];
-          message += `📅 ${date.format("DD.MM.YYYY")} (${dayName})\n`;
-          message += `🌅 ${prayerData.timings.fajr} | ☀️ ${prayerData.timings.dhuhr} | 🌤 ${prayerData.timings.asr}\n`;
-          message += `🌇 ${prayerData.timings.maghrib} | 🌙 ${prayerData.timings.isha}\n\n`;
+          const dayEmoji = i === 0 ? "📍" : dayOfWeek === 5 ? "🕌" : "📅";
+          message += `${dayEmoji} <b>${date.format("DD.MM")} - ${dayName}</b>\n`;
+          message += `🌅 Bomdod: ${prayerData.timings.fajr}  |  ☀️ Peshin: ${prayerData.timings.dhuhr}\n`;
+          message += `🌤 Asr: ${prayerData.timings.asr}  |  🌆 Shom: ${prayerData.timings.maghrib}\n`;
+          message += `🌙 Xufton: ${prayerData.timings.isha}\n\n`;
         }
       } catch (dayError) {
         console.error(
@@ -1369,6 +1371,7 @@ bot.action("calendar_weekly", async (ctx) => {
     }
 
     await ctx.editMessageText(message, {
+      parse_mode: "HTML",
       reply_markup: {
         inline_keyboard: keyboardWeekly,
       },
