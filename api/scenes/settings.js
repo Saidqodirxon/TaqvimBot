@@ -90,13 +90,26 @@ settingsScene.action(/toggle_prayer_(.+)/, async (ctx) => {
 
   user.reminderSettings.prayers[prayerKey] =
     !user.reminderSettings.prayers[prayerKey];
+  
+  // Auto-enable/disable global flag based on any prayer being enabled
+  const prayers = ["fajr", "dhuhr", "asr", "maghrib", "isha"];
+  const anyEnabled = prayers.some((p) => user.reminderSettings.prayers[p]);
+  user.reminderSettings.enabled = anyEnabled;
+  
   await user.save();
+
+  // Schedule/cancel reminders
+  if (anyEnabled && global.reminderBot) {
+    const { schedulePrayerReminders } = require("../utils/prayerReminders");
+    await schedulePrayerReminders(global.reminderBot, user);
+  } else {
+    const { cancelUserReminders } = require("../utils/prayerReminders");
+    cancelUserReminders(ctx.from.id);
+  }
 
   await ctx.answerCbQuery(await t(lang, "saved"));
 
-  // Refresh buttons
-  const prayers = ["fajr", "dhuhr", "asr", "maghrib", "isha"];
-
+  // Refresh buttons (reuse prayers array)
   const buttons = [];
   for (const pKey of prayers) {
     const isEnabled = user.reminderSettings.prayers[pKey];
@@ -222,18 +235,19 @@ settingsScene.action("disable_all_reminders", async (ctx) => {
   const lang = ctx.session.language;
   const user = await User.findOne({ userId: ctx.from.id });
 
-  // Disable all prayers
+  // Disable all prayers AND global enabled flag
   const prayers = ["fajr", "dhuhr", "asr", "maghrib", "isha"];
   prayers.forEach((prayer) => {
     user.reminderSettings.prayers[prayer] = false;
   });
+  user.reminderSettings.enabled = false; // Also disable global flag
   await user.save();
 
   await ctx.answerCbQuery(await t(lang, "all_reminders_disabled"));
 
-  // Update reminders
-  const { updateUserReminders } = require("../utils/prayerReminders");
-  await updateUserReminders(ctx.telegram, ctx.from.id, user.reminderSettings);
+  // Update reminders (cancel all scheduled jobs)
+  const { cancelUserReminders } = require("../utils/prayerReminders");
+  cancelUserReminders(ctx.from.id);
 
   // Refresh the menu
   const buttons = [];
@@ -282,18 +296,21 @@ settingsScene.action("enable_all_reminders", async (ctx) => {
   const lang = ctx.session.language;
   const user = await User.findOne({ userId: ctx.from.id });
 
-  // Enable all prayers
+  // Enable all prayers AND global enabled flag
   const prayers = ["fajr", "dhuhr", "asr", "maghrib", "isha"];
   prayers.forEach((prayer) => {
     user.reminderSettings.prayers[prayer] = true;
   });
+  user.reminderSettings.enabled = true; // Also enable global flag
   await user.save();
 
   await ctx.answerCbQuery(await t(lang, "all_reminders_enabled"));
 
-  // Update reminders
-  const { updateUserReminders } = require("../utils/prayerReminders");
-  await updateUserReminders(ctx.telegram, ctx.from.id, user.reminderSettings);
+  // Update reminders (schedule jobs)
+  const { schedulePrayerReminders } = require("../utils/prayerReminders");
+  if (global.reminderBot) {
+    await schedulePrayerReminders(global.reminderBot, user);
+  }
 
   // Refresh the menu
   const buttons = [];

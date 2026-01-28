@@ -1,0 +1,1321 @@
+{
+  "timestamp": "2026-01-28T10:41:46.676Z",
+  "totalLocations": 232,
+  "noPrayerData": [
+    {
+      "id": "6978430e2eb34626920cd831",
+      "name": "Bo'stonliq",
+      "nameUz": "Bo'stonliq",
+      "nameRu": "Бостанлык",
+      "lat": 41.4,
+      "lng": 69.75,
+      "locationKey": "41.4000_69.7500",
+      "users": 0
+    },
+    {
+      "id": "6978431a2eb34626920cd874",
+      "name": "Buvayda",
+      "nameUz": "Buvayda",
+      "nameRu": "Бувайда",
+      "lat": 40.3333,
+      "lng": 71.25,
+      "locationKey": "40.3333_71.2500",
+      "users": 0
+    },
+    {
+      "id": "6978431f2eb34626920cd892",
+      "name": "Norin",
+      "nameUz": "Norin",
+      "nameRu": "Норин",
+      "lat": 41.1667,
+      "lng": 71.8333,
+      "locationKey": "41.1667_71.8333",
+      "users": 0
+    },
+    {
+      "id": "697843182eb34626920cd868",
+      "name": "So'x",
+      "nameUz": "So'x",
+      "nameRu": "Сох",
+      "lat": 39.95,
+      "lng": 71.1333,
+      "locationKey": "39.9500_71.1333",
+      "users": 0
+    },
+    {
+      "id": "697843172eb34626920cd865",
+      "name": "Toshloq",
+      "nameUz": "Toshloq",
+      "nameRu": "Ташлак",
+      "lat": 40.35,
+      "lng": 70.9,
+      "locationKey": "40.3500_70.9000",
+      "users": 0
+    },
+    {
+      "id": "6978432c2eb34626920cd8dd",
+      "name": "Toyloq",
+      "nameUz": "Toyloq",
+      "nameRu": "Тайлак",
+      "lat": 39.6,
+      "lng": 67.45,
+      "locationKey": "39.6000_67.4500",
+      "users": 0
+    },
+    {
+      "id": "697843262eb34626920cd8b9",
+      "name": "Ulug'nor",
+      "nameUz": "Ulug'nor",
+      "nameRu": "Улугнор",
+      "lat": 40.85,
+      "lng": 72.6333,
+      "locationKey": "40.8500_72.6333",
+      "users": 0
+    },
+    {
+      "id": "697843372eb34626920cd91f",
+      "name": "Xatirchi",
+      "nameUz": "Xatirchi",
+      "nameRu": "Хатырчи",
+      "lat": 40.45,
+      "lng": 66.4,
+      "locationKey": "40.4500_66.4000",
+      "users": 0
+    },
+    {
+      "id": "697843162eb34626920cd85c",
+      "name": "Yaypan",
+      "nameUz": "Yaypan",
+      "nameRu": "Яйпан",
+      "lat": 40.4,
+      "lng": 71.8167,
+      "locationKey": "40.4000_71.8167",
+      "users": 0
+    }
+  ],
+  "lowData": [
+    {
+      "id": "697843252eb34626920cd8b3",
+      "name": "Jalolquduq",
+      "lat": 40.9333,
+      "lng": 72.5667,
+      "locationKey": "40.9333_72.5667",
+      "count": 9,
+      "completeness": "15%",
+      "users": 0
+    }
+  ],
+  "duplicateNames": {
+    "angor": [
+      {
+        "id": "6978434b2eb34626920cd98e",
+        "name": "Angor",
+        "nameUz": "Angor",
+        "nameRu": "Ангор",
+        "lat": 37.9,
+        "lng": 67.2833,
+        "users": 0,
+        "prayerData": 59
+      },
+      {
+        "id": "6977da93659c7e590a376688",
+        "name": "Angor",
+        "nameUz": "Angor",
+        "nameRu": "Ангор",
+        "lat": 37.8894,
+        "lng": 67.4847,
+        "users": 0,
+        "prayerData": 61
+      }
+    ],
+    "asaka": [
+      {
+        "id": "697843202eb34626920cd898",
+        "name": "Asaka",
+        "nameUz": "Asaka",
+        "nameRu": "Асака",
+        "lat": 40.6436,
+        "lng": 72.2378,
+        "users": 0,
+        "prayerData": 59
+      },
+      {
+        "id": "6977da77659c7e590a376628",
+        "name": "Asaka",
+        "nameUz": "Asaka",
+        "nameRu": "Асака",
+        "lat": 40.6481,
+        "lng": 72.2386,
+        "users": 0,
+        "prayerData": 61
+      }
+    ],
+    "bekobod": [
+      {
+        "id": "6977da64d8a5aa6cce03f6ad",
+        "name": "Bekobod",
+        "nameUz": "Bekobod",
+        "nameRu": "Бекабад",
+        "lat": 40.2167,
+        "lng": 69.2,
+        "users": 0,
+        "prayerData": 61
+      },
+      {
+        "id": "6978430a2eb34626920cd81c",
+        "name": "Bekobod",
+        "nameUz": "Bekobod",
+        "nameRu": "Бекабад",
+        "lat": 40.2128,
+        "lng": 69.1939,
+        "users": 0,
+        "prayerData": 59
+      }
+    ],
+    "beruniy": [
+      {
+        "id": "6977da8d659c7e590a376670",
+        "name": "Beruniy",
+        "nameUz": "Beruniy",
+        "nameRu": "Беруни",
+        "lat": 41.6956,
+        "lng": 60.7508,
+        "users": 0,
+        "prayerData": 61
+      },
+      {
+        "id": "697843542eb34626920cd9c1",
+        "name": "Beruniy",
+        "nameUz": "Beruniy",
+        "nameRu": "Беруни",
+        "lat": 41.6833,
+        "lng": 60.75,
+        "users": 0,
+        "prayerData": 59
+      }
+    ],
+    "beshariq": [
+      {
+        "id": "6977da85659c7e590a376655",
+        "name": "Beshariq",
+        "nameUz": "Beshariq",
+        "nameRu": "Бешарык",
+        "lat": 40.4372,
+        "lng": 70.6106,
+        "users": 0,
+        "prayerData": 61
+      },
+      {
+        "id": "697843152eb34626920cd856",
+        "name": "Beshariq",
+        "nameUz": "Beshariq",
+        "nameRu": "Бешарык",
+        "lat": 40.4331,
+        "lng": 70.6122,
+        "users": 0,
+        "prayerData": 59
+      }
+    ],
+    "bog'ot": [
+      {
+        "id": "697843512eb34626920cd9af",
+        "name": "Bog'ot",
+        "nameUz": "Bog'ot",
+        "nameRu": "Багат",
+        "lat": 41.5167,
+        "lng": 60.7667,
+        "users": 0,
+        "prayerData": 59
+      },
+      {
+        "id": "6977da98659c7e590a3766a0",
+        "name": "Bog'ot",
+        "nameUz": "Bog'ot",
+        "nameRu": "Багат",
+        "lat": 41.5689,
+        "lng": 60.9917,
+        "users": 0,
+        "prayerData": 61
+      }
+    ],
+    "boyovut": [
+      {
+        "id": "6978433e2eb34626920cd943",
+        "name": "Boyovut",
+        "nameUz": "Boyovut",
+        "nameRu": "Баяут",
+        "lat": 40.5667,
+        "lng": 68.8,
+        "users": 0,
+        "prayerData": 59
+      },
+      {
+        "id": "6977da9f659c7e590a3766be",
+        "name": "Boyovut",
+        "nameUz": "Boyovut",
+        "nameRu": "Баяут",
+        "lat": 40.2186,
+        "lng": 68.6758,
+        "users": 0,
+        "prayerData": 61
+      }
+    ],
+    "boysun": [
+      {
+        "id": "6977da93659c7e590a37668b",
+        "name": "Boysun",
+        "nameUz": "Boysun",
+        "nameRu": "Байсун",
+        "lat": 38.2147,
+        "lng": 67.2044,
+        "users": 0,
+        "prayerData": 61
+      },
+      {
+        "id": "6978434a2eb34626920cd988",
+        "name": "Boysun",
+        "nameUz": "Boysun",
+        "nameRu": "Байсун",
+        "lat": 38.2167,
+        "lng": 67.2,
+        "users": 0,
+        "prayerData": 59
+      }
+    ],
+    "chortoq": [
+      {
+        "id": "6977da7f659c7e590a376643",
+        "name": "Chortoq",
+        "nameUz": "Chortoq",
+        "nameRu": "Чартак",
+        "lat": 41.0614,
+        "lng": 71.8356,
+        "users": 0,
+        "prayerData": 61
+      },
+      {
+        "id": "6978431b2eb34626920cd87d",
+        "name": "Chortoq",
+        "nameUz": "Chortoq",
+        "nameRu": "Чартак",
+        "lat": 41.0833,
+        "lng": 71.8,
+        "users": 0,
+        "prayerData": 59
+      }
+    ],
+    "denov": [
+      {
+        "id": "697843482eb34626920cd97c",
+        "name": "Denov",
+        "nameUz": "Denov",
+        "nameRu": "Денау",
+        "lat": 38.2667,
+        "lng": 67.9,
+        "users": 0,
+        "prayerData": 59
+      },
+      {
+        "id": "6977da92659c7e590a376685",
+        "name": "Denov",
+        "nameUz": "Denov",
+        "nameRu": "Денау",
+        "lat": 38.2719,
+        "lng": 67.8953,
+        "users": 0,
+        "prayerData": 61
+      }
+    ],
+    "do'stlik": [
+      {
+        "id": "697843392eb34626920cd925",
+        "name": "Do'stlik",
+        "nameUz": "Do'stlik",
+        "nameRu": "Дустлик",
+        "lat": 40.35,
+        "lng": 68.65,
+        "users": 0,
+        "prayerData": 59
+      },
+      {
+        "id": "6977da9a659c7e590a3766a9",
+        "name": "Do'stlik",
+        "nameUz": "Do'stlik",
+        "nameRu": "Дустлик",
+        "lat": 40.3944,
+        "lng": 68.3597,
+        "users": 0,
+        "prayerData": 61
+      }
+    ],
+    "g'allaorol": [
+      {
+        "id": "6977da9b659c7e590a3766ac",
+        "name": "G'allaorol",
+        "nameUz": "G'allaorol",
+        "nameRu": "Галляарал",
+        "lat": 40.0942,
+        "lng": 68.5361,
+        "users": 0,
+        "prayerData": 61
+      },
+      {
+        "id": "6978433a2eb34626920cd92b",
+        "name": "G'allaorol",
+        "nameUz": "G'allaorol",
+        "nameRu": "Галляарал",
+        "lat": 40.1833,
+        "lng": 68.5,
+        "users": 0,
+        "prayerData": 59
+      }
+    ],
+    "guliston": [
+      {
+        "id": "6977da9d659c7e590a3766b2",
+        "name": "Guliston",
+        "nameUz": "Guliston",
+        "nameRu": "Гулистан",
+        "lat": 40.4894,
+        "lng": 68.7842,
+        "users": 0,
+        "prayerData": 61
+      },
+      {
+        "id": "697843082eb34626920cd813",
+        "name": "Guliston",
+        "nameUz": "Guliston",
+        "nameRu": "Гулистан",
+        "lat": 40.4897,
+        "lng": 68.7842,
+        "users": 0,
+        "prayerData": 59
+      }
+    ],
+    "ishtixon": [
+      {
+        "id": "6977da72659c7e590a37660d",
+        "name": "Ishtixon",
+        "nameUz": "Ishtixon",
+        "nameRu": "Иштыхан",
+        "lat": 39.9383,
+        "lng": 66.3658,
+        "users": 0,
+        "prayerData": 61
+      },
+      {
+        "id": "697843292eb34626920cd8cb",
+        "name": "Ishtixon",
+        "nameUz": "Ishtixon",
+        "nameRu": "Иштыхан",
+        "lat": 39.9167,
+        "lng": 66.4333,
+        "users": 0,
+        "prayerData": 59
+      }
+    ],
+    "jarqo'rg'on": [
+      {
+        "id": "697843482eb34626920cd97f",
+        "name": "Jarqo'rg'on",
+        "nameUz": "Jarqo'rg'on",
+        "nameRu": "Джаркурган",
+        "lat": 37.4833,
+        "lng": 67.4333,
+        "users": 0,
+        "prayerData": 59
+      },
+      {
+        "id": "6977da94659c7e590a37668e",
+        "name": "Jarqo'rg'on",
+        "nameUz": "Jarqo'rg'on",
+        "nameRu": "Джаркурган",
+        "lat": 37.4917,
+        "lng": 67.4325,
+        "users": 0,
+        "prayerData": 61
+      }
+    ],
+    "jomboy": [
+      {
+        "id": "6977da71659c7e590a376607",
+        "name": "Jomboy",
+        "nameUz": "Jomboy",
+        "nameRu": "Джамбай",
+        "lat": 39.7075,
+        "lng": 67.52,
+        "users": 0,
+        "prayerData": 61
+      },
+      {
+        "id": "697843272eb34626920cd8c2",
+        "name": "Jomboy",
+        "nameUz": "Jomboy",
+        "nameRu": "Джамбай",
+        "lat": 39.7,
+        "lng": 67.4167,
+        "users": 0,
+        "prayerData": 59
+      }
+    ],
+    "jondor": [
+      {
+        "id": "697843312eb34626920cd8fb",
+        "name": "Jondor",
+        "nameUz": "Jondor",
+        "nameRu": "Жондор",
+        "lat": 40.3167,
+        "lng": 64.2667,
+        "users": 0,
+        "prayerData": 59
+      },
+      {
+        "id": "6977da76659c7e590a37661f",
+        "name": "Jondor",
+        "nameUz": "Jondor",
+        "nameRu": "Жондар",
+        "lat": 39.6317,
+        "lng": 63.5942,
+        "users": 0,
+        "prayerData": 61
+      }
+    ],
+    "kattaqo'rg'on": [
+      {
+        "id": "6977da6e659c7e590a376604",
+        "name": "Kattaqo'rg'on",
+        "nameUz": "Kattaqo'rg'on",
+        "nameRu": "Каттакурган",
+        "lat": 39.8903,
+        "lng": 66.2597,
+        "users": 0,
+        "prayerData": 61
+      },
+      {
+        "id": "697843282eb34626920cd8c5",
+        "name": "Kattaqo'rg'on",
+        "nameUz": "Kattaqo'rg'on",
+        "nameRu": "Каттакурган",
+        "lat": 39.8997,
+        "lng": 66.2661,
+        "users": 0,
+        "prayerData": 59
+      }
+    ],
+    "kogon": [
+      {
+        "id": "6977da74659c7e590a376616",
+        "name": "Kogon",
+        "nameUz": "Kogon",
+        "nameRu": "Каган",
+        "lat": 39.7208,
+        "lng": 64.5528,
+        "users": 0,
+        "prayerData": 61
+      },
+      {
+        "id": "6978432e2eb34626920cd8e9",
+        "name": "Kogon",
+        "nameUz": "Kogon",
+        "nameRu": "Каган",
+        "lat": 39.7167,
+        "lng": 64.5333,
+        "users": 0,
+        "prayerData": 59
+      }
+    ],
+    "koson": [
+      {
+        "id": "6977da8f659c7e590a376679",
+        "name": "Koson",
+        "nameUz": "Koson",
+        "nameRu": "Касан",
+        "lat": 39.0311,
+        "lng": 65.7369,
+        "users": 0,
+        "prayerData": 61
+      },
+      {
+        "id": "697843432eb34626920cd95e",
+        "name": "Koson",
+        "nameUz": "Koson",
+        "nameRu": "Касан",
+        "lat": 39.0333,
+        "lng": 65.6,
+        "users": 0,
+        "prayerData": 59
+      }
+    ],
+    "kosonsoy": [
+      {
+        "id": "6977da7b659c7e590a37663a",
+        "name": "Kosonsoy",
+        "nameUz": "Kosonsoy",
+        "nameRu": "Касансай",
+        "lat": 41.2314,
+        "lng": 71.5486,
+        "users": 0,
+        "prayerData": 61
+      },
+      {
+        "id": "6978431a2eb34626920cd877",
+        "name": "Kosonsoy",
+        "nameUz": "Kosonsoy",
+        "nameRu": "Касансай",
+        "lat": 41.2333,
+        "lng": 71.55,
+        "users": 0,
+        "prayerData": 59
+      }
+    ],
+    "muborak": [
+      {
+        "id": "697843442eb34626920cd964",
+        "name": "Muborak",
+        "nameUz": "Muborak",
+        "nameRu": "Мубарек",
+        "lat": 38.7333,
+        "lng": 65.6167,
+        "users": 0,
+        "prayerData": 59
+      },
+      {
+        "id": "6977da8f659c7e590a37667c",
+        "name": "Muborak",
+        "nameUz": "Muborak",
+        "nameRu": "Мубарек",
+        "lat": 39.2436,
+        "lng": 65.1689,
+        "users": 0,
+        "prayerData": 61
+      }
+    ],
+    "nukus": [
+      {
+        "id": "6977da87659c7e590a376664",
+        "name": "Nukus",
+        "nameUz": "Nukus",
+        "nameRu": "Нукус",
+        "lat": 42.4608,
+        "lng": 59.6105,
+        "users": 0,
+        "prayerData": 61
+      },
+      {
+        "id": "697843052eb34626920cd808",
+        "name": "Nukus",
+        "nameUz": "Nukus",
+        "nameRu": "Нукус",
+        "lat": 42.453,
+        "lng": 59.6103,
+        "users": 0,
+        "prayerData": 59
+      }
+    ],
+    "nurafshon": [
+      {
+        "id": "697843102eb34626920cd83a",
+        "name": "Nurafshon",
+        "nameUz": "Nurafshon",
+        "nameRu": "Нурафшан",
+        "lat": 41.2894,
+        "lng": 69.2342,
+        "users": 0,
+        "prayerData": 59
+      },
+      {
+        "id": "6977da66d8a5aa6cce03f6b6",
+        "name": "Nurafshon",
+        "nameUz": "Nurafshon",
+        "nameRu": "Нурафшан",
+        "lat": 41.3439,
+        "lng": 69.7644,
+        "users": 0,
+        "prayerData": 61
+      }
+    ],
+    "nurota": [
+      {
+        "id": "697843352eb34626920cd910",
+        "name": "Nurota",
+        "nameUz": "Nurota",
+        "nameRu": "Нурата",
+        "lat": 40.5667,
+        "lng": 65.6833,
+        "users": 0,
+        "prayerData": 59
+      },
+      {
+        "id": "6977daa1659c7e590a3766c7",
+        "name": "Nurota",
+        "nameUz": "Nurota",
+        "nameRu": "Нурата",
+        "lat": 40.5614,
+        "lng": 65.6883,
+        "users": 0,
+        "prayerData": 61
+      }
+    ],
+    "ohangaron": [
+      {
+        "id": "6978430b2eb34626920cd822",
+        "name": "Ohangaron",
+        "nameUz": "Ohangaron",
+        "nameRu": "Ахангаран",
+        "lat": 40.9089,
+        "lng": 70.0161,
+        "users": 0,
+        "prayerData": 59
+      },
+      {
+        "id": "6977da65d8a5aa6cce03f6b3",
+        "name": "Ohangaron",
+        "nameUz": "Ohangaron",
+        "nameRu": "Ахангаран",
+        "lat": 40.9156,
+        "lng": 70.0097,
+        "users": 0,
+        "prayerData": 61
+      }
+    ],
+    "olot": [
+      {
+        "id": "6977da74659c7e590a376619",
+        "name": "Olot",
+        "nameUz": "Olot",
+        "nameRu": "Алат",
+        "lat": 40.4472,
+        "lng": 64.4597,
+        "users": 0,
+        "prayerData": 61
+      },
+      {
+        "id": "6978432f2eb34626920cd8ef",
+        "name": "Olot",
+        "nameUz": "Olot",
+        "nameRu": "Алат",
+        "lat": 40.45,
+        "lng": 64.4167,
+        "users": 0,
+        "prayerData": 59
+      }
+    ],
+    "oltiariq": [
+      {
+        "id": "697843182eb34626920cd86b",
+        "name": "Oltiariq",
+        "nameUz": "Oltiariq",
+        "nameRu": "Алтыарык",
+        "lat": 40.3833,
+        "lng": 72.2333,
+        "users": 0,
+        "prayerData": 59
+      },
+      {
+        "id": "6977da85659c7e590a376658",
+        "name": "Oltiariq",
+        "nameUz": "Oltiariq",
+        "nameRu": "Алтыарык",
+        "lat": 40.3839,
+        "lng": 72.2394,
+        "users": 0,
+        "prayerData": 61
+      }
+    ],
+    "paxtakor": [
+      {
+        "id": "6977da9c659c7e590a3766af",
+        "name": "Paxtakor",
+        "nameUz": "Paxtakor",
+        "nameRu": "Пахтакор",
+        "lat": 40.3136,
+        "lng": 67.9683,
+        "users": 0,
+        "prayerData": 61
+      },
+      {
+        "id": "6978433a2eb34626920cd92e",
+        "name": "Paxtakor",
+        "nameUz": "Paxtakor",
+        "nameRu": "Пахтакор",
+        "lat": 40.3,
+        "lng": 67.95,
+        "users": 0,
+        "prayerData": 59
+      }
+    ],
+    "payariq": [
+      {
+        "id": "697843292eb34626920cd8ce",
+        "name": "Payariq",
+        "nameUz": "Payariq",
+        "nameRu": "Паярык",
+        "lat": 39.7833,
+        "lng": 67.1833,
+        "users": 0,
+        "prayerData": 59
+      },
+      {
+        "id": "6977da73659c7e590a376610",
+        "name": "Payariq",
+        "nameUz": "Payariq",
+        "nameRu": "Паяарык",
+        "lat": 39.7547,
+        "lng": 67.3486,
+        "users": 0,
+        "prayerData": 61
+      }
+    ],
+    "pop": [
+      {
+        "id": "6978431c2eb34626920cd880",
+        "name": "Pop",
+        "nameUz": "Pop",
+        "nameRu": "Пап",
+        "lat": 40.8833,
+        "lng": 71.1167,
+        "users": 0,
+        "prayerData": 59
+      },
+      {
+        "id": "6977da81659c7e590a376646",
+        "name": "Pop",
+        "nameUz": "Pop",
+        "nameRu": "Папп",
+        "lat": 40.8806,
+        "lng": 71.1086,
+        "users": 0,
+        "prayerData": 61
+      }
+    ],
+    "qarshi tumani": [
+      {
+        "id": "6977da90659c7e590a37667f",
+        "name": "Qarshi tumani",
+        "nameUz": "Qarshi tumani",
+        "nameRu": "Каршинский район",
+        "lat": 38.9581,
+        "lng": 65.6794,
+        "users": 0,
+        "prayerData": 61
+      },
+      {
+        "id": "697843472eb34626920cd979",
+        "name": "Qarshi tumani",
+        "nameUz": "Qarshi tumani",
+        "nameRu": "Каршинский район",
+        "lat": 38.9167,
+        "lng": 65.8667,
+        "users": 0,
+        "prayerData": 59
+      }
+    ],
+    "qo'rg'ontepa": [
+      {
+        "id": "697843212eb34626920cd89e",
+        "name": "Qo'rg'ontepa",
+        "nameUz": "Qo'rg'ontepa",
+        "nameRu": "Кургантепа",
+        "lat": 40.7333,
+        "lng": 72.7667,
+        "users": 0,
+        "prayerData": 59
+      },
+      {
+        "id": "6977da79659c7e590a37662e",
+        "name": "Qo'rg'ontepa",
+        "nameUz": "Qo'rg'ontepa",
+        "nameRu": "Курганте​па",
+        "lat": 40.7381,
+        "lng": 72.7603,
+        "users": 0,
+        "prayerData": 61
+      }
+    ],
+    "quvasoy": [
+      {
+        "id": "697843142eb34626920cd850",
+        "name": "Quvasoy",
+        "nameUz": "Quvasoy",
+        "nameRu": "Кувасай",
+        "lat": 40.2958,
+        "lng": 72.0428,
+        "users": 0,
+        "prayerData": 59
+      },
+      {
+        "id": "6977da84659c7e590a376652",
+        "name": "Quvasoy",
+        "nameUz": "Quvasoy",
+        "nameRu": "Кувасай",
+        "lat": 40.2978,
+        "lng": 72.0383,
+        "users": 0,
+        "prayerData": 61
+      }
+    ],
+    "rishton": [
+      {
+        "id": "6977da86659c7e590a37665b",
+        "name": "Rishton",
+        "nameUz": "Rishton",
+        "nameRu": "Риштан",
+        "lat": 40.3664,
+        "lng": 71.2906,
+        "users": 0,
+        "prayerData": 61
+      },
+      {
+        "id": "697843142eb34626920cd853",
+        "name": "Rishton",
+        "nameUz": "Rishton",
+        "nameRu": "Риштан",
+        "lat": 40.3567,
+        "lng": 71.2811,
+        "users": 0,
+        "prayerData": 59
+      }
+    ],
+    "shahrisabz": [
+      {
+        "id": "697843422eb34626920cd95b",
+        "name": "Shahrisabz",
+        "nameUz": "Shahrisabz",
+        "nameRu": "Шахрисабз",
+        "lat": 39.05,
+        "lng": 66.8333,
+        "users": 0,
+        "prayerData": 59
+      },
+      {
+        "id": "6977da8e659c7e590a376676",
+        "name": "Shahrisabz",
+        "nameUz": "Shahrisabz",
+        "nameRu": "Шахрисабз",
+        "lat": 39.0572,
+        "lng": 66.8342,
+        "users": 0,
+        "prayerData": 61
+      }
+    ],
+    "shahrixon": [
+      {
+        "id": "697843262eb34626920cd8bc",
+        "name": "Shahrixon",
+        "nameUz": "Shahrixon",
+        "nameRu": "Шахрихан",
+        "lat": 40.7167,
+        "lng": 72.05,
+        "users": 0,
+        "prayerData": 59
+      },
+      {
+        "id": "6977da79659c7e590a376631",
+        "name": "Shahrixon",
+        "nameUz": "Shahrixon",
+        "nameRu": "Шахрихан",
+        "lat": 40.7128,
+        "lng": 72.0558,
+        "users": 0,
+        "prayerData": 61
+      }
+    ],
+    "sho'rchi": [
+      {
+        "id": "697843492eb34626920cd985",
+        "name": "Sho'rchi",
+        "nameUz": "Sho'rchi",
+        "nameRu": "Шурчи",
+        "lat": 38,
+        "lng": 67.7833,
+        "users": 0,
+        "prayerData": 59
+      },
+      {
+        "id": "6977da95659c7e590a376691",
+        "name": "Sho'rchi",
+        "nameUz": "Sho'rchi",
+        "nameRu": "Шурчи",
+        "lat": 37.9944,
+        "lng": 67.7886,
+        "users": 0,
+        "prayerData": 61
+      }
+    ],
+    "shovot": [
+      {
+        "id": "6977da97659c7e590a37669d",
+        "name": "Shovot",
+        "nameUz": "Shovot",
+        "nameRu": "Шават",
+        "lat": 41.6808,
+        "lng": 60.3083,
+        "users": 0,
+        "prayerData": 61
+      },
+      {
+        "id": "697843502eb34626920cd9a9",
+        "name": "Shovot",
+        "nameUz": "Shovot",
+        "nameRu": "Шават",
+        "lat": 41.6667,
+        "lng": 60.3,
+        "users": 0,
+        "prayerData": 59
+      }
+    ],
+    "sirdaryo": [
+      {
+        "id": "6977da9e659c7e590a3766b8",
+        "name": "Sirdaryo",
+        "nameUz": "Sirdaryo",
+        "nameRu": "Сырдарья",
+        "lat": 40.8158,
+        "lng": 68.6458,
+        "users": 0,
+        "prayerData": 61
+      },
+      {
+        "id": "697843412eb34626920cd952",
+        "name": "Sirdaryo",
+        "nameUz": "Sirdaryo",
+        "nameRu": "Сырдарья",
+        "lat": 40.8167,
+        "lng": 68.75,
+        "users": 0,
+        "prayerData": 59
+      }
+    ],
+    "to'raqo'rg'on": [
+      {
+        "id": "6978431d2eb34626920cd886",
+        "name": "To'raqo'rg'on",
+        "nameUz": "To'raqo'rg'on",
+        "nameRu": "Туракурган",
+        "lat": 40.9667,
+        "lng": 71.5667,
+        "users": 0,
+        "prayerData": 59
+      },
+      {
+        "id": "6977da7d659c7e590a376640",
+        "name": "To'raqo'rg'on",
+        "nameUz": "To'raqo'rg'on",
+        "nameRu": "Туракурган",
+        "lat": 40.5311,
+        "lng": 71.0886,
+        "users": 0,
+        "prayerData": 61
+      }
+    ],
+    "to'rtko'l": [
+      {
+        "id": "6977da89659c7e590a37666a",
+        "name": "To'rtko'l",
+        "nameUz": "To'rtko'l",
+        "nameRu": "Турткуль",
+        "lat": 41.5525,
+        "lng": 61.1419,
+        "users": 0,
+        "prayerData": 61
+      },
+      {
+        "id": "697843552eb34626920cd9c4",
+        "name": "To'rtko'l",
+        "nameUz": "To'rtko'l",
+        "nameRu": "Турткуль",
+        "lat": 41.55,
+        "lng": 61,
+        "users": 0,
+        "prayerData": 58
+      }
+    ],
+    "toshloq": [
+      {
+        "id": "697843172eb34626920cd865",
+        "name": "Toshloq",
+        "nameUz": "Toshloq",
+        "nameRu": "Ташлак",
+        "lat": 40.35,
+        "lng": 70.9,
+        "users": 0,
+        "prayerData": 0
+      },
+      {
+        "id": "6977da87659c7e590a376661",
+        "name": "Toshloq",
+        "nameUz": "Toshloq",
+        "nameRu": "Ташлак",
+        "lat": 40.5481,
+        "lng": 72.4986,
+        "users": 0,
+        "prayerData": 61
+      }
+    ],
+    "uchqo'rg'on": [
+      {
+        "id": "6978431b2eb34626920cd87a",
+        "name": "Uchqo'rg'on",
+        "nameUz": "Uchqo'rg'on",
+        "nameRu": "Учкурган",
+        "lat": 40.7667,
+        "lng": 72.4333,
+        "users": 0,
+        "prayerData": 59
+      },
+      {
+        "id": "6977da7b659c7e590a37663d",
+        "name": "Uchqo'rg'on",
+        "nameUz": "Uchqo'rg'on",
+        "nameRu": "Учкурган",
+        "lat": 40.8578,
+        "lng": 72.4156,
+        "users": 0,
+        "prayerData": 61
+      }
+    ],
+    "uchquduq": [
+      {
+        "id": "6977daa2659c7e590a3766ca",
+        "name": "Uchquduq",
+        "nameUz": "Uchquduq",
+        "nameRu": "Учкудук",
+        "lat": 42.1575,
+        "lng": 63.5556,
+        "users": 0,
+        "prayerData": 61
+      },
+      {
+        "id": "697843342eb34626920cd90d",
+        "name": "Uchquduq",
+        "nameUz": "Uchquduq",
+        "nameRu": "Учкудук",
+        "lat": 42.1667,
+        "lng": 63.5667,
+        "users": 0,
+        "prayerData": 59
+      }
+    ],
+    "urganch": [
+      {
+        "id": "6977da96659c7e590a376694",
+        "name": "Urganch",
+        "nameUz": "Urganch",
+        "nameRu": "Ургенч",
+        "lat": 41.55,
+        "lng": 60.6333,
+        "users": 0,
+        "prayerData": 61
+      },
+      {
+        "id": "697843052eb34626920cd805",
+        "name": "Urganch",
+        "nameUz": "Urganch",
+        "nameRu": "Ургенч",
+        "lat": 41.5503,
+        "lng": 60.6333,
+        "users": 0,
+        "prayerData": 59
+      }
+    ],
+    "urgut": [
+      {
+        "id": "697843282eb34626920cd8c8",
+        "name": "Urgut",
+        "nameUz": "Urgut",
+        "nameRu": "Ургут",
+        "lat": 39.4167,
+        "lng": 67.25,
+        "users": 0,
+        "prayerData": 59
+      },
+      {
+        "id": "6977da71659c7e590a37660a",
+        "name": "Urgut",
+        "nameUz": "Urgut",
+        "nameRu": "Ургут",
+        "lat": 39.4008,
+        "lng": 67.2686,
+        "users": 0,
+        "prayerData": 61
+      }
+    ],
+    "vobkent": [
+      {
+        "id": "697843302eb34626920cd8f5",
+        "name": "Vobkent",
+        "nameUz": "Vobkent",
+        "nameRu": "Вабкент",
+        "lat": 40.0333,
+        "lng": 64.5333,
+        "users": 0,
+        "prayerData": 59
+      },
+      {
+        "id": "6977da76659c7e590a376622",
+        "name": "Vobkent",
+        "nameUz": "Vobkent",
+        "nameRu": "Вабкент",
+        "lat": 40.0308,
+        "lng": 64.5136,
+        "users": 0,
+        "prayerData": 61
+      }
+    ],
+    "xiva": [
+      {
+        "id": "6977da96659c7e590a376697",
+        "name": "Xiva",
+        "nameUz": "Xiva",
+        "nameRu": "Хива",
+        "lat": 41.3775,
+        "lng": 60.3639,
+        "users": 0,
+        "prayerData": 61
+      },
+      {
+        "id": "6978434f2eb34626920cd9a3",
+        "name": "Xiva",
+        "nameUz": "Xiva",
+        "nameRu": "Хива",
+        "lat": 41.38,
+        "lng": 60.3636,
+        "users": 0,
+        "prayerData": 59
+      }
+    ],
+    "xo'jayli": [
+      {
+        "id": "697843562eb34626920cd9cd",
+        "name": "Xo'jayli",
+        "nameUz": "Xo'jayli",
+        "nameRu": "Ходжейли",
+        "lat": 42.3833,
+        "lng": 59.45,
+        "users": 0,
+        "prayerData": 59
+      },
+      {
+        "id": "6977da88659c7e590a376667",
+        "name": "Xo'jayli",
+        "nameUz": "Xo'jayli",
+        "nameRu": "Ходжейли",
+        "lat": 42.4067,
+        "lng": 59.4517,
+        "users": 0,
+        "prayerData": 61
+      }
+    ],
+    "xonobod": [
+      {
+        "id": "697843212eb34626920cd89b",
+        "name": "Xonobod",
+        "nameUz": "Xonobod",
+        "nameRu": "Ханабад",
+        "lat": 40.8333,
+        "lng": 72.0833,
+        "users": 0,
+        "prayerData": 59
+      },
+      {
+        "id": "6977da78659c7e590a37662b",
+        "name": "Xonobod",
+        "nameUz": "Xonobod",
+        "nameRu": "Ханабад",
+        "lat": 40.8356,
+        "lng": 72.0778,
+        "users": 0,
+        "prayerData": 61
+      }
+    ],
+    "xonqa": [
+      {
+        "id": "6978434f2eb34626920cd9a6",
+        "name": "Xonqa",
+        "nameUz": "Xonqa",
+        "nameRu": "Ханка",
+        "lat": 41.2333,
+        "lng": 60.8667,
+        "users": 0,
+        "prayerData": 59
+      },
+      {
+        "id": "6977da97659c7e590a37669a",
+        "name": "Xonqa",
+        "nameUz": "Xonqa",
+        "nameRu": "Ханка",
+        "lat": 41.2906,
+        "lng": 60.8669,
+        "users": 0,
+        "prayerData": 61
+      }
+    ],
+    "yangiyo'l": [
+      {
+        "id": "6978430b2eb34626920cd81f",
+        "name": "Yangiyo'l",
+        "nameUz": "Yangiyo'l",
+        "nameRu": "Янгиюль",
+        "lat": 41.1119,
+        "lng": 69.0447,
+        "users": 0,
+        "prayerData": 59
+      },
+      {
+        "id": "6977da65d8a5aa6cce03f6b0",
+        "name": "Yangiyo'l",
+        "nameUz": "Yangiyo'l",
+        "nameRu": "Янгиюль",
+        "lat": 41.1117,
+        "lng": 69.0428,
+        "users": 0,
+        "prayerData": 61
+      }
+    ],
+    "yaypan": [
+      {
+        "id": "697843162eb34626920cd85c",
+        "name": "Yaypan",
+        "nameUz": "Yaypan",
+        "nameRu": "Яйпан",
+        "lat": 40.4,
+        "lng": 71.8167,
+        "users": 0,
+        "prayerData": 0
+      },
+      {
+        "id": "6977da86659c7e590a37665e",
+        "name": "Yaypan",
+        "nameUz": "Yaypan",
+        "nameRu": "Яйпан",
+        "lat": 40.5839,
+        "lng": 71.8053,
+        "users": 0,
+        "prayerData": 61
+      }
+    ],
+    "zarafshon": [
+      {
+        "id": "697843342eb34626920cd90a",
+        "name": "Zarafshon",
+        "nameUz": "Zarafshon",
+        "nameRu": "Зарафшан",
+        "lat": 41.5667,
+        "lng": 64.2,
+        "users": 0,
+        "prayerData": 59
+      },
+      {
+        "id": "6977daa1659c7e590a3766c4",
+        "name": "Zarafshon",
+        "nameUz": "Zarafshon",
+        "nameRu": "Зарафшан",
+        "lat": 41.5722,
+        "lng": 64.205,
+        "users": 0,
+        "prayerData": 61
+      }
+    ]
+  },
+  "duplicateCoordinates": {}
+}

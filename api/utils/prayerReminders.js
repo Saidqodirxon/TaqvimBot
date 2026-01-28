@@ -7,6 +7,39 @@ const User = require("../models/User");
 // Store active reminder jobs
 const activeJobs = new Map();
 
+// Track sent reminders to prevent duplicates
+// Key: `${userId}_${date}_${prayer}_${type}` -> timestamp
+const sentReminders = new Map();
+const SENT_REMINDER_TTL = 24 * 60 * 60 * 1000; // 24 hours
+
+// Clean old sent reminders periodically
+setInterval(() => {
+  const now = Date.now();
+  for (const [key, timestamp] of sentReminders.entries()) {
+    if (now - timestamp > SENT_REMINDER_TTL) {
+      sentReminders.delete(key);
+    }
+  }
+}, 60 * 60 * 1000); // Clean every hour
+
+/**
+ * Check if reminder was already sent
+ */
+function wasReminderSent(userId, prayer, type) {
+  const today = moment().format("YYYY-MM-DD");
+  const key = `${userId}_${today}_${prayer}_${type}`;
+  return sentReminders.has(key);
+}
+
+/**
+ * Mark reminder as sent
+ */
+function markReminderSent(userId, prayer, type) {
+  const today = moment().format("YYYY-MM-DD");
+  const key = `${userId}_${today}_${prayer}_${type}`;
+  sentReminders.set(key, Date.now());
+}
+
 /**
  * Schedule prayer reminders for a user
  * @param {Object} bot - Telegraf bot instance
@@ -97,7 +130,7 @@ async function schedulePrayerReminders(bot, user) {
           continue;
         }
 
-        // Schedule reminder BEFORE prayer time
+        // Schedule reminder BEFORE prayer time (only this one, not AT prayer time)
         const reminderTime = prayerTime
           .clone()
           .subtract(minutesBefore, "minutes");
@@ -106,12 +139,21 @@ async function schedulePrayerReminders(bot, user) {
             reminderTime.toDate(),
             async () => {
               try {
+                // Check if already sent (prevent duplicates)
+                if (wasReminderSent(user.userId, prayer.name, "before")) {
+                  console.log(`⏭️ Skipping duplicate reminder for ${user.userId} - ${prayer.name}`);
+                  return;
+                }
+                
+                // Mark as sent BEFORE sending
+                markReminderSent(user.userId, prayer.name, "before");
+                
                 const message = await t(lang, "reminder_before_prayer", {
                   prayer: prayer.name,
                   minutes: minutesBefore,
                   time: prayer.time,
                 });
-                const { Markup } = require("telegraf");
+                
                 await bot.telegram.sendMessage(user.userId, message, {
                   reply_markup: {
                     inline_keyboard: [
@@ -135,36 +177,8 @@ async function schedulePrayerReminders(bot, user) {
           userJobs.push(beforeJob);
         }
 
-        // Schedule reminder AT prayer time (only if enabled)
-        if (user.reminderSettings?.notifyAtPrayerTime === true) {
-          const atJob = schedule.scheduleJob(prayerTime.toDate(), async () => {
-            try {
-              const message = await t(lang, "reminder_prayer_time", {
-                prayer: prayer.name,
-                time: prayer.time,
-              });
-              const { Markup } = require("telegraf");
-              await bot.telegram.sendMessage(user.userId, message, {
-                reply_markup: {
-                  inline_keyboard: [
-                    [
-                      {
-                        text: "🔕 Eslatmalarni o'chirish",
-                        callback_data: "disable_all_reminders",
-                      },
-                    ],
-                  ],
-                },
-              });
-            } catch (error) {
-              console.error(
-                `Error sending at-prayer reminder to ${user.userId}:`,
-                error.message
-              );
-            }
-          });
-          userJobs.push(atJob);
-        }
+        // NOTE: Removed duplicate "AT prayer time" notification
+        // Users only get ONE notification per prayer (minutesBefore)
       } catch (error) {
         console.error(
           `Error scheduling reminder for ${prayer.name}:`,

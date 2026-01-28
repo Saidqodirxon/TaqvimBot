@@ -163,6 +163,7 @@ bot.use(async (ctx, next) => {
   // 3. Inline queries
   // 4. Callback queries for language/terms/subscription
   // 5. Mini app data requests
+  // 6. Reminder toggle from notifications
   if (
     ctx.message?.text === "/start" ||
     isAdmin(ctx.from?.id) ||
@@ -173,7 +174,9 @@ bot.use(async (ctx, next) => {
         ctx.callbackQuery.data === "accept_terms" ||
         ctx.callbackQuery.data.startsWith("lang_") ||
         ctx.callbackQuery.data === "today_times" ||
-        ctx.callbackQuery.data === "tomorrow_times"))
+        ctx.callbackQuery.data === "tomorrow_times" ||
+        ctx.callbackQuery.data === "disable_all_reminders" ||
+        ctx.callbackQuery.data === "enable_reminders"))
   ) {
     return next();
   }
@@ -1699,30 +1702,135 @@ bot.action("toggle_reminders", async (ctx) => {
 bot.action("disable_all_reminders", async (ctx) => {
   try {
     await ctx.answerCbQuery("⏳ O'chirilmoqda...");
-    const user = ctx.session.user;
+    
+    // Get user from DB directly (notification callback might not have session)
+    const userId = ctx.from?.id;
+    if (!userId) {
+      console.error("disable_all_reminders: No user ID");
+      return;
+    }
+    
+    // Load user from database
+    const user = await User.findOne({ userId });
+    if (!user) {
+      console.error("disable_all_reminders: User not found:", userId);
+      await ctx.answerCbQuery("❌ Foydalanuvchi topilmadi");
+      return;
+    }
+    
     const lang = getUserLanguage(user);
 
     // Disable all reminders
     const newSettings = {
       enabled: false,
-      minutesBefore: 15,
+      minutesBefore: user.reminderSettings?.minutesBefore || 15,
       notifyAtPrayerTime: false,
     };
 
-    await updateUserReminders(bot, user.userId, newSettings);
-    ctx.session.user.reminderSettings = newSettings;
+    await updateUserReminders(bot, userId, newSettings);
+    
+    // Update session if exists
+    if (ctx.session?.user) {
+      ctx.session.user.reminderSettings = newSettings;
+    }
 
-    await ctx.editMessageText(
-      "✅ Barcha eslatmalar o'chirildi\n\n" +
-        "📌 Namoz vaqtlari haqida eslatmalar endi yuborilmaydi.\n\n" +
-        "Agar kerak bo'lsa, sozlamalar orqali qayta yoqishingiz mumkin.",
-      Markup.inlineKeyboard([
-        [Markup.button.callback("◀️ Orqaga", "back_to_settings")],
-      ])
-    );
+    // Try to edit message, fallback to reply
+    try {
+      await ctx.editMessageText(
+        "✅ Barcha eslatmalar o'chirildi\n\n" +
+          "📌 Namoz vaqtlari haqida eslatmalar endi yuborilmaydi.\n\n" +
+          "Agar kerak bo'lsa, sozlamalar orqali qayta yoqishingiz mumkin.",
+        Markup.inlineKeyboard([
+          [Markup.button.callback("🔔 Qayta yoqish", "enable_reminders")],
+        ])
+      );
+    } catch (editError) {
+      // Message might be too old to edit, send new one
+      await ctx.reply(
+        "✅ Barcha eslatmalar o'chirildi\n\n" +
+          "📌 Namoz vaqtlari haqida eslatmalar endi yuborilmaydi.\n\n" +
+          "Agar kerak bo'lsa, sozlamalar orqali qayta yoqishingiz mumkin."
+      );
+    }
+    
+    console.log(`✅ Reminders disabled for user ${userId}`);
   } catch (error) {
     console.error("Error disabling all reminders:", error);
-    await ctx.answerCbQuery("❌ Xatolik yuz berdi");
+    try {
+      await ctx.answerCbQuery("❌ Xatolik yuz berdi");
+    } catch (e) {}
+  }
+});
+
+/**
+ * Enable reminders (from notification button)
+ */
+bot.action("enable_reminders", async (ctx) => {
+  try {
+    await ctx.answerCbQuery("⏳ Yoqilmoqda...");
+    
+    const userId = ctx.from?.id;
+    if (!userId) return;
+    
+    // Load user from database
+    const user = await User.findOne({ userId });
+    if (!user) {
+      await ctx.answerCbQuery("❌ Foydalanuvchi topilmadi");
+      return;
+    }
+    
+    const lang = getUserLanguage(user);
+    
+    // Check if user has location
+    if (!user.location || !user.location.latitude) {
+      try {
+        await ctx.editMessageText(
+          "📍 Eslatmalarni yoqish uchun avval lokatsiyangizni kiriting.",
+          Markup.inlineKeyboard([
+            [Markup.button.callback("📍 Lokatsiya kiritish", "enter_location_scene")],
+          ])
+        );
+      } catch (e) {
+        await ctx.reply("📍 Eslatmalarni yoqish uchun avval lokatsiyangizni kiriting.");
+      }
+      return;
+    }
+    
+    // Enable reminders
+    const newSettings = {
+      enabled: true,
+      minutesBefore: user.reminderSettings?.minutesBefore || 15,
+      notifyAtPrayerTime: false,
+    };
+    
+    await updateUserReminders(bot, userId, newSettings);
+    
+    // Update session if exists
+    if (ctx.session?.user) {
+      ctx.session.user.reminderSettings = newSettings;
+    }
+    
+    try {
+      await ctx.editMessageText(
+        "✅ Eslatmalar qayta yoqildi\n\n" +
+          `📌 Namoz vaqtidan ${newSettings.minutesBefore} daqiqa oldin eslatma yuboriladi.`,
+        Markup.inlineKeyboard([
+          [Markup.button.callback("🔕 O'chirish", "disable_all_reminders")],
+        ])
+      );
+    } catch (e) {
+      await ctx.reply(
+        "✅ Eslatmalar qayta yoqildi\n\n" +
+          `📌 Namoz vaqtidan ${newSettings.minutesBefore} daqiqa oldin eslatma yuboriladi.`
+      );
+    }
+    
+    console.log(`✅ Reminders enabled for user ${userId}`);
+  } catch (error) {
+    console.error("Error enabling reminders:", error);
+    try {
+      await ctx.answerCbQuery("❌ Xatolik yuz berdi");
+    } catch (e) {}
   }
 });
 
