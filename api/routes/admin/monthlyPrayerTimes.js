@@ -1,4 +1,3 @@
-const logger = require("../../utils/logger");
 const express = require("express");
 const router = express.Router();
 const MonthlyPrayerTime = require("../../models/MonthlyPrayerTime");
@@ -27,16 +26,14 @@ router.get("/:locationId", async (req, res) => {
       .select("date hijriDate timings -_id") // Only essential fields
       .sort({ date: 1 })
       .lean();
-    logger.log(
-      "API",
-      `Monthly prayer times fetched for location ${locationId}: ${prayerTimes.length} records`
-    );
+    
+    console.log(`Monthly prayer times fetched for location ${locationId}: ${prayerTimes.length} records`);
 
     // Cache for 1 hour (data rarely changes)
     res.set("Cache-Control", "public, max-age=3600");
     res.json(prayerTimes);
   } catch (error) {
-    logger.error(`Error fetching monthly prayer times: ${error.message}`);
+    console.error(`Error fetching monthly prayer times: ${error.message}`);
     res.status(500).json({ error: error.message });
   }
 });
@@ -62,10 +59,10 @@ router.get("/:locationId/:date", async (req, res) => {
         .json({ error: "Prayer time not found for this date" });
     }
 
-    logger.log("API", `Prayer time fetched for ${locationId} on ${date}`);
+    console.log("API", `Prayer time fetched for ${locationId} on ${date}`);
     res.json(prayerTime);
   } catch (error) {
-    logger.error("API", `Error fetching prayer time: ${error.message}`);
+    console.error("API", `Error fetching prayer time: ${error.message}`);
     res.status(500).json({ error: error.message });
   }
 });
@@ -105,7 +102,7 @@ router.post("/:locationId", async (req, res) => {
       existing.hijriDate = hijriDate || existing.hijriDate;
       existing.timings = timings;
       await existing.save();
-      logger.log(
+      console.log(
         "API",
         `Updated monthly prayer time for ${locationId} on ${date}`
       );
@@ -126,7 +123,7 @@ router.post("/:locationId", async (req, res) => {
 
     await newPrayerTime.save();
 
-    logger.log(
+    console.log(
       "API",
       `Created monthly prayer time for ${locationId} on ${date}`
     );
@@ -134,7 +131,7 @@ router.post("/:locationId", async (req, res) => {
       .status(201)
       .json({ message: "Prayer time created", data: newPrayerTime });
   } catch (error) {
-    logger.error("API", `Error saving prayer time: ${error.message}`);
+    console.error("API", `Error saving prayer time: ${error.message}`);
     res.status(500).json({ error: error.message });
   }
 });
@@ -191,7 +188,7 @@ router.post("/:locationId/bulk", async (req, res) => {
       }
     }
 
-    logger.log(
+    console.log(
       "API",
       `Bulk prayer times: ${results.created} created, ${results.updated} updated, ${results.errors.length} errors`
     );
@@ -201,7 +198,7 @@ router.post("/:locationId/bulk", async (req, res) => {
       results,
     });
   } catch (error) {
-    logger.error("API", `Error in bulk save: ${error.message}`);
+    console.error("API", `Error in bulk save: ${error.message}`);
     res.status(500).json({ error: error.message });
   }
 });
@@ -227,13 +224,13 @@ router.delete("/:locationId/:date", async (req, res) => {
       return res.status(404).json({ error: "Prayer time not found" });
     }
 
-    logger.log(
+    console.log(
       "API",
       `Deleted monthly prayer time for ${locationId} on ${date}`
     );
     res.json({ message: "Prayer time deleted" });
   } catch (error) {
-    logger.error("API", `Error deleting prayer time: ${error.message}`);
+    console.error("API", `Error deleting prayer time: ${error.message}`);
     res.status(500).json({ error: error.message });
   }
 });
@@ -245,7 +242,7 @@ router.delete("/:locationId", async (req, res) => {
 
     const result = await MonthlyPrayerTime.deleteMany({ locationId });
 
-    logger.log(
+    console.log(
       "API",
       `Deleted ${result.deletedCount} monthly prayer times for location ${locationId}`
     );
@@ -255,7 +252,7 @@ router.delete("/:locationId", async (req, res) => {
       count: result.deletedCount,
     });
   } catch (error) {
-    logger.error("API", `Error deleting prayer times: ${error.message}`);
+    console.error("API", `Error deleting prayer times: ${error.message}`);
     res.status(500).json({ error: error.message });
   }
 });
