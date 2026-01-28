@@ -56,6 +56,7 @@ const {
   getPrayerTimes,
   getNextPrayer,
   getQiblaDirection,
+  setRedisCache,
   CALCULATION_METHODS,
   SCHOOLS,
 } = require("./utils/aladhan");
@@ -71,6 +72,7 @@ const {
 const { handleInlineQuery } = require("./utils/inlineMode");
 const logger = require("./utils/logger");
 const { initErrorLogger, logError } = require("./utils/errorLogger");
+const RedisCache = require("./utils/redis");
 
 // Scenes
 const greetingScene = require("./scenes/greeting");
@@ -188,8 +190,8 @@ bot.use(async (ctx, next) => {
   const user = ctx.session.user;
   const lang = getUserLanguage(user);
 
-  // Check terms (only if user hasn't accepted recently)
-  if (!user.termsAccepted) {
+  // Check terms ONLY if never accepted (don't check on every message)
+  if (user.termsAccepted !== true) {
     const termsEnabled = await Settings.getSetting("terms_enabled", false);
     const termsUrl = await Settings.getSetting("terms_url", "");
 
@@ -1158,7 +1160,7 @@ bot.action("calendar_daily", async (ctx) => {
     const locationName = user.location.name || "Joylashuv";
 
     // Foydalanuvchi sozlamalarini olish
-    const method = user.prayerSettings?.calculationMethod || 1;
+    const method = user.prayerSettings?.calculationMethod || 3; // Default MWL
     const school = user.prayerSettings?.school || 1;
     const midnightMode = user.prayerSettings?.midnightMode || 0;
     const latitudeAdjustment = user.prayerSettings?.latitudeAdjustment || 1;
@@ -1175,7 +1177,14 @@ bot.action("calendar_daily", async (ctx) => {
       );
     } catch (prayerError) {
       console.error("Prayer times fetch error:", prayerError.message);
-      return ctx.reply(await t(lang, "error_try_again"));
+      await ctx.editMessageText(
+        "❌ Namoz vaqtlarini yuklashda xatolik yuz berdi.\n\nIltimos, qayta urinib ko'ring.",
+        Markup.inlineKeyboard([
+          [Markup.button.callback("🔄 Qayta urinish", "calendar_daily")],
+          [Markup.button.callback("◀️ Orqaga", "back_to_calendar_view")],
+        ])
+      );
+      return;
     }
 
     if (!prayerData.success) {
@@ -1941,6 +1950,20 @@ async function startBot() {
     initializeAllReminders(bot).catch((err) => {
       console.error("Reminder init error:", err.message);
     });
+
+    // Initialize Redis cache
+    console.log("\n🔄 Initializing Redis cache...");
+    const redisCache = new RedisCache();
+    await redisCache.initialize();
+    
+    // Set Redis cache for aladhan.js
+    setRedisCache(redisCache);
+    
+    if (redisCache.isAvailable()) {
+      console.log("✅ Redis cache enabled for prayer times");
+    } else {
+      console.log("⚠️ Redis cache disabled - using database only");
+    }
 
     // ==================== BOT ERROR HANDLER ====================
     // Bot ichidagi barcha xatolarni tutish

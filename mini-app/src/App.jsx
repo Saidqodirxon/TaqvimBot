@@ -87,7 +87,8 @@ function App() {
       setPrayerError(null);
 
       const response = await axios.get(
-        `${API_BASE}/api/miniapp/user/${userId}`
+        `${API_BASE}/api/miniapp/user/${userId}`,
+        { timeout: 10000 }
       );
       const user = response.data;
       setUserData(user);
@@ -115,7 +116,8 @@ function App() {
               userId,
               latitude: response.data.location.latitude,
               longitude: response.data.location.longitude,
-            }
+            },
+            { timeout: 10000 }
           );
           setPrayerTimes(prayerResponse.data);
         } catch (prayerErr) {
@@ -128,9 +130,21 @@ function App() {
       }
     } catch (err) {
       console.error("Error fetching data:", err);
-      setError(
-        err.response?.data?.error || err.message || "Ma'lumot yuklashda xatolik"
-      );
+      
+      // Better error messages based on error type
+      let errorMessage = "❌ Ma'lumot yuklashda xatolik. Iltimos, qayta urinib ko'ring.";
+      
+      if (err.code === 'ECONNABORTED' || err.message.includes('timeout')) {
+        errorMessage = "❌ Serverga ulanishda xatolik. Internet tezligingizni tekshiring.";
+      } else if (err.response?.status === 404) {
+        errorMessage = "❌ Foydalanuvchi topilmadi. Iltimos, botda /start bosing.";
+      } else if (!navigator.onLine) {
+        errorMessage = "❌ Internet aloqasi yo'q. Iltimos, internetingizni tekshiring.";
+      } else if (err.response?.data?.error) {
+        errorMessage = "❌ " + err.response.data.error;
+      }
+      
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -146,16 +160,22 @@ function App() {
           userId: userData.userId,
           latitude: userData.location.latitude,
           longitude: userData.location.longitude,
-        })
+        }, { timeout: 10000 })
         .then((response) => {
           setPrayerTimes(response.data);
           setLoading(false);
         })
         .catch((err) => {
           console.error("Retry error:", err);
-          setPrayerError(
-            err.response?.data?.error || "Namoz vaqtlarini yuklashda xatolik"
-          );
+          
+          let errorMsg = "Namoz vaqtlarini yuklashda xatolik";
+          if (err.code === 'ECONNABORTED' || err.message.includes('timeout')) {
+            errorMsg = "Serverga ulanishda xatolik. Internet tezligingizni tekshiring.";
+          } else if (err.response?.data?.error) {
+            errorMsg = err.response.data.error;
+          }
+          
+          setPrayerError(errorMsg);
           setLoading(false);
         });
     }
@@ -173,7 +193,23 @@ function App() {
   if (error) {
     return (
       <div className="app error">
-        <p>❌ Xatolik: {error}</p>
+        <div className="error-card">
+          <p>{error}</p>
+          <button
+            className="retry-button"
+            onClick={() => {
+              const urlParams = new URLSearchParams(window.location.search);
+              const userId = urlParams.get("userId");
+              if (userId) {
+                fetchUserData(parseInt(userId));
+              } else {
+                window.location.reload();
+              }
+            }}
+          >
+            🔄 Qayta urinish
+          </button>
+        </div>
       </div>
     );
   }

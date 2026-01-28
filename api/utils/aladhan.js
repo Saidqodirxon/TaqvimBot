@@ -3,6 +3,14 @@ const Location = require("../models/Location");
 const MonthlyPrayerTime = require("../models/MonthlyPrayerTime");
 const PrayerTimeData = require("../models/PrayerTimeData");
 
+// Redis cache instance (imported globally in bot.js)
+let redisCache = null;
+
+// Set Redis cache instance
+function setRedisCache(cache) {
+  redisCache = cache;
+}
+
 /**
  * Aladhan API dan namoz vaqtlarini olish yoki manual vaqtlarni qaytarish
  * @param {number} latitude - Kenglik
@@ -31,6 +39,21 @@ async function getPrayerTimes(
     // Create location key and date string for data lookup
     const locationKey = `${latitude.toFixed(4)}_${longitude.toFixed(4)}`;
     const dateStr = targetDate.toISOString().split("T")[0]; // YYYY-MM-DD
+
+    // Priority -1: Check Redis cache first (if available)
+    if (redisCache && redisCache.isAvailable()) {
+      const cacheKey = `prayer:${locationKey}:${dateStr}:${method}:${school}`;
+      try {
+        const cachedData = await redisCache.get(cacheKey);
+        if (cachedData) {
+          console.log(`✅ Redis cache hit for ${locationKey} on ${dateStr}`);
+          return cachedData;
+        }
+      } catch (cacheError) {
+        console.error("Redis cache error:", cacheError.message);
+        // Continue to database/API if cache fails
+      }
+    }
 
     // Priority 0: Check permanent data first (60-day prayer time data)
     try {
@@ -222,6 +245,14 @@ async function getPrayerTimes(
       ).catch((err) => {
         console.error("Cache save error:", err.message);
       });
+
+      // Also save to Redis cache (1 day TTL)
+      if (redisCache && redisCache.isAvailable()) {
+        const cacheKey = `prayer:${locationKey}:${dateStr}:${method}:${school}`;
+        redisCache.set(cacheKey, result, 86400).catch((err) => {
+          console.error("Redis save error:", err.message);
+        });
+      }
 
       return result;
     } else {
@@ -687,6 +718,7 @@ module.exports = {
   getNextPrayer,
   getQiblaDirection,
   savePrayerTimeToCache,
+  setRedisCache,
   CALCULATION_METHODS,
   SCHOOLS,
 };
