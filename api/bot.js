@@ -155,33 +155,53 @@ bot.use(async (ctx, next) => {
   }
 });
 
-// Majburiy kanal middleware - faqat start dan keyin
+// Majburiy kanal middleware - LAZY (keyinroq so'raladi)
 bot.use(async (ctx, next) => {
-  // /start yoki admin bo'lsa, o'tkazish
+  // Skip channel check for:
+  // 1. /start command (check runs in background)
+  // 2. Admin users
+  // 3. Inline queries
+  // 4. Callback queries for language/terms/subscription
+  // 5. Mini app data requests
   if (
     ctx.message?.text === "/start" ||
+    isAdmin(ctx.from?.id) ||
+    ctx.updateType === "inline_query" ||
+    ctx.updateType === "chosen_inline_result" ||
     (ctx.updateType === "callback_query" &&
       (ctx.callbackQuery.data === "check_subscription" ||
         ctx.callbackQuery.data === "accept_terms" ||
-        ctx.callbackQuery.data.startsWith("lang_")))
+        ctx.callbackQuery.data.startsWith("lang_") ||
+        ctx.callbackQuery.data === "today_times" ||
+        ctx.callbackQuery.data === "tomorrow_times"))
   ) {
     return next();
   }
 
-  if (ctx.from && !isAdmin(ctx.from.id)) {
+  // Check channel membership only if enabled and user hasn't joined
+  const user = ctx.session?.user;
+  if (user && !user.hasJoinedChannel) {
     return checkChannelMembership(ctx, next);
   }
 
   return next();
 });
 
-// Terms and Phone Request middleware - OPTIMIZED with caching
+// Terms and Phone Request middleware - ULTRA LAZY (minimal blocking)
 bot.use(async (ctx, next) => {
-  // Skip for admin, callbacks, and /start
+  // Skip for:
+  // 1. Admin users
+  // 2. All callback queries
+  // 3. Inline queries
+  // 4. /start command
+  // 5. Users without language set
+  // 6. Bot commands (they handle their own flows)
   if (
     isAdmin(ctx.from?.id) ||
     ctx.updateType === "callback_query" ||
-    ctx.message?.text === "/start" ||
+    ctx.updateType === "inline_query" ||
+    ctx.updateType === "chosen_inline_result" ||
+    ctx.message?.text?.startsWith("/") ||
     !ctx.session?.user?.language
   ) {
     return next();
@@ -190,60 +210,53 @@ bot.use(async (ctx, next) => {
   const user = ctx.session.user;
   const lang = getUserLanguage(user);
 
-  // Check terms ONLY if never accepted (don't check on every message)
-  if (user.termsAccepted !== true) {
+  // ONLY check terms on first TEXT message after language selection
+  // Don't block mini app or data queries
+  if (user.termsAccepted !== true && ctx.message?.text && !ctx.message.text.startsWith("/")) {
     const termsEnabled = await Settings.getSetting("terms_enabled", false);
-    const termsUrl = await Settings.getSetting("terms_url", "");
-
-    if (termsEnabled && termsUrl) {
-      const termsMessage = await t(lang, "terms_message");
-      await ctx.reply(termsMessage, {
-        reply_markup: {
-          inline_keyboard: [
-            [
-              {
-                text: await t(lang, "btn_read_terms"),
-                url: termsUrl,
-              },
+    if (termsEnabled) {
+      const termsUrl = await Settings.getSetting("terms_url", "");
+      if (termsUrl) {
+        const termsMessage = await t(lang, "terms_message");
+        await ctx.reply(termsMessage, {
+          reply_markup: {
+            inline_keyboard: [
+              [
+                {
+                  text: await t(lang, "btn_read_terms"),
+                  url: termsUrl,
+                },
+              ],
+              [
+                {
+                  text: await t(lang, "btn_accept_terms"),
+                  callback_data: "accept_terms",
+                },
+              ],
             ],
-            [
-              {
-                text: await t(lang, "btn_accept_terms"),
-                callback_data: "accept_terms",
-              },
-            ],
-          ],
-        },
-      });
-      return;
+          },
+        });
+        return;
+      }
     }
   }
 
-  // Check phone request (only if user hasn't provided phone)
-  if (!user.phoneNumber) {
-    const phoneEnabled = await Settings.getSetting(
-      "phone_request_enabled",
-      false
-    );
-
+  // Phone request - VERY LAZY, only ask on specific interactions
+  // Never block mini app or inline queries
+  if (!user.phoneNumber && ctx.message?.text && !ctx.message.text.startsWith("/")) {
+    const phoneEnabled = await Settings.getSetting("phone_request_enabled", false);
     if (phoneEnabled) {
-      const phoneRecheckDays = await Settings.getSetting(
-        "phone_recheck_days",
-        180
-      );
+      const phoneRecheckDays = await Settings.getSetting("phone_recheck_days", 180);
       const shouldAskPhone =
         !user.phoneRequestedAt ||
-        (user.phoneRequestedAt &&
-          (Date.now() - new Date(user.phoneRequestedAt).getTime()) /
-            (1000 * 60 * 60 * 24) >
-            phoneRecheckDays);
+        (Date.now() - new Date(user.phoneRequestedAt).getTime()) / (1000 * 60 * 60 * 24) > phoneRecheckDays;
 
       if (shouldAskPhone) {
         await ctx.reply(
           await t(lang, "request_phone"),
           await getPhoneRequestKeyboard(lang)
         );
-        // Fire and forget - don't wait for update
+        // Fire and forget
         User.findOneAndUpdate(
           { userId: ctx.from.id },
           { phoneRequestedAt: new Date() },
