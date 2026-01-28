@@ -199,9 +199,21 @@ function Users() {
       </div>
 
       <div className="card">
-        <div className="search-bar" style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+        <div
+          className="search-bar"
+          style={{ display: "flex", gap: "10px", alignItems: "center" }}
+        >
           <div style={{ position: "relative", flex: 1 }}>
-            <Search size={20} style={{ position: "absolute", left: "12px", top: "50%", transform: "translateY(-50%)", opacity: 0.5 }} />
+            <Search
+              size={20}
+              style={{
+                position: "absolute",
+                left: "12px",
+                top: "50%",
+                transform: "translateY(-50%)",
+                opacity: 0.5,
+              }}
+            />
             <input
               type="text"
               className="input"
@@ -212,26 +224,29 @@ function Users() {
               style={{ paddingLeft: "40px", width: "100%" }}
             />
           </div>
-          <button 
-            className="btn btn-primary" 
+          <button
+            className="btn btn-primary"
             onClick={handleSearch}
             disabled={isLoading}
           >
             Qidirish
           </button>
           {searchQuery && (
-            <button 
-              className="btn btn-secondary" 
+            <button
+              className="btn btn-secondary"
               onClick={handleClearSearch}
               title="Tozalash"
             >
               ✕
             </button>
           )}
-          <select 
-            className="input" 
-            value={limit} 
-            onChange={(e) => { setLimit(parseInt(e.target.value)); setPage(1); }}
+          <select
+            className="input"
+            value={limit}
+            onChange={(e) => {
+              setLimit(parseInt(e.target.value));
+              setPage(1);
+            }}
             style={{ width: "auto" }}
           >
             <option value={10}>10 ta</option>
@@ -259,18 +274,29 @@ function Users() {
             <tbody>
               {isLoading ? (
                 <tr>
-                  <td colSpan="9" style={{ textAlign: "center", padding: "40px" }}>
+                  <td
+                    colSpan="9"
+                    style={{ textAlign: "center", padding: "40px" }}
+                  >
                     <div className="spinner"></div>
                     <p>Yuklanmoqda...</p>
                   </td>
                 </tr>
               ) : data?.users?.length === 0 ? (
                 <tr>
-                  <td colSpan="9" style={{ textAlign: "center", padding: "40px" }}>
+                  <td
+                    colSpan="9"
+                    style={{ textAlign: "center", padding: "40px" }}
+                  >
                     {searchQuery ? (
                       <div>
-                        <Search size={48} style={{ opacity: 0.3, marginBottom: "10px" }} />
-                        <p style={{ opacity: 0.6 }}>"{searchQuery}" bo'yicha hech narsa topilmadi</p>
+                        <Search
+                          size={48}
+                          style={{ opacity: 0.3, marginBottom: "10px" }}
+                        />
+                        <p style={{ opacity: 0.6 }}>
+                          "{searchQuery}" bo'yicha hech narsa topilmadi
+                        </p>
                       </div>
                     ) : (
                       <p style={{ opacity: 0.6 }}>Foydalanuvchilar yo'q</p>
@@ -403,7 +429,16 @@ function Users() {
         </div>
 
         {data?.pagination && data.pagination.pages > 1 && (
-          <div className="pagination" style={{ display: "flex", alignItems: "center", gap: "10px", justifyContent: "center", marginTop: "20px" }}>
+          <div
+            className="pagination"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "10px",
+              justifyContent: "center",
+              marginTop: "20px",
+            }}
+          >
             <button
               className="btn btn-primary"
               disabled={page === 1 || isLoading}
@@ -419,8 +454,10 @@ function Users() {
               ◀️ Oldingi
             </button>
             <span style={{ padding: "0 20px", fontWeight: "bold" }}>
-              {page} / {data.pagination.pages} 
-              <span style={{ opacity: 0.6, marginLeft: "10px", fontSize: "14px" }}>
+              {page} / {data.pagination.pages}
+              <span
+                style={{ opacity: 0.6, marginLeft: "10px", fontSize: "14px" }}
+              >
                 ({data.pagination.total} ta)
               </span>
             </span>

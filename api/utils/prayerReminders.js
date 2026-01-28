@@ -262,6 +262,15 @@ async function schedulePrayerReminders(bot, user) {
 }
 
 /**
+ * Check if user already has scheduled reminders
+ * @param {Number} userId - Telegram user ID
+ * @returns {Boolean}
+ */
+function isUserScheduled(userId) {
+  return activeJobs.has(userId);
+}
+
+/**
  * Cancel all reminders for a specific user
  * @param {Number} userId - Telegram user ID
  */
@@ -276,6 +285,7 @@ function cancelUserReminders(userId) {
       }
     });
     activeJobs.delete(userId);
+    console.log(`✅ Cancelled reminders for user ${userId}`);
   }
 }
 
@@ -370,4 +380,5 @@ module.exports = {
   cancelUserReminders,
   initializeAllReminders,
   updateUserReminders,
+  isUserScheduled,
 };

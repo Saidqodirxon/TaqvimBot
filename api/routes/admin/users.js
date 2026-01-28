@@ -27,7 +27,7 @@ router.get("/", authMiddleware, async (req, res) => {
           { phoneNumber: searchRegex },
         ],
       };
-      
+
       // If search is a number, also search by userId
       if (!isNaN(search)) {
         query.$or.push({ userId: parseInt(search) });

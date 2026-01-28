@@ -135,18 +135,21 @@ bot.use(async (ctx, next) => {
       if (
         user.reminderSettings?.enabled &&
         user.location?.latitude &&
-        global.reminderBot &&
-        !ctx.session.remindersScheduled
+        global.reminderBot
       ) {
-        // Schedule in background (non-blocking)
-        setImmediate(async () => {
-          try {
-            await schedulePrayerReminders(global.reminderBot, user);
-            ctx.session.remindersScheduled = true;
-          } catch (err) {
-            // Silently ignore reminder scheduling errors
-          }
-        });
+        const { isUserScheduled } = require("./utils/prayerReminders");
+        
+        // Check if reminders already scheduled for this user
+        if (!isUserScheduled(user.userId)) {
+          // Schedule in background (non-blocking)
+          setImmediate(async () => {
+            try {
+              await schedulePrayerReminders(global.reminderBot, user);
+            } catch (err) {
+              // Silently ignore reminder scheduling errors
+            }
+          });
+        }
       }
     }
     await next();
