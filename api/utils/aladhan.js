@@ -41,6 +41,13 @@ async function getPrayerTimes(
 
       if (prayerData) {
         // console.log(`✅ Prayer data found for ${locationKey} on ${dateStr}`);
+        
+        // Get hijri date from API if not cached
+        let hijriDate = prayerData.hijri || "Unknown";
+        if (hijriDate === "Unknown") {
+          hijriDate = await getHijriDate();
+        }
+        
         return {
           success: true,
           date:
@@ -50,7 +57,7 @@ async function getPrayerTimes(
               month: "short",
               year: "numeric",
             }),
-          hijri: "Unknown", // Can be added later if needed
+          hijri: hijriDate || "Unknown",
           timings: prayerData.timings,
           meta: {
             latitude: prayerData.latitude,
@@ -244,10 +251,14 @@ async function getPrayerTimes(
 
       if (lastData) {
         console.log(`⚠️ API failed, using saved data from ${lastData.date}`);
+        
+        // Get hijri date from API
+        const hijriDate = await getHijriDate();
+        
         return {
           success: true,
           date: lastData.date,
-          hijri: "Unknown",
+          hijri: hijriDate || "Unknown",
           timings: lastData.timings,
           meta: {
             latitude: lastData.latitude,
@@ -275,10 +286,14 @@ async function getPrayerTimes(
 
       if (nearbyData) {
         console.log(`⚠️ Using nearby location data: ${nearbyData.locationKey}`);
+        
+        // Get hijri date from API
+        const hijriDate = await getHijriDate();
+        
         return {
           success: true,
           date: nearbyData.date,
-          hijri: "Unknown",
+          hijri: hijriDate || "Unknown",
           timings: nearbyData.timings,
           meta: {
             latitude: nearbyData.latitude,

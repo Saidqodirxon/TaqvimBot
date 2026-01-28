@@ -273,6 +273,25 @@ bot.command("start", async (ctx) => {
     const user = ctx.session.user;
     const lang = getUserLanguage(user);
 
+    // Set personalized menu button for this user
+    try {
+      const miniAppUrl = process.env.MINI_APP_URL;
+      if (miniAppUrl) {
+        await ctx.telegram.callApi('setChatMenuButton', {
+          chat_id: ctx.from.id,
+          menu_button: {
+            type: "web_app",
+            text: "📅 Taqvim",
+            web_app: {
+              url: `${miniAppUrl}?userId=${ctx.from.id}`,
+            },
+          },
+        });
+      }
+    } catch (menuErr) {
+      // Silently fail, don't block start command
+    }
+
     // 1. Language selection (if not set)
     if (!user.language) {
       const welcomeText = await t("uz", "welcome");
@@ -1196,6 +1215,12 @@ bot.action("calendar_daily", async (ctx) => {
     const keyboard = [
       [
         {
+          text: "📅 Web taqvim",
+          web_app: { url: `${miniAppUrl}?userId=${ctx.from.id}` },
+        },
+      ],
+      [
+        {
           text: await t(lang, "btn_back"),
           callback_data: "back_to_calendar_view",
         },
@@ -1499,6 +1524,47 @@ bot.action("toggle_reminders", async (ctx) => {
           ? await t(lang, "reminder_enabled")
           : await t(lang, "reminder_disabled")
       }\n⏰ ${newSettings.minutesBefore} daqiqa oldin`;
+
+    await ctx.editMessageText(
+      message,
+      await getReminderSettingsKeyboard(lang, newSettings)
+    );
+  } catch (error) {
+    console.error("Error toggling reminders:", error);
+  }
+});
+
+/**
+ * Disable all reminders
+ */
+bot.action("disable_all_reminders", async (ctx) => {
+  try {
+    await ctx.answerCbQuery("⏳ O'chirilmoqda...");
+    const user = ctx.session.user;
+    const lang = getUserLanguage(user);
+
+    // Disable all reminders
+    const newSettings = {
+      enabled: false,
+      minutesBefore: 15,
+      notifyAtPrayerTime: false,
+    };
+
+    await updateUserReminders(bot, user.userId, newSettings);
+    ctx.session.user.reminderSettings = newSettings;
+
+    await ctx.editMessageText(
+      "✅ Barcha eslatmalar o'chirildi\n\n" +
+      "Eslatmalarni qayta yoqish uchun sozlamalar bo'limiga o'ting.",
+      Markup.inlineKeyboard([
+        [Markup.button.callback("◀️ Orqaga", "back_to_settings")]
+      ])
+    );
+  } catch (error) {
+    console.error("Error disabling all reminders:", error);
+    await ctx.answerCbQuery("❌ Xatolik yuz berdi");
+  }
+});
 
     await ctx.editMessageText(
       message,
@@ -1925,46 +1991,23 @@ async function startBot() {
         try {
           const miniAppUrl = process.env.MINI_APP_URL;
           if (miniAppUrl && miniAppUrl.startsWith("https://")) {
-            // First, delete any existing menu button to force refresh
-            try {
-              await bot.telegram.setChatMenuButton({
-                menu_button: { type: "default" },
-              });
-              console.log("✅ Default menu button reset");
-            } catch (e) {
-              console.log("⚠️ Could not reset default menu button");
-            }
-
-            // Set default menu button for all users
-            await bot.telegram.setChatMenuButton({
+            // Set default menu button with userId parameter
+            // When user opens, we'll set their specific userId
+            await bot.telegram.callApi('setChatMenuButton', {
               menu_button: {
                 type: "web_app",
                 text: "📅 Taqvim",
                 web_app: {
-                  url: miniAppUrl,
+                  url: miniAppUrl, // Base URL, will add userId when user opens
                 },
               },
             });
             console.log("✅ Default menu button set: " + miniAppUrl);
-
-            // Also set for admin user specifically
-            await bot.telegram.setChatMenuButton({
-              chat_id: parseInt(adminId),
-              menu_button: {
-                type: "web_app",
-                text: "📅 Taqvim",
-                web_app: {
-                  url: miniAppUrl,
-                },
-              },
-            });
-            console.log(`✅ Menu button set for admin: ${adminId}`);
           } else {
             console.log("⚠️ MINI_APP_URL not configured or invalid");
           }
         } catch (menuError) {
           console.error("❌ Menu button error:", menuError.message);
-          console.error("Full error:", menuError);
           await logError(menuError, null, "Menu Button Setup");
         }
       })
