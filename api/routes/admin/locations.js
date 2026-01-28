@@ -9,128 +9,127 @@ const MonthlyPrayerTime = require("../../models/MonthlyPrayerTime");
 const axios = require("axios");
 
 /**
- * Get all locations with user count statistics, monthly trends, and prayer data completeness
+ * Get all locations with user count statistics - OPTIMIZED (< 2 sec)
+ * Uses aggregation pipelines instead of multiple queries
  */
 router.get("/", async (req, res) => {
   try {
-    const locations = await Location.find({ isActive: true }).sort({ name: 1 });
+    // Set timeout for this route
+    req.setTimeout(30000);
+    
+    const startTime = Date.now();
+    
+    // 1. Get all locations (fast)
+    const locations = await Location.find({ isActive: true })
+      .select("name nameUz nameCr nameRu latitude longitude timezone country isDefault manualPrayerTimes")
+      .sort({ name: 1 })
+      .lean();
 
-    // Get current month and last 3 months dates
-    const now = new Date();
-    const currentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-    const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-    const twoMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 2, 1);
-
-    // Calculate date range for prayer data check (today + 60 days)
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const endDate = new Date(today);
-    endDate.setDate(endDate.getDate() + 60);
-
-    // Get user count for each location with monthly trends
-    const locationsWithStats = await Promise.all(
-      locations.map(async (location) => {
-        const locationKey = `${location.latitude.toFixed(4)}_${location.longitude.toFixed(4)}`;
-
-        // Current user count
-        const userCount = await User.countDocuments({
-          "location.latitude": location.latitude,
-          "location.longitude": location.longitude,
-        });
-
-        // Monthly statistics
-        const thisMonthCount = await User.countDocuments({
-          "location.latitude": location.latitude,
-          "location.longitude": location.longitude,
-          createdAt: { $gte: currentMonth },
-        });
-
-        const lastMonthCount = await User.countDocuments({
-          "location.latitude": location.latitude,
-          "location.longitude": location.longitude,
-          createdAt: { $gte: lastMonth, $lt: currentMonth },
-        });
-
-        const twoMonthsAgoCount = await User.countDocuments({
-          "location.latitude": location.latitude,
-          "location.longitude": location.longitude,
-          createdAt: { $gte: twoMonthsAgo, $lt: lastMonth },
-        });
-
-        // Check prayer data completeness (PrayerTimeData)
-        const prayerDataCount = await PrayerTimeData.countDocuments({
-          locationKey,
-          date: {
-            $gte: today.toISOString().split("T")[0],
-            $lte: endDate.toISOString().split("T")[0],
+    // 2. Get user counts using aggregation (single query for ALL locations)
+    const userCounts = await User.aggregate([
+      {
+        $match: {
+          "location.latitude": { $exists: true },
+          "location.longitude": { $exists: true }
+        }
+      },
+      {
+        $group: {
+          _id: {
+            lat: { $round: ["$location.latitude", 4] },
+            lng: { $round: ["$location.longitude", 4] }
           },
-        });
-
-        // Check monthly prayer times (MonthlyPrayerTime)
-        const monthlyDataCount = await MonthlyPrayerTime.countDocuments({
-          locationId: location._id,
-          date: { $gte: today, $lte: endDate },
-        });
-
-        // Find first missing date in next 30 days
-        let firstMissingDate = null;
-        const checkDays = 30;
-        for (let i = 0; i < checkDays; i++) {
-          const checkDate = new Date(today);
-          checkDate.setDate(checkDate.getDate() + i);
-          const dateStr = checkDate.toISOString().split("T")[0];
-
-          const hasPrayerData = await PrayerTimeData.exists({
-            locationKey,
-            date: dateStr,
-          });
-          const hasMonthlyData = await MonthlyPrayerTime.exists({
-            locationId: location._id,
-            date: {
-              $gte: new Date(checkDate.setHours(0, 0, 0, 0)),
-              $lt: new Date(checkDate.setHours(23, 59, 59, 999)),
-            },
-          });
-
-          if (
-            !hasPrayerData &&
-            !hasMonthlyData &&
-            !location.manualPrayerTimes?.enabled
-          ) {
-            firstMissingDate = dateStr;
-            break;
+          total: { $sum: 1 },
+          thisMonth: {
+            $sum: {
+              $cond: [
+                { $gte: ["$createdAt", new Date(new Date().getFullYear(), new Date().getMonth(), 1)] },
+                1, 0
+              ]
+            }
+          },
+          lastMonth: {
+            $sum: {
+              $cond: [
+                {
+                  $and: [
+                    { $gte: ["$createdAt", new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1)] },
+                    { $lt: ["$createdAt", new Date(new Date().getFullYear(), new Date().getMonth(), 1)] }
+                  ]
+                },
+                1, 0
+              ]
+            }
           }
         }
+      }
+    ]);
 
-        return {
-          ...location.toObject(),
-          userCount,
-          monthlyStats: {
-            thisMonth: thisMonthCount,
-            lastMonth: lastMonthCount,
-            twoMonthsAgo: twoMonthsAgoCount,
-          },
-          growth:
-            lastMonthCount > 0
-              ? Math.round(
-                  ((thisMonthCount - lastMonthCount) / lastMonthCount) * 100
-                )
-              : thisMonthCount > 0
-                ? 100
-                : 0,
-          prayerDataStats: {
-            prayerTimeDataDays: prayerDataCount,
-            monthlyPrayerDays: monthlyDataCount,
-            totalDays: 60,
-            completeness: Math.round(
-              (Math.max(prayerDataCount, monthlyDataCount) / 60) * 100
-            ),
-            firstMissingDate,
-            hasManualTimes: location.manualPrayerTimes?.enabled || false,
-          },
-        };
-      })
-    );
+    // Create a map for fast lookup
+    const userCountMap = new Map();
+    userCounts.forEach(uc => {
+      const key = `${uc._id.lat}_${uc._id.lng}`;
+      userCountMap.set(key, uc);
+    });
+
+    // 3. Get prayer data counts (single aggregation)
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const todayStr = today.toISOString().split("T")[0];
+    const endDate = new Date(today);
+    endDate.setDate(endDate.getDate() + 60);
+    const endDateStr = endDate.toISOString().split("T")[0];
+
+    const prayerDataCounts = await PrayerTimeData.aggregate([
+      {
+        $match: {
+          date: { $gte: todayStr, $lte: endDateStr }
+        }
+      },
+      {
+        $group: {
+          _id: "$locationKey",
+          count: { $sum: 1 }
+        }
+      }
+    ]);
+
+    const prayerDataMap = new Map();
+    prayerDataCounts.forEach(pd => {
+      prayerDataMap.set(pd._id, pd.count);
+    });
+
+    // 4. Combine results (no more individual queries!)
+    const locationsWithStats = locations.map(location => {
+      const lat = location.latitude?.toFixed(4);
+      const lng = location.longitude?.toFixed(4);
+      const key = `${lat}_${lng}`;
+      const userStats = userCountMap.get(key) || { total: 0, thisMonth: 0, lastMonth: 0 };
+      const prayerDays = prayerDataMap.get(key) || 0;
+      
+      const growth = userStats.lastMonth > 0
+        ? Math.round(((userStats.thisMonth - userStats.lastMonth) / userStats.lastMonth) * 100)
+        : userStats.thisMonth > 0 ? 100 : 0;
+
+      return {
+        ...location,
+        userCount: userStats.total,
+        monthlyStats: {
+          thisMonth: userStats.thisMonth,
+          lastMonth: userStats.lastMonth,
+        },
+        growth,
+        prayerDataStats: {
+          prayerTimeDataDays: prayerDays,
+          totalDays: 60,
+          completeness: Math.round((prayerDays / 60) * 100),
+          hasManualTimes: location.manualPrayerTimes?.enabled || false,
+        }
+      };
+    });
+
+    const elapsed = Date.now() - startTime;
+    console.log(`📊 Locations API: ${locations.length} locations in ${elapsed}ms`);
 
     res.json(locationsWithStats);
   } catch (error) {

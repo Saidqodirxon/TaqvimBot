@@ -6,6 +6,32 @@ const PrayerTimeData = require("../models/PrayerTimeData");
 // Redis cache instance (imported globally in bot.js)
 let redisCache = null;
 
+// In-memory cache fallback (when Redis is not available)
+const memoryCache = new Map();
+const MEMORY_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
+function getMemoryCache(key) {
+  const cached = memoryCache.get(key);
+  if (cached && Date.now() - cached.timestamp < MEMORY_CACHE_TTL) {
+    return cached.data;
+  }
+  memoryCache.delete(key);
+  return null;
+}
+
+function setMemoryCache(key, data) {
+  memoryCache.set(key, { data, timestamp: Date.now() });
+  // Clean old entries periodically
+  if (memoryCache.size > 500) {
+    const now = Date.now();
+    for (const [k, v] of memoryCache) {
+      if (now - v.timestamp > MEMORY_CACHE_TTL) {
+        memoryCache.delete(k);
+      }
+    }
+  }
+}
+
 // Set Redis cache instance
 function setRedisCache(cache) {
   redisCache = cache;
@@ -39,8 +65,15 @@ async function getPrayerTimes(
     // Create location key and date string for data lookup
     const locationKey = `${latitude.toFixed(4)}_${longitude.toFixed(4)}`;
     const dateStr = targetDate.toISOString().split("T")[0]; // YYYY-MM-DD
+    const cacheKey = `prayer:${locationKey}:${dateStr}:${method}:${school}`;
 
-    // Priority -1: Check Redis cache first (if available)
+    // Priority -2: Check in-memory cache first (fastest)
+    const memCached = getMemoryCache(cacheKey);
+    if (memCached) {
+      return memCached;
+    }
+
+    // Priority -1: Check Redis cache (if available)
     if (redisCache && redisCache.isAvailable()) {
       const cacheKey = `prayer:${locationKey}:${dateStr}:${method}:${school}`;
       try {
@@ -71,7 +104,7 @@ async function getPrayerTimes(
           hijriDate = await getHijriDate();
         }
 
-        return {
+        const result = {
           success: true,
           date:
             prayerData.date ||
@@ -98,6 +131,11 @@ async function getPrayerTimes(
           cached: false,
           source: "prayer_time_data",
         };
+        
+        // Cache the result in memory
+        setMemoryCache(cacheKey, result);
+        
+        return result;
       }
     } catch (dataError) {
       console.error("Prayer data read error:", dataError.message);
