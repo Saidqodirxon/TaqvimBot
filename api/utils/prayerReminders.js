@@ -154,18 +154,52 @@ async function schedulePrayerReminders(bot, user) {
                   time: prayer.time,
                 });
                 
-                await bot.telegram.sendMessage(user.userId, message, {
-                  reply_markup: {
-                    inline_keyboard: [
-                      [
-                        {
-                          text: "🔕 Eslatmalarni o'chirish",
-                          callback_data: "disable_all_reminders",
-                        },
+                // Send with retry and rate limit handling
+                try {
+                  await bot.telegram.sendMessage(user.userId, message, {
+                    reply_markup: {
+                      inline_keyboard: [
+                        [
+                          {
+                            text: "🔕 Eslatmalarni o'chirish",
+                            callback_data: "disable_all_reminders",
+                          },
+                        ],
                       ],
-                    ],
-                  },
-                });
+                    },
+                  });
+                } catch (sendError) {
+                  // Handle Telegram rate limits
+                  if (sendError.response?.error_code === 429) {
+                    const retryAfter = sendError.response.parameters?.retry_after || 1;
+                    console.warn(`⚠️ Rate limited for user ${user.userId}. Retry after ${retryAfter}s`);
+                    // Wait and retry once
+                    await new Promise(resolve => setTimeout(resolve, retryAfter * 1000));
+                    await bot.telegram.sendMessage(user.userId, message, {
+                      reply_markup: {
+                        inline_keyboard: [
+                          [
+                            {
+                              text: "🔕 Eslatmalarni o'chirish",
+                              callback_data: "disable_all_reminders",
+                            },
+                          ],
+                        ],
+                      },
+                    });
+                  } else if (sendError.response?.error_code === 403) {
+                    // User blocked the bot
+                    console.warn(`⚠️ User ${user.userId} blocked the bot. Disabling reminders.`);
+                    const User = require("../models/User");
+                    await User.updateOne(
+                      { userId: user.userId },
+                      { $set: { "reminderSettings.enabled": false, is_block: true } }
+                    );
+                    cancelUserReminders(user.userId);
+                  } else {
+                    throw sendError;
+                  }
+                }
               } catch (error) {
                 console.error(
                   `Error sending before-prayer reminder to ${user.userId}:`,

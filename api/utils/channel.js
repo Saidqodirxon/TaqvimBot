@@ -164,30 +164,50 @@ async function handleCheckSubscription(ctx) {
   if (notJoinedChannels.length === 0) {
     await ctx.answerCbQuery("✅ Barcha kanallarga obuna tasdiqlandi!");
 
-    // Update user data
+    // Update user data in database AND session
+    const User = require("../models/User");
+    await User.updateOne(
+      { userId },
+      { $set: { hasJoinedChannel: true } }
+    );
+    
     if (ctx.session?.user) {
       ctx.session.user.hasJoinedChannel = true;
     }
 
-    await ctx.editMessageText(await t(lang, "welcome_after_join"));
+    // Edit message to show success
+    try {
+      await ctx.editMessageText(await t(lang, "welcome_after_join"));
+    } catch (e) {
+      // Message might be too old, send new one
+      await ctx.reply(await t(lang, "welcome_after_join"));
+    }
 
-    // Check if phone number is provided
+    // Show main menu IMMEDIATELY (don't block on phone request)
     const {
       getPhoneRequestKeyboard,
       getMainMenuKeyboard,
     } = require("./keyboards");
+    
+    // Always show main menu
+    await ctx.reply(
+      await t(lang, "main_menu"),
+      await getMainMenuKeyboard(lang)
+    );
+    
+    // If phone not provided, show request separately (non-blocking)
     if (!ctx.session?.user?.phoneNumber) {
-      // Request phone number
-      await ctx.reply(
-        await t(lang, "request_phone"),
-        await getPhoneRequestKeyboard(lang)
-      );
-    } else {
-      // Show main menu
-      await ctx.reply(
-        await t(lang, "main_menu"),
-        await getMainMenuKeyboard(lang)
-      );
+      setTimeout(async () => {
+        try {
+          await ctx.telegram.sendMessage(
+            userId,
+            await t(lang, "request_phone"),
+            await getPhoneRequestKeyboard(lang)
+          );
+        } catch (e) {
+          console.error("Error sending phone request:", e.message);
+        }
+      }, 500);
     }
   } else {
     // Still not joined all channels

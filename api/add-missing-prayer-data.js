@@ -35,14 +35,19 @@ async function fetchPrayerTimesFromAPI(latitude, longitude, date, method = 3, sc
 
     if (response.data?.data?.timings) {
       const timings = response.data.data.timings;
+      // Return with CAPITALIZED keys to match PrayerTimeData schema
       return {
-        fajr: timings.Fajr,
-        sunrise: timings.Sunrise,
-        dhuhr: timings.Dhuhr,
-        asr: timings.Asr,
-        maghrib: timings.Maghrib,
-        isha: timings.Isha,
-        midnight: timings.Midnight
+        Fajr: timings.Fajr,
+        Sunrise: timings.Sunrise,
+        Dhuhr: timings.Dhuhr,
+        Asr: timings.Asr,
+        Maghrib: timings.Maghrib,
+        Isha: timings.Isha,
+        Midnight: timings.Midnight,
+        Imsak: timings.Imsak,
+        Sunset: timings.Sunset,
+        Firstthird: timings.Firstthird,
+        Lastthird: timings.Lastthird
       };
     }
     return null;
@@ -116,18 +121,18 @@ async function addMissingPrayerData() {
         );
 
         if (timings) {
-          // Save to database
+          // Save to database with required cityName field
           await PrayerTimeData.create({
             locationKey: location.locationKey,
+            cityName: location.name, // Required field
+            cityNameUz: location.nameUz || location.name,
+            cityNameRu: location.nameRu,
             latitude: location.lat,
             longitude: location.lng,
             date: dateStr,
             timings,
             method: 3,
-            school: 1,
-            source: 'script-fix-missing-data',
-            fetchedAt: new Date(),
-            expiresAt: new Date(targetDate.getTime() + 30 * 24 * 60 * 60 * 1000) // 30 days
+            school: 1
           });
         } else {
           errorCount++;

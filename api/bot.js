@@ -1288,6 +1288,7 @@ bot.action("calendar_daily", async (ctx) => {
     await ctx.answerCbQuery();
     const lang = getUserLanguage(ctx.session.user);
     const user = ctx.session.user;
+    const miniAppUrl = process.env.MINI_APP_URL || "https://ramazon-taqvim.netlify.app";
 
     // ❗ LOCATION MAJBURIY - default Tashkent yo'q
     if (!user.location || !user.location.latitude || !user.location.longitude) {

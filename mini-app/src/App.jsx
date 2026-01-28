@@ -245,29 +245,42 @@ function App() {
       <div className="app prompt">
         <div className="prompt-card">
           <h2>📢 Kanalga obuna bo'ling</h2>
-          <p>
+          <p style={{ fontSize: '16px', marginBottom: '20px' }}>
             Taqvimdan foydalanish uchun rasmiy kanalimizga obuna bo'lishingiz
             kerak.
           </p>
-          <ol style={{ textAlign: 'left', margin: '20px 0' }}>
-            <li>Pastdagi tugmani bosing</li>
-            <li>Botga qaytib, kanalga obuna bo'ling</li>
-            <li>"Obunani tekshirish" tugmasini bosing</li>
-            <li>Mini appni qayta oching</li>
-          </ol>
+          <div style={{ 
+            background: '#f0f0f0', 
+            padding: '15px', 
+            borderRadius: '10px',
+            marginBottom: '20px',
+            textAlign: 'left'
+          }}>
+            <p style={{ fontWeight: 'bold', marginBottom: '10px' }}>📝 Qadamlar:</p>
+            <ol style={{ margin: '0', paddingLeft: '20px', lineHeight: '1.8' }}>
+              <li>Pastdagi "Botga qaytish" tugmasini bosing</li>
+              <li>Bot ochilgach, kanalga obuna bo'lish havolasini bosing</li>
+              <li>Kanalga obuna bo'ling (JOIN yoki QOSHILISH)</li>
+              <li>Botga qaytib "Obunani tekshirish" tugmasini bosing</li>
+              <li>Mini appni qayta oching yoki "Qayta tekshirish" bosing</li>
+            </ol>
+          </div>
           <button
             className="primary-button"
             onClick={() => {
               const tg = window.Telegram.WebApp;
+              // Send command to bot to show channel join
+              tg.sendData(JSON.stringify({ action: 'check_channel' }));
               tg.close();
             }}
           >
-            Botga qaytish
+            🤖 Botga qaytish
           </button>
           <button
             className="secondary-button"
             style={{ marginTop: '10px' }}
             onClick={() => {
+              setLoading(true);
               const urlParams = new URLSearchParams(window.location.search);
               const userId = urlParams.get("userId");
               if (userId) {
