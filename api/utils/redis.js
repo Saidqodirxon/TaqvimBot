@@ -236,7 +236,4 @@ class RedisCache {
   }
 }
 
-// Singleton instance
-const redisCache = new RedisCache();
-
-module.exports = redisCache;
+module.exports = RedisCache;
