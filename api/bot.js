@@ -138,7 +138,7 @@ bot.use(async (ctx, next) => {
         global.reminderBot
       ) {
         const { isUserScheduled } = require("./utils/prayerReminders");
-        
+
         // Check if reminders already scheduled for this user
         if (!isUserScheduled(user.userId)) {
           // Schedule in background (non-blocking)
