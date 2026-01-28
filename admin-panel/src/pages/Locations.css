@@ -74,6 +74,17 @@
   font-weight: bold;
 }
 
+.user-count-badge {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  margin-top: 8px;
+  display: inline-block;
+}
+
 .location-body {
   padding: 20px;
 }

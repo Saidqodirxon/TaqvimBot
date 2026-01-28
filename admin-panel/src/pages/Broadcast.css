@@ -28,6 +28,87 @@
   gap: 16px;
 }
 
+.buttons-section {
+  margin: 24px 0;
+  padding: 20px;
+  background: #f0f4ff;
+  border-radius: 8px;
+  border: 1px solid #d0d9ff;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  color: #333;
+}
+
+.section-header h4 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.button-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.button-row input {
+  flex: 1;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.button-row input:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.btn-remove {
+  background: #dc3545;
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+  transition: all 0.3s;
+}
+
+.btn-remove:hover {
+  background: #c82333;
+}
+
+.btn-add-button {
+  background: #28a745;
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.3s;
+  width: 100%;
+  margin-top: 8px;
+}
+
+.btn-add-button:hover {
+  background: #218838;
+}
+
+.btn-add-button:disabled,
+.btn-remove:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .stats-card {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;

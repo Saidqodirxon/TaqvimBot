@@ -15,7 +15,7 @@ async function getOrCreateUser(ctx) {
 
     // Optimized query - select only needed fields
     let user = await User.findOne({ userId }).select(
-      "userId firstName username language location prayerSettings reminderSettings hasJoinedChannel is_block phoneNumber phoneRequestedAt termsAcceptedAt last_active"
+      "userId firstName username language location prayerSettings reminderSettings hasJoinedChannel is_block phoneNumber phoneRequestedAt termsAccepted termsAcceptedAt last_active"
     );
 
     if (!user) {

@@ -275,6 +275,11 @@ const Locations = () => {
                   <span className="default-badge">Default</span>
                 )}
               </h3>
+              {location.userCount !== undefined && (
+                <div className="user-count-badge">
+                  👥 {location.userCount} foydalanuvchi
+                </div>
+              )}
             </div>
             <div className="location-body">
               <p>

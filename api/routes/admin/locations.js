@@ -2,14 +2,31 @@ const logger = require("../../utils/logger");
 const express = require("express");
 const router = express.Router();
 const Location = require("../../models/Location");
+const User = require("../../models/User");
 
 /**
- * Get all locations
+ * Get all locations with user count statistics
  */
 router.get("/", async (req, res) => {
   try {
     const locations = await Location.find({ isActive: true }).sort({ name: 1 });
-    res.json(locations);
+    
+    // Get user count for each location
+    const locationsWithStats = await Promise.all(
+      locations.map(async (location) => {
+        const userCount = await User.countDocuments({
+          "location.latitude": location.latitude,
+          "location.longitude": location.longitude,
+        });
+        
+        return {
+          ...location.toObject(),
+          userCount,
+        };
+      })
+    );
+    
+    res.json(locationsWithStats);
   } catch (error) {
     logger.error("Error fetching locations:", error);
     res.status(500).json({ error: "Internal server error" });

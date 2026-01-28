@@ -10,6 +10,7 @@ import {
   XCircle,
   Loader,
   Radio,
+  Link as LinkIcon,
 } from "lucide-react";
 import "./Broadcast.css";
 
@@ -22,6 +23,9 @@ function Broadcast() {
     hasJoinedChannel: undefined,
   });
   const [jobId, setJobId] = useState(null);
+  const [buttons, setButtons] = useState([
+    { text: "", url: "" },
+  ]);
 
   // Get current stats
   const { data: statsData, refetch: refetchStats } = useQuery({
@@ -40,6 +44,16 @@ function Broadcast() {
   const sendMutation = useMutation({
     mutationFn: async () => {
       const token = localStorage.getItem("token");
+      
+      // Prepare inline keyboard if buttons exist
+      const validButtons = buttons.filter(btn => btn.text.trim() && btn.url.trim());
+      const reply_markup = validButtons.length > 0 ? {
+        inline_keyboard: validButtons.map(btn => [{
+          text: btn.text,
+          url: btn.url,
+        }]),
+      } : undefined;
+      
       const response = await axios.post(
         `${API_URL}/broadcast/send`,
         {
@@ -50,6 +64,7 @@ function Broadcast() {
           },
           options: {
             parse_mode: "HTML",
+            reply_markup,
           },
         },
         {
@@ -66,6 +81,22 @@ function Broadcast() {
       alert("Xatolik: " + (error.response?.data?.error || error.message));
     },
   });
+
+  const addButton = () => {
+    if (buttons.length < 5) {
+      setButtons([...buttons, { text: "", url: "" }]);
+    }
+  };
+
+  const removeButton = (index) => {
+    setButtons(buttons.filter((_, i) => i !== index));
+  };
+
+  const updateButton = (index, field, value) => {
+    const newButtons = [...buttons];
+    newButtons[index][field] = value;
+    setButtons(newButtons);
+  };
 
   const handleSend = () => {
     if (!message.trim()) {
@@ -165,6 +196,52 @@ function Broadcast() {
               </select>
             </div>
           </div>
+        </div>
+
+        {/* Inline Buttons */}
+        <div className="buttons-section">
+          <div className="section-header">
+            <LinkIcon size={20} />
+            <h4>Inline tugmalar (ixtiyoriy)</h4>
+          </div>
+          {buttons.map((button, index) => (
+            <div key={index} className="button-row">
+              <input
+                type="text"
+                placeholder="Tugma matni"
+                value={button.text}
+                onChange={(e) => updateButton(index, "text", e.target.value)}
+                disabled={stats?.isProcessing}
+              />
+              <input
+                type="url"
+                placeholder="https://example.com"
+                value={button.url}
+                onChange={(e) => updateButton(index, "url", e.target.value)}
+                disabled={stats?.isProcessing}
+              />
+              {buttons.length > 1 && (
+                <button
+                  type="button"
+                  className="btn-remove"
+                  onClick={() => removeButton(index)}
+                  disabled={stats?.isProcessing}
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+          ))}
+          {buttons.length < 5 && (
+            <button
+              type="button"
+              className="btn-add-button"
+              onClick={addButton}
+              disabled={stats?.isProcessing}
+            >
+              + Tugma qo'shish
+            </button>
+          )}
         </div>
 
         <button

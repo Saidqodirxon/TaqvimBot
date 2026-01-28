@@ -435,4 +435,31 @@ router.post("/phone", authMiddleware, superAdminOnly, async (req, res) => {
   }
 });
 
+// Get Redis settings (for admin panel)
+router.get("/redis_enabled", authMiddleware, async (req, res) => {
+  try {
+    const enabled = await Settings.getSetting("redis_enabled", false);
+    res.json({ value: enabled });
+  } catch (error) {
+    logger.error("Get Redis setting error:", error);
+    res.status(500).json({ error: "Server xatosi" });
+  }
+});
+
+// Toggle Redis cache
+router.post("/redis", authMiddleware, superAdminOnly, async (req, res) => {
+  try {
+    const { enabled } = req.body;
+    await Settings.setSetting("redis_enabled", enabled, "Redis cache yoqish/o'chirish");
+    
+    res.json({
+      message: enabled ? "Redis yoqildi" : "Redis o'chirildi",
+      enabled,
+    });
+  } catch (error) {
+    logger.error("Set Redis setting error:", error);
+    res.status(500).json({ error: "Server xatosi" });
+  }
+});
+
 module.exports = router;
