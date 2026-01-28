@@ -59,7 +59,13 @@ async function checkChannelMembership(ctx, next, returnOnly = false) {
           notJoinedChannels.push(channel);
         }
       } catch (error) {
-        // On timeout or error, assume not joined
+        // If bot is blocked by user (403), skip this channel check
+        if (error.response?.error_code === 403 || error.message.includes("bot was blocked")) {
+          console.log(`User ${userId} has blocked the bot, skipping channel check`);
+          continue; // Skip this channel, don't add to notJoinedChannels
+        }
+        
+        // On timeout or other errors, assume not joined
         console.error(
           `Kanal tekshirishda xato (${channel.username}):`,
           error.message
