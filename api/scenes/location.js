@@ -259,7 +259,7 @@ locationScene.action(/^use_nearest_(.+)$/, async (ctx) => {
 
     await ctx.editMessageText(
       `✅ Joylashuv saqlandi: ${locationName}\n` +
-        `📦 Bu shahar uchun namoz vaqtlari cache'da mavjud!`
+        `⚡️ Namoz vaqtlari tez yuklanadi!`
     );
 
     await ctx.reply(await t(lang, "main_menu"), {
@@ -307,8 +307,8 @@ locationScene.action("use_gps_coords", async (ctx) => {
     };
 
     await ctx.editMessageText(
-      `✅ GPS koordinatalaringiz saqlandi\n` +
-        `⚠️ Cache'da bo'lmagan vaqtlar uchun API'dan olinadi`
+      `✅ Joylashuvingiz saqlandi!\n` +
+        `📍 Aniq GPS koordinatalari saqlandı`
     );
 
     await ctx.reply(await t(lang, "main_menu"), {
@@ -474,9 +474,10 @@ locationScene.on("location", async (ctx) => {
       };
 
       await ctx.reply(
-        `📍 Sizning joylashuvingiz: ${locationName}\n` +
+        `📍 Sizning joylashuvingiz\n` +
+          `🏙 Eng yaqin shahar: ${locationName}\n` +
           `📏 Masofa: ${nearest.distance} km\n\n` +
-          `⚡️ Cache'langan data uchun eng yaqin shaharni tanlashingiz tavsiya etiladi.`,
+          `⚡️ Eng yaqin shaharni tanlash tavsiya etiladi - namoz vaqtlari tezroq yuklanadi.`,
         Markup.inlineKeyboard(buttons)
       );
       return;
