@@ -213,17 +213,32 @@ function BroadcastLocation() {
   const broadcastMutation = useMutation({
     mutationFn: async () => {
       const token = localStorage.getItem("token");
-      
+
       // Build inline keyboard based on settings
       const inlineKeyboard = [];
       if (showLocationBtn) {
-        inlineKeyboard.push([{ text: "📍 Joylashuvni tanlash", callback_data: "enter_location_scene" }]);
+        inlineKeyboard.push([
+          {
+            text: "📍 Joylashuvni tanlash",
+            callback_data: "enter_location_scene",
+          },
+        ]);
       }
       if (showReminderBtn) {
-        inlineKeyboard.push([{ text: reminderBtnUz || "🔔 Eslatmalarni yoqish", callback_data: "enable_reminders_from_broadcast" }]);
+        inlineKeyboard.push([
+          {
+            text: reminderBtnUz || "🔔 Eslatmalarni yoqish",
+            callback_data: "enable_reminders_from_broadcast",
+          },
+        ]);
       }
       if (showRestartBtn) {
-        inlineKeyboard.push([{ text: restartButtonText || "🔄 Botni qayta ishga tushirish", callback_data: "restart_bot" }]);
+        inlineKeyboard.push([
+          {
+            text: restartButtonText || "🔄 Botni qayta ishga tushirish",
+            callback_data: "restart_bot",
+          },
+        ]);
       }
 
       const response = await fetch(`${API_URL}/broadcast/send`, {
@@ -233,7 +248,12 @@ function BroadcastLocation() {
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          message: activeTab === "uz" ? messageUz : activeTab === "ru" ? messageRu : messageCr,
+          message:
+            activeTab === "uz"
+              ? messageUz
+              : activeTab === "ru"
+                ? messageRu
+                : messageCr,
           filters: {
             $or: [
               { "location.latitude": { $exists: false } },
@@ -244,7 +264,10 @@ function BroadcastLocation() {
           },
           options: {
             parse_mode: "HTML",
-            reply_markup: inlineKeyboard.length > 0 ? { inline_keyboard: inlineKeyboard } : undefined,
+            reply_markup:
+              inlineKeyboard.length > 0
+                ? { inline_keyboard: inlineKeyboard }
+                : undefined,
           },
         }),
       });
@@ -257,7 +280,9 @@ function BroadcastLocation() {
       return response.json();
     },
     onSuccess: (data) => {
-      alert(`✅ Broadcast boshlandi! ${data.result?.total || estimatedUsers} ta foydalanuvchiga yuborilmoqda.`);
+      alert(
+        `✅ Broadcast boshlandi! ${data.result?.total || estimatedUsers} ta foydalanuvchiga yuborilmoqda.`
+      );
     },
     onError: (error) => {
       alert("❌ Xatolik: " + error.message);
@@ -265,14 +290,23 @@ function BroadcastLocation() {
   });
 
   const handleBroadcast = () => {
-    const currentMessage = activeTab === "uz" ? messageUz : activeTab === "ru" ? messageRu : messageCr;
-    
+    const currentMessage =
+      activeTab === "uz"
+        ? messageUz
+        : activeTab === "ru"
+          ? messageRu
+          : messageCr;
+
     if (!currentMessage.trim()) {
       alert("Avval xabar matnini to'ldiring!");
       return;
     }
 
-    if (!confirm(`⚠️ DIQQAT!\n\n${estimatedUsers.toLocaleString()} ta foydalanuvchiga xabar yuboriladi.\n\nDavom etasizmi?`)) {
+    if (
+      !confirm(
+        `⚠️ DIQQAT!\n\n${estimatedUsers.toLocaleString()} ta foydalanuvchiga xabar yuboriladi.\n\nDavom etasizmi?`
+      )
+    ) {
       return;
     }
 
@@ -598,8 +632,8 @@ function BroadcastLocation() {
               : "Test yuborish (Admin)"}
           </button>
 
-          <button 
-            className="btn-primary btn-broadcast" 
+          <button
+            className="btn-primary btn-broadcast"
             onClick={handleBroadcast}
             disabled={saveMutation.isLoading}
           >

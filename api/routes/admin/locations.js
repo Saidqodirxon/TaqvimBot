@@ -16,12 +16,14 @@ router.get("/", async (req, res) => {
   try {
     // Set timeout for this route
     req.setTimeout(30000);
-    
+
     const startTime = Date.now();
-    
+
     // 1. Get all locations (fast)
     const locations = await Location.find({ isActive: true })
-      .select("name nameUz nameCr nameRu latitude longitude timezone country isDefault manualPrayerTimes")
+      .select(
+        "name nameUz nameCr nameRu latitude longitude timezone country isDefault manualPrayerTimes"
+      )
       .sort({ name: 1 })
       .lean();
 
@@ -30,44 +32,73 @@ router.get("/", async (req, res) => {
       {
         $match: {
           "location.latitude": { $exists: true },
-          "location.longitude": { $exists: true }
-        }
+          "location.longitude": { $exists: true },
+        },
       },
       {
         $group: {
           _id: {
             lat: { $round: ["$location.latitude", 4] },
-            lng: { $round: ["$location.longitude", 4] }
+            lng: { $round: ["$location.longitude", 4] },
           },
           total: { $sum: 1 },
           thisMonth: {
             $sum: {
               $cond: [
-                { $gte: ["$createdAt", new Date(new Date().getFullYear(), new Date().getMonth(), 1)] },
-                1, 0
-              ]
-            }
+                {
+                  $gte: [
+                    "$createdAt",
+                    new Date(
+                      new Date().getFullYear(),
+                      new Date().getMonth(),
+                      1
+                    ),
+                  ],
+                },
+                1,
+                0,
+              ],
+            },
           },
           lastMonth: {
             $sum: {
               $cond: [
                 {
                   $and: [
-                    { $gte: ["$createdAt", new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1)] },
-                    { $lt: ["$createdAt", new Date(new Date().getFullYear(), new Date().getMonth(), 1)] }
-                  ]
+                    {
+                      $gte: [
+                        "$createdAt",
+                        new Date(
+                          new Date().getFullYear(),
+                          new Date().getMonth() - 1,
+                          1
+                        ),
+                      ],
+                    },
+                    {
+                      $lt: [
+                        "$createdAt",
+                        new Date(
+                          new Date().getFullYear(),
+                          new Date().getMonth(),
+                          1
+                        ),
+                      ],
+                    },
+                  ],
                 },
-                1, 0
-              ]
-            }
-          }
-        }
-      }
+                1,
+                0,
+              ],
+            },
+          },
+        },
+      },
     ]);
 
     // Create a map for fast lookup
     const userCountMap = new Map();
-    userCounts.forEach(uc => {
+    userCounts.forEach((uc) => {
       const key = `${uc._id.lat}_${uc._id.lng}`;
       userCountMap.set(key, uc);
     });
@@ -83,33 +114,44 @@ router.get("/", async (req, res) => {
     const prayerDataCounts = await PrayerTimeData.aggregate([
       {
         $match: {
-          date: { $gte: todayStr, $lte: endDateStr }
-        }
+          date: { $gte: todayStr, $lte: endDateStr },
+        },
       },
       {
         $group: {
           _id: "$locationKey",
-          count: { $sum: 1 }
-        }
-      }
+          count: { $sum: 1 },
+        },
+      },
     ]);
 
     const prayerDataMap = new Map();
-    prayerDataCounts.forEach(pd => {
+    prayerDataCounts.forEach((pd) => {
       prayerDataMap.set(pd._id, pd.count);
     });
 
     // 4. Combine results (no more individual queries!)
-    const locationsWithStats = locations.map(location => {
+    const locationsWithStats = locations.map((location) => {
       const lat = location.latitude?.toFixed(4);
       const lng = location.longitude?.toFixed(4);
       const key = `${lat}_${lng}`;
-      const userStats = userCountMap.get(key) || { total: 0, thisMonth: 0, lastMonth: 0 };
+      const userStats = userCountMap.get(key) || {
+        total: 0,
+        thisMonth: 0,
+        lastMonth: 0,
+      };
       const prayerDays = prayerDataMap.get(key) || 0;
-      
-      const growth = userStats.lastMonth > 0
-        ? Math.round(((userStats.thisMonth - userStats.lastMonth) / userStats.lastMonth) * 100)
-        : userStats.thisMonth > 0 ? 100 : 0;
+
+      const growth =
+        userStats.lastMonth > 0
+          ? Math.round(
+              ((userStats.thisMonth - userStats.lastMonth) /
+                userStats.lastMonth) *
+                100
+            )
+          : userStats.thisMonth > 0
+            ? 100
+            : 0;
 
       return {
         ...location,
@@ -124,12 +166,14 @@ router.get("/", async (req, res) => {
           totalDays: 60,
           completeness: Math.round((prayerDays / 60) * 100),
           hasManualTimes: location.manualPrayerTimes?.enabled || false,
-        }
+        },
       };
     });
 
     const elapsed = Date.now() - startTime;
-    console.log(`📊 Locations API: ${locations.length} locations in ${elapsed}ms`);
+    console.log(
+      `📊 Locations API: ${locations.length} locations in ${elapsed}ms`
+    );
 
     res.json(locationsWithStats);
   } catch (error) {

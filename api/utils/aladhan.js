@@ -131,10 +131,10 @@ async function getPrayerTimes(
           cached: false,
           source: "prayer_time_data",
         };
-        
+
         // Cache the result in memory
         setMemoryCache(cacheKey, result);
-        
+
         return result;
       }
     } catch (dataError) {

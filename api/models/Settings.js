@@ -59,14 +59,14 @@ SettingsSchema.statics.getSetting = async function (key, defaultValue = null) {
   if (cached.found) {
     return cached.value !== undefined ? cached.value : defaultValue;
   }
-  
+
   // DB hit - only if not cached
   const setting = await this.findOne({ key }).lean();
   const value = setting ? setting.value : defaultValue;
-  
+
   // Cache the result
   setCache(key, value);
-  
+
   return value;
 };
 
@@ -77,7 +77,7 @@ SettingsSchema.statics.setSetting = async function (
 ) {
   // Invalidate cache on update
   settingsCache.delete(key);
-  
+
   return await this.findOneAndUpdate(
     { key },
     { value, description },
