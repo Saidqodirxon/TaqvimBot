@@ -24,12 +24,33 @@ function Users() {
   const token = localStorage.getItem("token");
 
   const { data, isLoading } = useQuery({
-    queryKey: ["users", page],
+    queryKey: ["users", page, searchQuery],
     queryFn: async () => {
       const response = await users.getAll(page, 20);
       return response.data;
     },
   });
+
+  // Filter users based on search query
+  const filteredUsers =
+    data?.users?.filter((user) => {
+      if (!searchQuery.trim()) return true;
+
+      const query = searchQuery.toLowerCase();
+      const userId = user.userId?.toString() || "";
+      const firstName = user.firstName?.toLowerCase() || "";
+      const username = user.username?.toLowerCase() || "";
+      const phone = user.phoneNumber || "";
+      const location = user.location?.name?.toLowerCase() || "";
+
+      return (
+        userId.includes(query) ||
+        firstName.includes(query) ||
+        username.includes(query) ||
+        phone.includes(query) ||
+        location.includes(query)
+      );
+    }) || [];
 
   const blockMutation = useMutation({
     mutationFn: ({ userId, is_block }) => users.block(userId, is_block),
@@ -206,116 +227,146 @@ function Users() {
               </tr>
             </thead>
             <tbody>
-              {data?.users?.map((user) => (
-                <tr key={user.userId}>
-                  <td>{user.userId}</td>
-                  <td>
-                    <div className="user-info">
-                      <User size={16} />
-                      {user.firstName}
-                    </div>
-                  </td>
-                  <td>@{user.username || "-"}</td>
-                  <td>
-                    {user.phoneNumber ? (
-                      <span className="badge badge-success">
-                        📱 {user.phoneNumber}
-                      </span>
+              {filteredUsers.length === 0 ? (
+                <tr>
+                  <td
+                    colSpan="9"
+                    style={{ textAlign: "center", padding: "40px" }}
+                  >
+                    {searchQuery ? (
+                      <div>
+                        <Search
+                          size={48}
+                          style={{ opacity: 0.3, marginBottom: "10px" }}
+                        />
+                        <p style={{ opacity: 0.6 }}>Hech narsa topilmadi</p>
+                      </div>
                     ) : (
-                      <span className="badge badge-secondary">-</span>
+                      <p style={{ opacity: 0.6 }}>Foydalanuvchilar yo'q</p>
                     )}
-                  </td>
-                  <td>
-                    {user.location?.name ? (
-                      user.location.latitude && user.location.longitude ? (
-                        <a
-                          href={`https://www.google.com/maps?q=${user.location.latitude},${user.location.longitude}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="badge badge-info"
-                          style={{ cursor: "pointer", textDecoration: "none" }}
-                        >
-                          📍 {user.location.name}
-                        </a>
-                      ) : (
-                        <span className="badge badge-info">
-                          📍 {user.location.name}
-                        </span>
-                      )
-                    ) : (
-                      <span className="badge badge-secondary">-</span>
-                    )}
-                  </td>
-                  <td>
-                    <span className="badge badge-info">
-                      {user.language === "uz"
-                        ? "🇺🇿 UZ"
-                        : user.language === "cr"
-                          ? "🇺🇿 ЎЗ"
-                          : "🇷🇺 RU"}
-                    </span>
-                  </td>
-                  <td>
-                    {user.is_block ? (
-                      <span className="badge badge-danger">Bloklangan</span>
-                    ) : (
-                      <span className="badge badge-success">Faol</span>
-                    )}
-                  </td>
-                  <td>
-                    {user.isAdmin ? (
-                      <span className="badge badge-warning">
-                        <Shield size={12} /> Admin
-                      </span>
-                    ) : (
-                      <span className="badge badge-info">User</span>
-                    )}
-                  </td>
-                  <td>
-                    <div className="actions">
-                      <button
-                        className={
-                          user.is_block ? "btn-icon success" : "btn-icon danger"
-                        }
-                        onClick={() => handleBlock(user.userId, user.is_block)}
-                        title={user.is_block ? "Blokdan chiqarish" : "Bloklash"}
-                      >
-                        {user.is_block ? (
-                          <CheckCircle size={16} />
-                        ) : (
-                          <Ban size={16} />
-                        )}
-                      </button>
-
-                      <button
-                        className="btn-icon primary"
-                        onClick={() =>
-                          handleMakeAdmin(user.userId, user.isAdmin)
-                        }
-                        title={
-                          user.isAdmin ? "Adminlikdan olish" : "Admin qilish"
-                        }
-                      >
-                        <Shield size={16} />
-                      </button>
-
-                      <button
-                        className="btn-icon danger"
-                        onClick={() =>
-                          handleDelete(
-                            user.userId,
-                            user.firstName || user.username || "User"
-                          )
-                        }
-                        title="O'chirish"
-                        disabled={deleteMutation.isPending}
-                      >
-                        🗑️
-                      </button>
-                    </div>
                   </td>
                 </tr>
-              ))}
+              ) : (
+                filteredUsers.map((user) => (
+                  <tr key={user.userId}>
+                    <td>{user.userId}</td>
+                    <td>
+                      <div className="user-info">
+                        <User size={16} />
+                        {user.firstName}
+                      </div>
+                    </td>
+                    <td>@{user.username || "-"}</td>
+                    <td>
+                      {user.phoneNumber ? (
+                        <span className="badge badge-success">
+                          📱 {user.phoneNumber}
+                        </span>
+                      ) : (
+                        <span className="badge badge-secondary">-</span>
+                      )}
+                    </td>
+                    <td>
+                      {user.location?.name ? (
+                        user.location.latitude && user.location.longitude ? (
+                          <a
+                            href={`https://www.google.com/maps?q=${user.location.latitude},${user.location.longitude}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="badge badge-info"
+                            style={{
+                              cursor: "pointer",
+                              textDecoration: "none",
+                            }}
+                          >
+                            📍 {user.location.name}
+                          </a>
+                        ) : (
+                          <span className="badge badge-info">
+                            📍 {user.location.name}
+                          </span>
+                        )
+                      ) : (
+                        <span className="badge badge-secondary">-</span>
+                      )}
+                    </td>
+                    <td>
+                      <span className="badge badge-info">
+                        {user.language === "uz"
+                          ? "🇺🇿 UZ"
+                          : user.language === "cr"
+                            ? "🇺🇿 ЎЗ"
+                            : "🇷🇺 RU"}
+                      </span>
+                    </td>
+                    <td>
+                      {user.is_block ? (
+                        <span className="badge badge-danger">Bloklangan</span>
+                      ) : (
+                        <span className="badge badge-success">Faol</span>
+                      )}
+                    </td>
+                    <td>
+                      {user.isAdmin ? (
+                        <span className="badge badge-warning">
+                          <Shield size={12} /> Admin
+                        </span>
+                      ) : (
+                        <span className="badge badge-info">User</span>
+                      )}
+                    </td>
+                    <td>
+                      <div className="actions">
+                        <button
+                          className={
+                            user.is_block
+                              ? "btn-icon success"
+                              : "btn-icon danger"
+                          }
+                          onClick={() =>
+                            handleBlock(user.userId, user.is_block)
+                          }
+                          title={
+                            user.is_block ? "Blokdan chiqarish" : "Bloklash"
+                          }
+                        >
+                          {user.is_block ? (
+                            <CheckCircle size={16} />
+                          ) : (
+                            <Ban size={16} />
+                          )}
+                        </button>
+
+                        <button
+                          className="btn-icon primary"
+                          onClick={() =>
+                            handleMakeAdmin(user.userId, user.isAdmin)
+                          }
+                          title={
+                            user.isAdmin ? "Adminlikdan olish" : "Admin qilish"
+                          }
+                        >
+                          <Shield size={16} />
+                        </button>
+
+                        <button
+                          className="btn-icon danger"
+                          onClick={() =>
+                            handleDelete(
+                              user.userId,
+                              user.firstName || user.username || "User"
+                            )
+                          }
+                          title="O'chirish"
+                          disabled={deleteMutation.isPending}
+                        >
+                          🗑️
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
