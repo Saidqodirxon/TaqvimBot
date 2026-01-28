@@ -116,8 +116,11 @@ function App() {
             `${API_BASE}/api/miniapp/check-channels/${userId}`,
             { timeout: 10000 }
           );
-          
-          if (channelResponse.data.required && !channelResponse.data.hasJoined) {
+
+          if (
+            channelResponse.data.required &&
+            !channelResponse.data.hasJoined
+          ) {
             setChannels(channelResponse.data.channels);
             setShowChannelPrompt(true);
             setLoading(false);
@@ -264,35 +267,48 @@ function App() {
       <div className="app prompt">
         <div className="prompt-card">
           <h2>📢 Kanalga obuna bo'ling</h2>
-          <p style={{ fontSize: '16px', marginBottom: '20px' }}>
-            Taqvimdan foydalanish uchun quyidagi kanallarga obuna bo'lishingiz kerak.
+          <p style={{ fontSize: "16px", marginBottom: "20px" }}>
+            Taqvimdan foydalanish uchun quyidagi kanallarga obuna bo'lishingiz
+            kerak.
           </p>
-          
+
           {channels.map((channel, index) => (
-            <div 
+            <div
               key={channel.id}
               style={{
-                background: channel.isMember ? '#d4edda' : '#f8f9fa',
-                padding: '15px',
-                borderRadius: '10px',
-                marginBottom: '10px',
-                border: channel.isMember ? '2px solid #28a745' : '2px solid #ddd'
+                background: channel.isMember ? "#d4edda" : "#f8f9fa",
+                padding: "15px",
+                borderRadius: "10px",
+                marginBottom: "10px",
+                border: channel.isMember
+                  ? "2px solid #28a745"
+                  : "2px solid #ddd",
               }}
             >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
                 <div style={{ flex: 1 }}>
                   <strong>{channel.title}</strong>
-                  {channel.isMember && <span style={{ color: '#28a745', marginLeft: '10px' }}>✅ Obuna</span>}
+                  {channel.isMember && (
+                    <span style={{ color: "#28a745", marginLeft: "10px" }}>
+                      ✅ Obuna
+                    </span>
+                  )}
                 </div>
                 {!channel.isMember && (
                   <button
                     className="primary-button"
-                    style={{ 
-                      padding: '8px 16px',
-                      fontSize: '14px'
+                    style={{
+                      padding: "8px 16px",
+                      fontSize: "14px",
                     }}
                     onClick={() => {
-                      window.open(channel.link, '_blank');
+                      window.open(channel.link, "_blank");
                     }}
                   >
                     Obuna bo'lish
@@ -304,21 +320,22 @@ function App() {
 
           <button
             className="secondary-button"
-            style={{ marginTop: '20px', width: '100%' }}
+            style={{ marginTop: "20px", width: "100%" }}
             disabled={checkingChannels}
             onClick={async () => {
               setCheckingChannels(true);
               const urlParams = new URLSearchParams(window.location.search);
               const tg = window.Telegram.WebApp;
-              const userId = tg.initDataUnsafe?.user?.id || urlParams.get("userId");
-              
+              const userId =
+                tg.initDataUnsafe?.user?.id || urlParams.get("userId");
+
               if (userId) {
                 try {
                   const response = await axios.get(
                     `${API_BASE}/api/miniapp/check-channels/${userId}`,
                     { timeout: 10000 }
                   );
-                  
+
                   if (response.data.hasJoined) {
                     setShowChannelPrompt(false);
                     fetchUserData(parseInt(userId));
@@ -335,7 +352,9 @@ function App() {
               }
             }}
           >
-            {checkingChannels ? '⏳ Tekshirilmoqda...' : '🔄 Obunani tekshirish'}
+            {checkingChannels
+              ? "⏳ Tekshirilmoqda..."
+              : "🔄 Obunani tekshirish"}
           </button>
         </div>
       </div>
