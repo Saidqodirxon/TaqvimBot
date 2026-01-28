@@ -324,11 +324,11 @@ function App() {
                     fetchUserData(parseInt(userId));
                   } else {
                     setChannels(response.data.channels);
-                    alert('Iltimos, barcha kanallarga obuna bo\\'ling');
+                    alert("Iltimos, barcha kanallarga obuna bo'ling");
                   }
                 } catch (err) {
                   console.error("Recheck error:", err);
-                  alert('Xatolik yuz berdi. Qayta urinib ko\\'ring.');
+                  alert("Xatolik yuz berdi. Qayta urinib ko'ring.");
                 } finally {
                   setCheckingChannels(false);
                 }
