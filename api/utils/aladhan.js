@@ -98,9 +98,13 @@ async function getPrayerTimes(
       if (prayerData) {
         // console.log(`✅ Prayer data found for ${locationKey} on ${dateStr}`);
 
-        // Get hijri date from API if not cached
+        // Get hijri date from API if not cached or convert object to string
         let hijriDate = prayerData.hijri || "Unknown";
-        if (hijriDate === "Unknown") {
+        
+        // If hijri is an object, format it
+        if (typeof hijriDate === 'object' && hijriDate.month && hijriDate.date && hijriDate.year) {
+          hijriDate = `${hijriDate.month.en || hijriDate.month} ${hijriDate.date}, ${hijriDate.year}`;
+        } else if (hijriDate === "Unknown" || typeof hijriDate === 'object') {
           hijriDate = await getHijriDate();
         }
 

@@ -72,7 +72,12 @@ async function addMissingPrayerData() {
     }
 
     const report = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
-    const locationsToFix = report.noPrayerData;
+    
+    // Combine locations with NO data and LOW data (<50%)
+    const locationsToFix = [
+      ...report.noPrayerData,
+      ...report.lowData
+    ];
 
     if (locationsToFix.length === 0) {
       console.log('✅ No locations need prayer data. All good!');
@@ -80,7 +85,9 @@ async function addMissingPrayerData() {
       process.exit(0);
     }
 
-    console.log(`📊 Found ${locationsToFix.length} locations without prayer data\n`);
+    console.log(`📊 Found ${report.noPrayerData.length} locations with NO data`);
+    console.log(`📊 Found ${report.lowData.length} locations with LOW data (<50%)`);
+    console.log(`📊 Total to fix: ${locationsToFix.length} locations\n`);
     console.log('🚀 Starting to fetch prayer times...\n');
 
     const today = new Date();

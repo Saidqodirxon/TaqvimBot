@@ -15,6 +15,8 @@ function App() {
   const [currentView, setCurrentView] = useState("calendar"); // "calendar" or "qibla"
   const [showChannelPrompt, setShowChannelPrompt] = useState(false);
   const [showReminderPrompt, setShowReminderPrompt] = useState(false);
+  const [channels, setChannels] = useState([]);
+  const [checkingChannels, setCheckingChannels] = useState(false);
 
   useEffect(() => {
     // Log outdated prayer times warning to console
@@ -107,11 +109,28 @@ function App() {
       const user = response.data;
       setUserData(user);
 
-      // Check if user needs to join channel
+      // Check channel membership via API
       if (!user.hasJoinedChannel) {
-        setShowChannelPrompt(true);
-        setLoading(false);
-        return;
+        try {
+          const channelResponse = await axios.get(
+            `${API_BASE}/api/miniapp/check-channels/${userId}`,
+            { timeout: 10000 }
+          );
+          
+          if (channelResponse.data.required && !channelResponse.data.hasJoined) {
+            setChannels(channelResponse.data.channels);
+            setShowChannelPrompt(true);
+            setLoading(false);
+            return;
+          } else if (channelResponse.data.hasJoined) {
+            // User joined all channels, update state
+            user.hasJoinedChannel = true;
+            setUserData(user);
+          }
+        } catch (channelErr) {
+          console.error("Error checking channels:", channelErr);
+          // If channel check fails, proceed anyway
+        }
       }
 
       // Check if user needs to setup reminders (if not configured)
@@ -246,49 +265,77 @@ function App() {
         <div className="prompt-card">
           <h2>📢 Kanalga obuna bo'ling</h2>
           <p style={{ fontSize: '16px', marginBottom: '20px' }}>
-            Taqvimdan foydalanish uchun rasmiy kanalimizga obuna bo'lishingiz
-            kerak.
+            Taqvimdan foydalanish uchun quyidagi kanallarga obuna bo'lishingiz kerak.
           </p>
-          <div style={{ 
-            background: '#f0f0f0', 
-            padding: '15px', 
-            borderRadius: '10px',
-            marginBottom: '20px',
-            textAlign: 'left'
-          }}>
-            <p style={{ fontWeight: 'bold', marginBottom: '10px' }}>📝 Qadamlar:</p>
-            <ol style={{ margin: '0', paddingLeft: '20px', lineHeight: '1.8' }}>
-              <li>Pastdagi "Botga qaytish" tugmasini bosing</li>
-              <li>Bot ochilgach, kanalga obuna bo'lish havolasini bosing</li>
-              <li>Kanalga obuna bo'ling (JOIN yoki QOSHILISH)</li>
-              <li>Botga qaytib "Obunani tekshirish" tugmasini bosing</li>
-              <li>Mini appni qayta oching yoki "Qayta tekshirish" bosing</li>
-            </ol>
-          </div>
-          <button
-            className="primary-button"
-            onClick={() => {
-              const tg = window.Telegram.WebApp;
-              // Send command to bot to show channel join
-              tg.sendData(JSON.stringify({ action: 'check_channel' }));
-              tg.close();
-            }}
-          >
-            🤖 Botga qaytish
-          </button>
+          
+          {channels.map((channel, index) => (
+            <div 
+              key={channel.id}
+              style={{
+                background: channel.isMember ? '#d4edda' : '#f8f9fa',
+                padding: '15px',
+                borderRadius: '10px',
+                marginBottom: '10px',
+                border: channel.isMember ? '2px solid #28a745' : '2px solid #ddd'
+              }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div style={{ flex: 1 }}>
+                  <strong>{channel.title}</strong>
+                  {channel.isMember && <span style={{ color: '#28a745', marginLeft: '10px' }}>✅ Obuna</span>}
+                </div>
+                {!channel.isMember && (
+                  <button
+                    className="primary-button"
+                    style={{ 
+                      padding: '8px 16px',
+                      fontSize: '14px'
+                    }}
+                    onClick={() => {
+                      window.open(channel.link, '_blank');
+                    }}
+                  >
+                    Obuna bo'lish
+                  </button>
+                )}
+              </div>
+            </div>
+          ))}
+
           <button
             className="secondary-button"
-            style={{ marginTop: '10px' }}
-            onClick={() => {
-              setLoading(true);
+            style={{ marginTop: '20px', width: '100%' }}
+            disabled={checkingChannels}
+            onClick={async () => {
+              setCheckingChannels(true);
               const urlParams = new URLSearchParams(window.location.search);
-              const userId = urlParams.get("userId");
+              const tg = window.Telegram.WebApp;
+              const userId = tg.initDataUnsafe?.user?.id || urlParams.get("userId");
+              
               if (userId) {
-                fetchUserData(parseInt(userId));
+                try {
+                  const response = await axios.get(
+                    `${API_BASE}/api/miniapp/check-channels/${userId}`,
+                    { timeout: 10000 }
+                  );
+                  
+                  if (response.data.hasJoined) {
+                    setShowChannelPrompt(false);
+                    fetchUserData(parseInt(userId));
+                  } else {
+                    setChannels(response.data.channels);
+                    alert('Iltimos, barcha kanallarga obuna bo\\'ling');
+                  }
+                } catch (err) {
+                  console.error("Recheck error:", err);
+                  alert('Xatolik yuz berdi. Qayta urinib ko\\'ring.');
+                } finally {
+                  setCheckingChannels(false);
+                }
               }
             }}
           >
-            🔄 Qayta tekshirish
+            {checkingChannels ? '⏳ Tekshirilmoqda...' : '🔄 Obunani tekshirish'}
           </button>
         </div>
       </div>
