@@ -377,7 +377,7 @@ bot.command("start", async (ctx) => {
     logger.error("Start command error", error);
     // Send error message to user
     try {
-      await ctx.reply("⚠️ Xatolik yuz berdi. Iltimos, qayta urinib ko'ring.");
+      await ctx.reply("⚠️ Xatolik yuz berdi. Iltimos, /start buyrug'ini qayta yuboring.");
     } catch (e) {
       // Ignore if can't send error message
     }
@@ -1558,7 +1558,8 @@ bot.action("disable_all_reminders", async (ctx) => {
 
     await ctx.editMessageText(
       "✅ Barcha eslatmalar o'chirildi\n\n" +
-      "Eslatmalarni qayta yoqish uchun sozlamalar bo'limiga o'ting.",
+      "📌 Namoz vaqtlari haqida eslatmalar endi yuborilmaydi.\n\n" +
+      "Agar kerak bo'lsa, sozlamalar orqali qayta yoqishingiz mumkin.",
       Markup.inlineKeyboard([
         [Markup.button.callback("◀️ Orqaga", "back_to_settings")]
       ])
@@ -1566,15 +1567,6 @@ bot.action("disable_all_reminders", async (ctx) => {
   } catch (error) {
     console.error("Error disabling all reminders:", error);
     await ctx.answerCbQuery("❌ Xatolik yuz berdi");
-  }
-});
-
-    await ctx.editMessageText(
-      message,
-      await getReminderSettingsKeyboard(lang, newSettings)
-    );
-  } catch (error) {
-    logger.error("Error in toggle_reminders:", error);
   }
 });
 
