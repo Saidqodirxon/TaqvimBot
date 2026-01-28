@@ -866,7 +866,7 @@ bot.action("enable_reminders_from_broadcast", async (ctx) => {
 });
 
 /**
- * Today times - show today's prayer times - FIXED
+ * Today times - show today's prayer times - FULLY FIXED
  */
 bot.action("today_times", async (ctx) => {
   try {
@@ -874,8 +874,11 @@ bot.action("today_times", async (ctx) => {
     const user = ctx.session.user;
     const lang = getUserLanguage(user);
 
+    console.log("📅 Today times requested by user:", user.userId);
+
     // Check if user has location
     if (!user.location || !user.location.latitude) {
+      console.log("❌ User has no location");
       await ctx.reply(
         await t(lang, "no_location_set"),
         Markup.inlineKeyboard([
@@ -894,38 +897,70 @@ bot.action("today_times", async (ctx) => {
     const longitude = user.location.longitude;
     const locationName = user.location.name || "Joylashuv";
 
-    // Get prayer times
+    console.log(`📍 Location: ${locationName} (${latitude}, ${longitude})`);
+
+    // Get prayer times with timeout
     const method = user.prayerSettings?.calculationMethod || 3;
     const school = user.prayerSettings?.school || 1;
 
-    const prayerData = await getPrayerTimes(
-      latitude,
-      longitude,
-      method,
-      school
-    );
+    console.log(`⚙️ Settings: method=${method}, school=${school}`);
+
+    let prayerData;
+    try {
+      // Add timeout wrapper
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error("Prayer times fetch timeout")), 15000)
+      );
+      
+      prayerData = await Promise.race([
+        getPrayerTimes(latitude, longitude, method, school),
+        timeoutPromise
+      ]);
+    } catch (fetchError) {
+      console.error("❌ Prayer times fetch error:", fetchError);
+      await ctx.reply(
+        "❌ Namoz vaqtlarini yuklashda xatolik yuz berdi. Iltimos, bir necha daqiqadan keyin qayta urinib ko'ring.\\n\\n" +
+        "Agar muammo davom etsa, /start bosing."
+      );
+      return;
+    }
+
+    console.log("📊 Prayer data received:", {
+      success: prayerData?.success,
+      hasTimings: !!prayerData?.timings,
+      source: prayerData?.source
+    });
 
     if (!prayerData || !prayerData.success) {
-      await ctx.reply("❌ Namoz vaqtlarini yuklashda xatolik yuz berdi.");
+      console.error("❌ Prayer data failed:", prayerData);
+      await ctx.reply(
+        "❌ Namoz vaqtlarini olishda xatolik. Iltimos, keyinroq qayta urinib ko'ring."
+      );
       return;
     }
 
     // Check if timings exist
     if (!prayerData.timings) {
-      console.error("Today times - timings is undefined:", prayerData);
+      console.error("❌ Timings is undefined in prayerData:", prayerData);
       await ctx.reply(
-        "❌ Namoz vaqtlari ma'lumoti topilmadi. Iltimos, keyinroq urinib ko'ring."
+        "❌ Namoz vaqtlari ma'lumoti topilmadi.\\n\\n" +
+        "Iltimos, joylashuvingizni qayta tanlang: /start → ⚙️ Sozlamalar → 📍 Joylashuv"
       );
       return;
     }
 
     const timings = prayerData.timings;
     
+    // Log timings structure
+    console.log("⏰ Timings structure:", Object.keys(timings));
+    console.log("⏰ Timings values:", timings);
+    
     // Validate that required prayer times exist
     if (!timings.fajr || !timings.dhuhr || !timings.asr || !timings.maghrib || !timings.isha) {
-      console.error("Today times - missing prayer times:", timings);
+      console.error("❌ Missing required prayer times:", timings);
       await ctx.reply(
-        "❌ Namoz vaqtlari to'liq emas. Administrator bilan bog'laning."
+        "❌ Namoz vaqtlari to'liq emas. Administrator bilan bog'laning.\\n\\n" +
+        `Debug info: ${JSON.stringify(timings)}`
       );
       return;
     }
@@ -937,20 +972,28 @@ bot.action("today_times", async (ctx) => {
     });
 
     const message =
-      `🕌 <b>Bugungi namoz vaqtlari</b>\n` +
-      `📅 ${today}\n` +
-      `📍 ${locationName}\n\n` +
-      `🌅 Bomdod: ${timings.fajr}\n` +
-      `☀️ Quyosh: ${timings.sunrise || 'N/A'}\n` +
-      `🌞 Peshin: ${timings.dhuhr}\n` +
-      `🌤 Asr: ${timings.asr}\n` +
-      `🌆 Shom: ${timings.maghrib}\n` +
+      `🕌 <b>Bugungi namoz vaqtlari</b>\\n` +
+      `📅 ${today}\\n` +
+      `📍 ${locationName}\\n\\n` +
+      `🌅 Bomdod: ${timings.fajr}\\n` +
+      `☀️ Quyosh: ${timings.sunrise || timings.Sunrise || 'N/A'}\\n` +
+      `🌞 Peshin: ${timings.dhuhr}\\n` +
+      `🌤 Asr: ${timings.asr}\\n` +
+      `🌆 Shom: ${timings.maghrib}\\n` +
       `🌙 Xufton: ${timings.isha}`;
 
+    console.log("✅ Sending prayer times to user");
     await ctx.reply(message, { parse_mode: "HTML" });
   } catch (error) {
+    console.error("❌ Today times critical error:", error);
     logger.error("Today times error", error);
-    await ctx.reply("❌ Xatolik yuz berdi. Iltimos, qayta urinib ko'ring.");
+    try {
+      await ctx.reply(
+        "❌ Xatolik yuz berdi. Iltimos, /start bosing va qayta urinib ko'ring."
+      );
+    } catch (replyError) {
+      console.error("❌ Failed to send error message:", replyError);
+    }
   }
 });
 
