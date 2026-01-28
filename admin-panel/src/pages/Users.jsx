@@ -16,7 +16,9 @@ import "./Users.css";
 
 function Users() {
   const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(20);
   const [searchQuery, setSearchQuery] = useState("");
+  const [searchInput, setSearchInput] = useState("");
   const [exportModalOpen, setExportModalOpen] = useState(false);
   const [exportFormat, setExportFormat] = useState("excel");
   const [exportFilters, setExportFilters] = useState({});
@@ -24,33 +26,30 @@ function Users() {
   const token = localStorage.getItem("token");
 
   const { data, isLoading } = useQuery({
-    queryKey: ["users", page, searchQuery],
+    queryKey: ["users", page, limit, searchQuery],
     queryFn: async () => {
-      const response = await users.getAll(page, 20);
+      const response = await users.getAll(page, limit, searchQuery);
       return response.data;
     },
   });
 
-  // Filter users based on search query
-  const filteredUsers =
-    data?.users?.filter((user) => {
-      if (!searchQuery.trim()) return true;
+  // Handle search with debounce
+  const handleSearch = () => {
+    setSearchQuery(searchInput);
+    setPage(1); // Reset to first page on search
+  };
 
-      const query = searchQuery.toLowerCase();
-      const userId = user.userId?.toString() || "";
-      const firstName = user.firstName?.toLowerCase() || "";
-      const username = user.username?.toLowerCase() || "";
-      const phone = user.phoneNumber || "";
-      const location = user.location?.name?.toLowerCase() || "";
+  const handleKeyPress = (e) => {
+    if (e.key === "Enter") {
+      handleSearch();
+    }
+  };
 
-      return (
-        userId.includes(query) ||
-        firstName.includes(query) ||
-        username.includes(query) ||
-        phone.includes(query) ||
-        location.includes(query)
-      );
-    }) || [];
+  const handleClearSearch = () => {
+    setSearchInput("");
+    setSearchQuery("");
+    setPage(1);
+  };
 
   const blockMutation = useMutation({
     mutationFn: ({ userId, is_block }) => users.block(userId, is_block),
@@ -200,15 +199,46 @@ function Users() {
       </div>
 
       <div className="card">
-        <div className="search-bar">
-          <Search size={20} />
-          <input
-            type="text"
-            className="input"
-            placeholder="Ism, username yoki ID bo'yicha qidirish..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
+        <div className="search-bar" style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+          <div style={{ position: "relative", flex: 1 }}>
+            <Search size={20} style={{ position: "absolute", left: "12px", top: "50%", transform: "translateY(-50%)", opacity: 0.5 }} />
+            <input
+              type="text"
+              className="input"
+              placeholder="Ism, username, ID, telefon yoki joylashuv bo'yicha qidirish..."
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              onKeyPress={handleKeyPress}
+              style={{ paddingLeft: "40px", width: "100%" }}
+            />
+          </div>
+          <button 
+            className="btn btn-primary" 
+            onClick={handleSearch}
+            disabled={isLoading}
+          >
+            Qidirish
+          </button>
+          {searchQuery && (
+            <button 
+              className="btn btn-secondary" 
+              onClick={handleClearSearch}
+              title="Tozalash"
+            >
+              ✕
+            </button>
+          )}
+          <select 
+            className="input" 
+            value={limit} 
+            onChange={(e) => { setLimit(parseInt(e.target.value)); setPage(1); }}
+            style={{ width: "auto" }}
+          >
+            <option value={10}>10 ta</option>
+            <option value={20}>20 ta</option>
+            <option value={50}>50 ta</option>
+            <option value={100}>100 ta</option>
+          </select>
         </div>
 
         <div className="table-container">
@@ -227,19 +257,20 @@ function Users() {
               </tr>
             </thead>
             <tbody>
-              {filteredUsers.length === 0 ? (
+              {isLoading ? (
                 <tr>
-                  <td
-                    colSpan="9"
-                    style={{ textAlign: "center", padding: "40px" }}
-                  >
+                  <td colSpan="9" style={{ textAlign: "center", padding: "40px" }}>
+                    <div className="spinner"></div>
+                    <p>Yuklanmoqda...</p>
+                  </td>
+                </tr>
+              ) : data?.users?.length === 0 ? (
+                <tr>
+                  <td colSpan="9" style={{ textAlign: "center", padding: "40px" }}>
                     {searchQuery ? (
                       <div>
-                        <Search
-                          size={48}
-                          style={{ opacity: 0.3, marginBottom: "10px" }}
-                        />
-                        <p style={{ opacity: 0.6 }}>Hech narsa topilmadi</p>
+                        <Search size={48} style={{ opacity: 0.3, marginBottom: "10px" }} />
+                        <p style={{ opacity: 0.6 }}>"{searchQuery}" bo'yicha hech narsa topilmadi</p>
                       </div>
                     ) : (
                       <p style={{ opacity: 0.6 }}>Foydalanuvchilar yo'q</p>
@@ -247,7 +278,7 @@ function Users() {
                   </td>
                 </tr>
               ) : (
-                filteredUsers.map((user) => (
+                data.users.map((user) => (
                   <tr key={user.userId}>
                     <td>{user.userId}</td>
                     <td>
@@ -371,24 +402,41 @@ function Users() {
           </table>
         </div>
 
-        {data?.pagination && (
-          <div className="pagination">
+        {data?.pagination && data.pagination.pages > 1 && (
+          <div className="pagination" style={{ display: "flex", alignItems: "center", gap: "10px", justifyContent: "center", marginTop: "20px" }}>
             <button
               className="btn btn-primary"
-              disabled={page === 1}
+              disabled={page === 1 || isLoading}
+              onClick={() => setPage(1)}
+            >
+              ⏮️
+            </button>
+            <button
+              className="btn btn-primary"
+              disabled={page === 1 || isLoading}
               onClick={() => setPage(page - 1)}
             >
-              Oldingi
+              ◀️ Oldingi
             </button>
-            <span>
-              {page} / {data.pagination.pages}
+            <span style={{ padding: "0 20px", fontWeight: "bold" }}>
+              {page} / {data.pagination.pages} 
+              <span style={{ opacity: 0.6, marginLeft: "10px", fontSize: "14px" }}>
+                ({data.pagination.total} ta)
+              </span>
             </span>
             <button
               className="btn btn-primary"
-              disabled={page === data.pagination.pages}
+              disabled={page >= data.pagination.pages || isLoading}
               onClick={() => setPage(page + 1)}
             >
-              Keyingi
+              Keyingi ▶️
+            </button>
+            <button
+              className="btn btn-primary"
+              disabled={page >= data.pagination.pages || isLoading}
+              onClick={() => setPage(data.pagination.pages)}
+            >
+              ⏭️
             </button>
           </div>
         )}

@@ -4,7 +4,7 @@ const router = express.Router();
 const { authMiddleware } = require("../../middleware/adminAuth");
 const User = require("../../models/User");
 
-// Get all users with pagination
+// Get all users with pagination and search
 router.get("/", authMiddleware, async (req, res) => {
   try {
     if (require("mongoose").connection.readyState !== 1) {
@@ -13,8 +13,29 @@ router.get("/", authMiddleware, async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 20;
     const skip = (page - 1) * limit;
-    const total = await User.countDocuments().maxTimeMS(5000);
-    const users = await User.find()
+    const search = req.query.search || "";
+
+    // Build search query
+    let query = {};
+    if (search.trim()) {
+      const searchRegex = { $regex: search, $options: "i" };
+      query = {
+        $or: [
+          { firstName: searchRegex },
+          { username: searchRegex },
+          { "location.name": searchRegex },
+          { phoneNumber: searchRegex },
+        ],
+      };
+      
+      // If search is a number, also search by userId
+      if (!isNaN(search)) {
+        query.$or.push({ userId: parseInt(search) });
+      }
+    }
+
+    const total = await User.countDocuments(query).maxTimeMS(5000);
+    const users = await User.find(query)
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)

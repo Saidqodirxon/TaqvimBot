@@ -41,8 +41,8 @@ export const auth = {
 
 // Users
 export const users = {
-  getAll: (page = 1, limit = 20) =>
-    api.get(`/users?page=${page}&limit=${limit}`),
+  getAll: (page = 1, limit = 20, search = "") =>
+    api.get(`/users?page=${page}&limit=${limit}&search=${encodeURIComponent(search)}`),
   search: (query) => api.get(`/users/search?query=${query}`),
   getById: (userId) => api.get(`/users/${userId}`),
   block: (userId, is_block) =>
