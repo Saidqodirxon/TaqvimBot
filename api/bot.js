@@ -866,7 +866,7 @@ bot.action("enable_reminders_from_broadcast", async (ctx) => {
 });
 
 /**
- * Today times - show today's prayer times
+ * Today times - show today's prayer times - FIXED
  */
 bot.action("today_times", async (ctx) => {
   try {
@@ -906,11 +906,30 @@ bot.action("today_times", async (ctx) => {
     );
 
     if (!prayerData || !prayerData.success) {
-      await ctx.reply("❌ Namoz vaqtlarini yuklashda xatolik yuz berdi");
+      await ctx.reply("❌ Namoz vaqtlarini yuklashda xatolik yuz berdi.");
+      return;
+    }
+
+    // Check if timings exist
+    if (!prayerData.timings) {
+      console.error("Today times - timings is undefined:", prayerData);
+      await ctx.reply(
+        "❌ Namoz vaqtlari ma'lumoti topilmadi. Iltimos, keyinroq urinib ko'ring."
+      );
       return;
     }
 
     const timings = prayerData.timings;
+    
+    // Validate that required prayer times exist
+    if (!timings.fajr || !timings.dhuhr || !timings.asr || !timings.maghrib || !timings.isha) {
+      console.error("Today times - missing prayer times:", timings);
+      await ctx.reply(
+        "❌ Namoz vaqtlari to'liq emas. Administrator bilan bog'laning."
+      );
+      return;
+    }
+
     const today = new Date().toLocaleDateString("uz-UZ", {
       day: "2-digit",
       month: "2-digit",
@@ -922,7 +941,7 @@ bot.action("today_times", async (ctx) => {
       `📅 ${today}\n` +
       `📍 ${locationName}\n\n` +
       `🌅 Bomdod: ${timings.fajr}\n` +
-      `☀️ Quyosh: ${timings.sunrise}\n` +
+      `☀️ Quyosh: ${timings.sunrise || 'N/A'}\n` +
       `🌞 Peshin: ${timings.dhuhr}\n` +
       `🌤 Asr: ${timings.asr}\n` +
       `🌆 Shom: ${timings.maghrib}\n` +
@@ -931,7 +950,7 @@ bot.action("today_times", async (ctx) => {
     await ctx.reply(message, { parse_mode: "HTML" });
   } catch (error) {
     logger.error("Today times error", error);
-    await ctx.reply("❌ Xatolik yuz berdi");
+    await ctx.reply("❌ Xatolik yuz berdi. Iltimos, qayta urinib ko'ring.");
   }
 });
 

@@ -78,6 +78,20 @@ function App() {
       );
       setLoading(false);
     }
+
+    // Auto-refresh when app becomes visible (user returns from bot)
+    const handleVisibilityChange = () => {
+      if (!document.hidden && userId) {
+        console.log("App visible - refreshing user data");
+        fetchUserData(userId);
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
   }, []);
 
   const fetchUserData = async (userId) => {
@@ -235,6 +249,12 @@ function App() {
             Taqvimdan foydalanish uchun rasmiy kanalimizga obuna bo'lishingiz
             kerak.
           </p>
+          <ol style={{ textAlign: 'left', margin: '20px 0' }}>
+            <li>Pastdagi tugmani bosing</li>
+            <li>Botga qaytib, kanalga obuna bo'ling</li>
+            <li>"Obunani tekshirish" tugmasini bosing</li>
+            <li>Mini appni qayta oching</li>
+          </ol>
           <button
             className="primary-button"
             onClick={() => {
@@ -244,7 +264,19 @@ function App() {
           >
             Botga qaytish
           </button>
-          <p className="hint">Botda "Kanalga obuna bo'lish" tugmasini bosing</p>
+          <button
+            className="secondary-button"
+            style={{ marginTop: '10px' }}
+            onClick={() => {
+              const urlParams = new URLSearchParams(window.location.search);
+              const userId = urlParams.get("userId");
+              if (userId) {
+                fetchUserData(parseInt(userId));
+              }
+            }}
+          >
+            🔄 Qayta tekshirish
+          </button>
         </div>
       </div>
     );
