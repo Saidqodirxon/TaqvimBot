@@ -42,8 +42,11 @@ async function handleInlineQuery(ctx) {
 
     // Inline queries MUST respond within 30 seconds, ideally < 5 seconds
     const INLINE_TIMEOUT = 25000; // 25 seconds safety margin
-    const timeoutPromise = new Promise((_, reject) => 
-      setTimeout(() => reject(new Error('Inline query timeout')), INLINE_TIMEOUT)
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(
+        () => reject(new Error("Inline query timeout")),
+        INLINE_TIMEOUT
+      )
     );
 
     const processQuery = async () => {
@@ -88,7 +91,7 @@ async function handleInlineQuery(ctx) {
       let prayerData;
       let retries = 0;
       const maxRetries = 2;
-      
+
       while (retries <= maxRetries) {
         try {
           prayerData = await getPrayerTimes(latitude, longitude, 3, 1);
@@ -97,19 +100,25 @@ async function handleInlineQuery(ctx) {
           }
           retries++;
           if (retries <= maxRetries) {
-            await new Promise(resolve => setTimeout(resolve, 200)); // Wait 200ms before retry
+            await new Promise((resolve) => setTimeout(resolve, 200)); // Wait 200ms before retry
           }
         } catch (err) {
-          console.error(`Inline query prayer fetch attempt ${retries + 1} failed:`, err.message);
+          console.error(
+            `Inline query prayer fetch attempt ${retries + 1} failed:`,
+            err.message
+          );
           retries++;
           if (retries <= maxRetries) {
-            await new Promise(resolve => setTimeout(resolve, 200));
+            await new Promise((resolve) => setTimeout(resolve, 200));
           }
         }
       }
 
       if (!prayerData || !prayerData.success || !prayerData.timings) {
-        console.error('Inline query: Failed to fetch prayer times after retries', { userId, retries });
+        console.error(
+          "Inline query: Failed to fetch prayer times after retries",
+          { userId, retries }
+        );
         const results = [
           {
             type: "article",
@@ -117,7 +126,8 @@ async function handleInlineQuery(ctx) {
             title: "❌ Xatolik",
             description: "Namoz vaqtlarini olishda xatolik",
             input_message_content: {
-              message_text: "❌ Namoz vaqtlarini olishda xatolik yuz berdi. Iltimos, qayta urinib ko'ring.",
+              message_text:
+                "❌ Namoz vaqtlarini olishda xatolik yuz berdi. Iltimos, qayta urinib ko'ring.",
               parse_mode: "HTML",
             },
           },
@@ -127,10 +137,20 @@ async function handleInlineQuery(ctx) {
       }
 
       const timings = prayerData.timings;
-      
+
       // Validate that all required timings exist
-      if (!timings || !timings.fajr || !timings.dhuhr || !timings.asr || !timings.maghrib || !timings.isha) {
-        console.error('Inline query: Missing prayer timings', { timings, userId });
+      if (
+        !timings ||
+        !timings.fajr ||
+        !timings.dhuhr ||
+        !timings.asr ||
+        !timings.maghrib ||
+        !timings.isha
+      ) {
+        console.error("Inline query: Missing prayer timings", {
+          timings,
+          userId,
+        });
         const results = [
           {
             type: "article",
@@ -138,7 +158,8 @@ async function handleInlineQuery(ctx) {
             title: "❌ Ma'lumot to'liq emas",
             description: "Namoz vaqtlari ma'lumoti topilmadi",
             input_message_content: {
-              message_text: "❌ Namoz vaqtlari ma'lumoti topilmadi. Keyinroq qayta urinib ko'ring.",
+              message_text:
+                "❌ Namoz vaqtlari ma'lumoti topilmadi. Keyinroq qayta urinib ko'ring.",
               parse_mode: "HTML",
             },
           },
@@ -146,7 +167,7 @@ async function handleInlineQuery(ctx) {
         await ctx.answerInlineQuery(results, { cache_time: 30 });
         return;
       }
-      
+
       const today = moment.tz(timezone).format("DD.MM.YYYY");
 
       // Build results based on query
@@ -228,7 +249,6 @@ async function handleInlineQuery(ctx) {
 
     // Race between timeout and actual processing
     await Promise.race([processQuery(), timeoutPromise]);
-
   } catch (error) {
     console.error("Inline query error:", error);
 
@@ -239,9 +259,13 @@ async function handleInlineQuery(ctx) {
           type: "article",
           id: "error",
           title: "❌ Xatolik yuz berdi",
-          description: error.message === 'Inline query timeout' ? "Vaqt tugadi" : "Keyinroq urinib ko'ring",
+          description:
+            error.message === "Inline query timeout"
+              ? "Vaqt tugadi"
+              : "Keyinroq urinib ko'ring",
           input_message_content: {
-            message_text: "❌ Xatolik yuz berdi. Iltimos, qayta urinib ko'ring.\n\n@RamazonCalendarBot",
+            message_text:
+              "❌ Xatolik yuz berdi. Iltimos, qayta urinib ko'ring.\n\n@RamazonCalendarBot",
             parse_mode: "HTML",
           },
         },
@@ -249,7 +273,10 @@ async function handleInlineQuery(ctx) {
 
       await ctx.answerInlineQuery(results, { cache_time: 10 });
     } catch (answerError) {
-      console.error("Failed to answer inline query with error:", answerError.message);
+      console.error(
+        "Failed to answer inline query with error:",
+        answerError.message
+      );
     }
   }
 }
