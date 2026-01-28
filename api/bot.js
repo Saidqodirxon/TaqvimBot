@@ -853,6 +853,71 @@ bot.action("enable_reminders_from_broadcast", async (ctx) => {
 });
 
 /**
+ * Today times - show today's prayer times
+ */
+bot.action("today_times", async (ctx) => {
+  try {
+    await ctx.answerCbQuery();
+    const user = ctx.session.user;
+    const lang = getUserLanguage(user);
+
+    // Check if user has location
+    if (!user.location || !user.location.latitude) {
+      await ctx.reply(
+        await t(lang, "no_location_set"),
+        Markup.inlineKeyboard([
+          [
+            Markup.button.callback(
+              await t(lang, "btn_set_location"),
+              "enter_location_scene"
+            ),
+          ],
+        ])
+      );
+      return;
+    }
+
+    const latitude = user.location.latitude;
+    const longitude = user.location.longitude;
+    const locationName = user.location.name || "Joylashuv";
+
+    // Get prayer times
+    const method = user.prayerSettings?.calculationMethod || 3;
+    const school = user.prayerSettings?.school || 1;
+
+    const prayerData = await getPrayerTimes(latitude, longitude, method, school);
+
+    if (!prayerData || !prayerData.success) {
+      await ctx.reply("❌ Namoz vaqtlarini yuklashda xatolik yuz berdi");
+      return;
+    }
+
+    const timings = prayerData.timings;
+    const today = new Date().toLocaleDateString("uz-UZ", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    });
+
+    const message =
+      `🕌 <b>Bugungi namoz vaqtlari</b>\n` +
+      `📅 ${today}\n` +
+      `📍 ${locationName}\n\n` +
+      `🌅 Bomdod: ${timings.fajr}\n` +
+      `☀️ Quyosh: ${timings.sunrise}\n` +
+      `🌞 Peshin: ${timings.dhuhr}\n` +
+      `🌤 Asr: ${timings.asr}\n` +
+      `🌆 Shom: ${timings.maghrib}\n` +
+      `🌙 Xufton: ${timings.isha}`;
+
+    await ctx.reply(message, { parse_mode: "HTML" });
+  } catch (error) {
+    logger.error("Today times error", error);
+    await ctx.reply("❌ Xatolik yuz berdi");
+  }
+});
+
+/**
  * Enable reminders from prayer times view
  */
 bot.action("enable_reminders_from_prayer", async (ctx) => {

@@ -252,10 +252,26 @@ function Broadcast() {
               <button
                 type="button"
                 className="btn-preset"
+                style={{ background: "#ffebee", border: "1px solid #f44336", padding: "6px 12px", borderRadius: "6px", cursor: "pointer" }}
+                onClick={() => setButtons([{ text: "🔕 Eslatmalarni o'chirish", url: "", callback: "disable_all_reminders" }])}
+              >
+                🔕 O'chirish
+              </button>
+              <button
+                type="button"
+                className="btn-preset"
                 style={{ background: "#fff3e0", border: "1px solid #ff9800", padding: "6px 12px", borderRadius: "6px", cursor: "pointer" }}
                 onClick={() => setButtons([{ text: "📅 Bugungi vaqtlar", url: "", callback: "today_times" }])}
               >
                 📅 Bugungi
+              </button>
+              <button
+                type="button"
+                className="btn-preset"
+                style={{ background: "#f3e5f5", border: "1px solid #9c27b0", padding: "6px 12px", borderRadius: "6px", cursor: "pointer" }}
+                onClick={() => setButtons([{ text: "🌐 Tilni o'zgartirish", url: "", callback: "change_lang" }])}
+              >
+                🌐 Til
               </button>
               <button
                 type="button"

@@ -125,12 +125,9 @@ async function handleInlineQuery(ctx) {
  */
 async function getTodayPrayerTimes(user, latitude, longitude, timezone, lang) {
   try {
-    const cacheKey = `inline:today:${user.userId}`;
-    const cached = await redisCache.get(cacheKey);
-    if (cached) return cached;
-
+    // Skip Redis cache for now - get fresh data
     const method = user.prayerSettings?.calculationMethod || 3;
-    const school = user.prayerSettings?.school || 0;
+    const school = user.prayerSettings?.school || 1;
 
     const prayerData = await getPrayerTimes(
       latitude,
@@ -139,12 +136,20 @@ async function getTodayPrayerTimes(user, latitude, longitude, timezone, lang) {
       school
     );
 
-    if (!prayerData || !prayerData.success) {
+    if (!prayerData || !prayerData.success || !prayerData.timings) {
+      console.error("Invalid prayer data:", prayerData);
       throw new Error("Failed to fetch prayer times");
     }
 
     // timings is at the top level of prayerData, not under .data
     const timings = prayerData.timings;
+    
+    // Validate timings object has required properties
+    if (!timings.fajr || !timings.dhuhr) {
+      console.error("Missing timing properties:", timings);
+      throw new Error("Invalid timings data");
+    }
+    
     const today = moment.tz(timezone).format("DD.MM.YYYY");
     const locationName = user.location.name || "Unknown";
 
@@ -172,9 +177,6 @@ async function getTodayPrayerTimes(user, latitude, longitude, timezone, lang) {
       thumb_url: "https://ramazonbot.saidqodirxon.uz/prayer-icon.png",
     };
 
-    // Cache for 1 hour
-    await redisCache.set(cacheKey, result, 3600);
-
     return result;
   } catch (error) {
     console.error("Today prayer times error:", error);
@@ -182,9 +184,9 @@ async function getTodayPrayerTimes(user, latitude, longitude, timezone, lang) {
       type: "article",
       id: "today_error",
       title: "❌ Bugungi vaqtlarni yuklash xatosi",
-      description: "Ma'lumot topilmadi",
+      description: error.message || "Ma'lumot topilmadi",
       input_message_content: {
-        message_text: "❌ Bugungi namoz vaqtlarini yuklashda xatolik",
+        message_text: "❌ Bugungi namoz vaqtlarini yuklashda xatolik: " + error.message,
         parse_mode: "HTML",
       },
     };
@@ -202,12 +204,8 @@ async function getTomorrowPrayerTimes(
   lang
 ) {
   try {
-    const cacheKey = `inline:tomorrow:${user.userId}`;
-    const cached = await redisCache.get(cacheKey);
-    if (cached) return cached;
-
     const method = user.prayerSettings?.calculationMethod || 3;
-    const school = user.prayerSettings?.school || 0;
+    const school = user.prayerSettings?.school || 1;
 
     // Get tomorrow's date
     const tomorrow = moment.tz(timezone).add(1, "day");
@@ -223,12 +221,20 @@ async function getTomorrowPrayerTimes(
       tomorrow.toDate()
     );
 
-    if (!prayerData || !prayerData.success) {
+    if (!prayerData || !prayerData.success || !prayerData.timings) {
+      console.error("Invalid tomorrow prayer data:", prayerData);
       throw new Error("Failed to fetch prayer times");
     }
 
     // timings is at the top level of prayerData, not under .data
     const timings = prayerData.timings;
+    
+    // Validate timings object has required properties
+    if (!timings.fajr || !timings.dhuhr) {
+      console.error("Missing tomorrow timing properties:", timings);
+      throw new Error("Invalid timings data");
+    }
+    
     const tomorrowDate = tomorrow.format("DD.MM.YYYY");
     const locationName = user.location.name || "Unknown";
 
@@ -256,9 +262,6 @@ async function getTomorrowPrayerTimes(
       thumb_url: "https://ramazonbot.saidqodirxon.uz/prayer-icon.png",
     };
 
-    // Cache for 12 hours
-    await redisCache.set(cacheKey, result, 43200);
-
     return result;
   } catch (error) {
     console.error("Tomorrow prayer times error:", error);
@@ -266,9 +269,9 @@ async function getTomorrowPrayerTimes(
       type: "article",
       id: "tomorrow_error",
       title: "❌ Ertangi vaqtlarni yuklash xatosi",
-      description: "Ma'lumot topilmadi",
+      description: error.message || "Ma'lumot topilmadi",
       input_message_content: {
-        message_text: "❌ Ertangi namoz vaqtlarini yuklashda xatolik",
+        message_text: "❌ Ertangi namoz vaqtlarini yuklashda xatolik: " + error.message,
         parse_mode: "HTML",
       },
     };

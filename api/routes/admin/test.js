@@ -222,7 +222,7 @@ router.post("/backup", adminAuth, async (req, res) => {
       });
     }
 
-    const { createBackup } = require("../../backup-mongodb");
+    const { createBackup } = require("../../scripts/maintenance/backup-mongodb");
 
     // Run backup in background
     createBackup()
