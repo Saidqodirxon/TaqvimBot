@@ -52,7 +52,11 @@ async function schedulePrayerReminders(bot, user) {
     }
 
     const prayers = [
-      { name: "Bomdod", nameKey: "prayer_fajr", time: prayerData.timings?.fajr },
+      {
+        name: "Bomdod",
+        nameKey: "prayer_fajr",
+        time: prayerData.timings?.fajr,
+      },
       {
         name: "Peshin",
         nameKey: "prayer_dhuhr",
@@ -64,7 +68,11 @@ async function schedulePrayerReminders(bot, user) {
         nameKey: "prayer_maghrib",
         time: prayerData.timings?.maghrib,
       },
-      { name: "Xufton", nameKey: "prayer_isha", time: prayerData.timings?.isha },
+      {
+        name: "Xufton",
+        nameKey: "prayer_isha",
+        time: prayerData.timings?.isha,
+      },
     ];
 
     const userJobs = [];
@@ -72,11 +80,11 @@ async function schedulePrayerReminders(bot, user) {
     for (const prayer of prayers) {
       try {
         // Skip if time is undefined
-        if (!prayer.time || typeof prayer.time !== 'string') {
+        if (!prayer.time || typeof prayer.time !== "string") {
           console.warn(`Skipping ${prayer.name}: time is undefined`);
           continue;
         }
-        
+
         const [hours, minutes] = prayer.time.split(":").map(Number);
         const prayerTime = moment
           .tz(timezone)
