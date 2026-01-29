@@ -1976,16 +1976,42 @@ bot.action(/approve_(.+)/, async (ctx) => {
     const greetingChannel = greetingChannelSetting?.value;
 
     // Get greeting text - handle both text and message fields
-    const greetingText = greeting.message || "(Matn yo'q)";
+    const greetingText = greeting.message || greeting.caption || "(Matn yo'q)";
 
     // Send to channel if configured
     if (greetingChannel) {
       try {
-        const channelMsg = await ctx.telegram.sendMessage(
-          greetingChannel,
-          greetingText,
-          { parse_mode: "HTML" }
-        );
+        // Format message with sender name and bot promotion
+        const senderName = greeting.firstName || "Anonim";
+        const botPromotion = `\n\n━━━━━━━━━━━━━━\n🤖 Siz ham @${process.env.BOT_USER || "RamazonCalendarBot"} orqali o'z tabrigingizni yuboring!`;
+
+        let channelMsg;
+
+        if (greeting.messageType === "photo" && greeting.fileId) {
+          // Send photo with caption
+          const photoCaption = `${greetingText}\n\n— ${senderName}${botPromotion}`;
+          channelMsg = await ctx.telegram.sendPhoto(
+            greetingChannel,
+            greeting.fileId,
+            { caption: photoCaption, parse_mode: "HTML" }
+          );
+        } else if (greeting.messageType === "video" && greeting.fileId) {
+          // Send video with caption
+          const videoCaption = `${greetingText}\n\n— ${senderName}${botPromotion}`;
+          channelMsg = await ctx.telegram.sendVideo(
+            greetingChannel,
+            greeting.fileId,
+            { caption: videoCaption, parse_mode: "HTML" }
+          );
+        } else {
+          // Send text message
+          const formattedMessage = `${greetingText}\n\n— ${senderName}${botPromotion}`;
+          channelMsg = await ctx.telegram.sendMessage(
+            greetingChannel,
+            formattedMessage,
+            { parse_mode: "HTML" }
+          );
+        }
 
         await ctx.reply(
           `✅ Tabrik tasdiqlandi va kanalga yuborildi!\n👤 ${greeting.firstName} (@${greeting.username || "no_username"})\n\n${greetingText.substring(0, 100)}...`
