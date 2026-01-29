@@ -128,16 +128,13 @@ async function schedulePrayerReminders(bot, user) {
           .minutes(minutes)
           .seconds(0);
 
-        // Skip if prayer time has already passed today
-        if (prayerTime.isBefore(moment.tz(timezone))) {
-          continue;
-        }
+        const now = moment.tz(timezone);
 
-        // Schedule reminder BEFORE prayer time (only this one, not AT prayer time)
+        // Schedule reminder BEFORE prayer time
         const reminderTime = prayerTime
           .clone()
           .subtract(minutesBefore, "minutes");
-        if (reminderTime.isAfter(moment.tz(timezone))) {
+        if (reminderTime.isAfter(now)) {
           const beforeJob = schedule.scheduleJob(
             reminderTime.toDate(),
             async () => {
@@ -228,8 +225,93 @@ async function schedulePrayerReminders(bot, user) {
           userJobs.push(beforeJob);
         }
 
-        // NOTE: Removed duplicate "AT prayer time" notification
-        // Users only get ONE notification per prayer (minutesBefore)
+        // Schedule reminder AT prayer time (only if prayer time hasn't passed)
+        if (prayerTime.isAfter(now)) {
+          const atJob = schedule.scheduleJob(prayerTime.toDate(), async () => {
+            try {
+              // Check if already sent (prevent duplicates)
+              if (wasReminderSent(user.userId, prayer.name, "at")) {
+                console.log(
+                  `⏭️ Skipping duplicate at-prayer reminder for ${user.userId} - ${prayer.name}`
+                );
+                return;
+              }
+
+              // Mark as sent BEFORE sending
+              markReminderSent(user.userId, prayer.name, "at");
+
+              const message = await t(lang, "reminder_prayer_time", {
+                prayer: prayer.name,
+                time: prayer.time,
+              });
+
+              // Send with retry and rate limit handling
+              try {
+                await bot.telegram.sendMessage(user.userId, message, {
+                  reply_markup: {
+                    inline_keyboard: [
+                      [
+                        {
+                          text: "🔕 Eslatmalarni o'chirish",
+                          callback_data: "disable_all_reminders",
+                        },
+                      ],
+                    ],
+                  },
+                });
+              } catch (sendError) {
+                // Handle Telegram rate limits
+                if (sendError.response?.error_code === 429) {
+                  const retryAfter =
+                    sendError.response.parameters?.retry_after || 1;
+                  console.warn(
+                    `⚠️ Rate limited for user ${user.userId}. Retry after ${retryAfter}s`
+                  );
+                  // Wait and retry once
+                  await new Promise((resolve) =>
+                    setTimeout(resolve, retryAfter * 1000)
+                  );
+                  await bot.telegram.sendMessage(user.userId, message, {
+                    reply_markup: {
+                      inline_keyboard: [
+                        [
+                          {
+                            text: "🔕 Eslatmalarni o'chirish",
+                            callback_data: "disable_all_reminders",
+                          },
+                        ],
+                      ],
+                    },
+                  });
+                } else if (sendError.response?.error_code === 403) {
+                  // User blocked the bot
+                  console.warn(
+                    `⚠️ User ${user.userId} blocked the bot. Disabling reminders.`
+                  );
+                  const User = require("../models/User");
+                  await User.updateOne(
+                    { userId: user.userId },
+                    {
+                      $set: {
+                        "reminderSettings.enabled": false,
+                        is_block: true,
+                      },
+                    }
+                  );
+                  cancelUserReminders(user.userId);
+                } else {
+                  throw sendError;
+                }
+              }
+            } catch (error) {
+              console.error(
+                `Error sending at-prayer reminder to ${user.userId}:`,
+                error.message
+              );
+            }
+          });
+          userJobs.push(atJob);
+        }
       } catch (error) {
         console.error(
           `Error scheduling reminder for ${prayer.name}:`,
