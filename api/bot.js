@@ -1942,11 +1942,11 @@ bot.action(/approve_(.+)/, async (ctx) => {
     await ctx.answerCbQuery("✅ Tabrik tasdiqlandi!");
 
     const greetingId = ctx.match[1];
-    const GreetingLog = require("./models/GreetingLog");
+    const Greeting = require("./models/Greeting");
     const Settings = require("./models/Settings");
 
     // Find greeting
-    const greeting = await GreetingLog.findById(greetingId);
+    const greeting = await Greeting.findById(greetingId);
     if (!greeting) {
       await ctx.editMessageReplyMarkup({ inline_keyboard: [] });
       await ctx.reply("❌ Tabrik topilmadi yoki allaqachon o'chirilgan");
@@ -1967,8 +1967,6 @@ bot.action(/approve_(.+)/, async (ctx) => {
 
     // Update status
     greeting.status = "approved";
-    greeting.reviewedBy = ctx.from.id;
-    greeting.reviewedAt = new Date();
     await greeting.save();
 
     // Get greeting channel
@@ -1978,7 +1976,7 @@ bot.action(/approve_(.+)/, async (ctx) => {
     const greetingChannel = greetingChannelSetting?.value;
 
     // Get greeting text - handle both text and message fields
-    const greetingText = greeting.text || greeting.message || "(Matn yo'q)";
+    const greetingText = greeting.message || "(Matn yo'q)";
 
     // Send to channel if configured
     if (greetingChannel) {
@@ -1988,10 +1986,6 @@ bot.action(/approve_(.+)/, async (ctx) => {
           greetingText,
           { parse_mode: "HTML" }
         );
-
-        greeting.sentToChannel = true;
-        greeting.channelMessageId = channelMsg.message_id;
-        await greeting.save();
 
         await ctx.reply(
           `✅ Tabrik tasdiqlandi va kanalga yuborildi!\n👤 ${greeting.firstName} (@${greeting.username || "no_username"})\n\n${greetingText.substring(0, 100)}...`
@@ -2031,10 +2025,10 @@ bot.action(/reject_(.+)/, async (ctx) => {
     await ctx.answerCbQuery("❌ Tabrik rad etildi");
 
     const greetingId = ctx.match[1];
-    const GreetingLog = require("./models/GreetingLog");
+    const Greeting = require("./models/Greeting");
 
     // Find greeting
-    const greeting = await GreetingLog.findById(greetingId);
+    const greeting = await Greeting.findById(greetingId);
     if (!greeting) {
       await ctx.editMessageReplyMarkup({ inline_keyboard: [] });
       await ctx.reply("❌ Tabrik topilmadi yoki allaqachon o'chirilgan");
@@ -2055,9 +2049,6 @@ bot.action(/reject_(.+)/, async (ctx) => {
 
     // Update status
     greeting.status = "rejected";
-    greeting.reviewedBy = ctx.from.id;
-    greeting.reviewedAt = new Date();
-    greeting.rejectionReason = "Admin tomonidan rad etildi";
     await greeting.save();
 
     await ctx.reply(

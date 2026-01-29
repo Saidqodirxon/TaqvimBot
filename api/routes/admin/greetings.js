@@ -56,7 +56,7 @@ router.patch("/:id/approve", authMiddleware, async (req, res) => {
 
         await axios.post(url, {
           chat_id: greetingChannel,
-          text: `📨 Yangi Tabrik!\n\n${greeting.message}\n\n👤 Yuboruvchi: ${greeting.userId}`,
+          text: `📨 Yangi Tabrik!\n\n${greeting.message}\n\n👤 Yuboruvchi: ${greeting.firstName} (@${greeting.username || 'yo\'q'})\n🆔 ${greeting.userId}`,
           parse_mode: "HTML",
         });
 
