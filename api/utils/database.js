@@ -2,7 +2,6 @@ const User = require("../models/User");
 const Greeting = require("../models/Greeting");
 const Settings = require("../models/Settings");
 const logger = require("./logger");
-const { logNewUser } = require("./errorLogger");
 
 /**
  * Get or create user in database
@@ -15,7 +14,7 @@ async function getOrCreateUser(ctx) {
 
     // Optimized query - select only needed fields
     let user = await User.findOne({ userId }).select(
-      "userId firstName username language location prayerSettings reminderSettings hasJoinedChannel is_block phoneNumber phoneRequestedAt termsAccepted termsAcceptedAt last_active"
+      "userId firstName username language location prayerSettings reminderSettings hasJoinedChannel is_block phoneNumber phoneRequestedAt termsAccepted termsAcceptedAt last_active delayStartedAt"
     );
 
     if (!user) {
@@ -23,20 +22,18 @@ async function getOrCreateUser(ctx) {
       const defaultSettings = await Settings.getSetting(
         "defaultPrayerSettings",
         {
-          calculationMethod: 3, // MWL - Musulmonlar dunyosi ligasi
+          calculationMethod: 3, // MWL
           school: 1, // Hanafi
           midnightMode: 0,
         }
       );
 
-      console.log("📋 Creating new user with defaults:", defaultSettings);
-
       user = new User({
         userId,
         firstName,
         username,
-        language: null, // Til hali tanlanmagan
-        location: null, // Joylashuv hali tanlanmagan
+        language: null,
+        location: null,
         prayerSettings: {
           calculationMethod: defaultSettings.calculationMethod,
           school: defaultSettings.school,
@@ -45,30 +42,20 @@ async function getOrCreateUser(ctx) {
       });
       await user.save();
 
-      // Get total users count (fast count)
-      const totalUsers = await User.estimatedDocumentCount();
-
-      // Log new user directly to ADMIN (not to group)
-      await logNewUser(user, totalUsers);
+      // Log new user asynchronously
+      setImmediate(async () => {
+        const totalUsers = await User.estimatedDocumentCount();
+        logger.logNewUser(user, totalUsers);
+      });
     } else {
-      // Update user info if changed (minimal update)
-      const needsUpdate =
-        user.firstName !== firstName || user.username !== username;
-      if (needsUpdate) {
-        await User.updateOne(
-          { userId },
-          {
-            $set: {
-              firstName,
-              username,
-              lastActive: new Date(),
-            },
-          }
-        );
-        // Update local object
+      // Update user info ONLY if changed significantly (minimal update)
+      if (user.firstName !== firstName || user.username !== username) {
+        User.updateOne({ userId }, { $set: { firstName, username } }).catch(
+          () => {}
+        ); // Fire and forget update
+
         user.firstName = firstName;
         user.username = username;
-        user.lastActive = new Date();
       }
     }
 

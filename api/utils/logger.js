@@ -2,159 +2,127 @@ const Settings = require("../models/Settings");
 const axios = require("axios");
 
 /**
- * Log system - sends important events to log channel from database
+ * Log system - sends important events to log channel
+ * Optimized for speed and reliability
  */
 class Logger {
   constructor() {
     this.botToken = process.env.BOT_TOKEN;
+    this.groupId = process.env.GROUP_ID;
   }
 
   async send(message, options = {}) {
-    try {
-      // Get log channel from database
-      const logChannel = await Settings.getSetting("log_channel", null);
+    // Non-blocking log delivery
+    setImmediate(async () => {
+      try {
+        // Use group ID from env as primary log channel, fallback to database setting
+        let logChannel = this.groupId;
 
-      if (!logChannel) {
-        console.log(
-          "[Logger] Log channel not configured, skipping log:",
-          message
-        );
-        return;
+        if (!logChannel) {
+          const setting = await Settings.findOne({ key: "log_channel" });
+          logChannel = setting?.value;
+        }
+
+        if (!logChannel) return;
+
+        const url = `https://api.telegram.org/bot${this.botToken}/sendMessage`;
+        await axios
+          .post(url, {
+            chat_id: logChannel,
+            text: message,
+            parse_mode: options.parseMode || "HTML",
+            disable_web_page_preview: true,
+          })
+          .catch(() => {}); // Silently fail to avoid crashing the bot
+      } catch (error) {
+        // External logs should never crash the main process
       }
-
-      const url = `https://api.telegram.org/bot${this.botToken}/sendMessage`;
-      await axios.post(url, {
-        chat_id: logChannel,
-        text: message,
-        parse_mode: options.parseMode || "HTML",
-        disable_web_page_preview: options.disablePreview !== false,
-      });
-    } catch (error) {
-      console.error("[Logger] Failed to send log:", error.message);
-    }
+    });
   }
 
   // New user registered
-  async logNewUser(user) {
+  async logNewUser(user, count) {
     const message =
-      `👤 <b>Yangi foydalanuvchi</b>\n\n` +
+      `👤 <b>#yangi_user</b> (No. ${count || "N/A"})\n\n` +
       `ID: <code>${user.userId}</code>\n` +
       `Ism: ${user.firstName || "N/A"}\n` +
       `Username: ${user.username ? "@" + user.username : "N/A"}\n` +
-      `Til: ${user.language}\n` +
-      `Vaqt: ${new Date().toLocaleString("uz-UZ")}`;
+      `Til: ${user.language || "N/A"}`;
 
     await this.send(message);
   }
 
-  // Broadcast started
-  async logBroadcastStart(admin, filters, totalUsers) {
+  // Old user returned
+  async logReturningUser(user) {
     const message =
-      `📢 <b>Broadcast boshlandi</b>\n\n` +
-      `Admin: ${admin.firstName} (${admin.userId})\n` +
-      `Foydalanuvchilar: ${totalUsers}\n` +
-      `Filtrlar: ${JSON.stringify(filters)}\n` +
-      `Vaqt: ${new Date().toLocaleString("uz-UZ")}`;
+      `👤 <b>#eski_user_qaytdi</b>\n\n` +
+      `Eski user botni yana ishlatmoqda:\n\n` +
+      `ID: <code>${user.userId}</code>\n` +
+      `Ism: ${user.firstName || "N/A"}\n` +
+      `Username: ${user.username ? "@" + user.username : "N/A"}\n` +
+      `Til: ${user.language || "N/A"}`;
 
     await this.send(message);
   }
 
-  // Broadcast completed
+  // Veteran user (long term inactive) returned
+  async logVeteranReset(user, days) {
+    const message =
+      `🎖 <b>#veteran_user_reset</b>\n\n` +
+      `<b>${days} kundan keyin</b> qaytgan foydalanuvchi tiklandi:\n\n` +
+      `ID: <code>${user.userId}</code>\n` +
+      `Ism: ${user.firstName || "N/A"}\n` +
+      `Kechikish va Shartlar qayta faollashtirildi.`;
+
+    await this.send(message);
+  }
+
+  // Broadcast events
+  async logBroadcastStart(admin, totalUsers) {
+    await this.send(
+      `📢 <b>#broadcast_start</b>\nAdmin: ${admin.firstName}\nUsers: ${totalUsers}`
+    );
+  }
+
   async logBroadcastComplete(stats) {
-    const message =
-      `✅ <b>Broadcast tugadi</b>\n\n` +
-      `Yuborildi: ${stats.sent}\n` +
-      `Xato: ${stats.failed}\n` +
-      `Davomiyligi: ${stats.duration}\n` +
-      `Vaqt: ${new Date().toLocaleString("uz-UZ")}`;
-
-    await this.send(message);
-  }
-
-  // Admin action (add/edit/delete something)
-  async logAdminAction(admin, action, details) {
-    const message =
-      `⚙️ <b>Admin harakati</b>\n\n` +
-      `Admin: ${admin.firstName || admin.username || admin.userId}\n` +
-      `Harakat: ${action}\n` +
-      `Tafsilotlar: ${details}\n` +
-      `Vaqt: ${new Date().toLocaleString("uz-UZ")}`;
-
-    await this.send(message);
+    await this.send(
+      `✅ <b>#broadcast_finish</b>\nSent: ${stats.sent}\nFailed: ${stats.failed}\nTime: ${stats.duration}`
+    );
   }
 
   // Error log
   async logError(error, context = "") {
     const message =
-      `❌ <b>Xatolik</b>\n\n` +
-      `Kontekst: ${context}\n` +
-      `Xato: ${error.message}\n` +
-      `Stack: <pre>${error.stack?.substring(0, 500)}</pre>\n` +
-      `Vaqt: ${new Date().toLocaleString("uz-UZ")}`;
+      `❌ <b>#error</b>\n\n` +
+      `<b>Context:</b> ${context}\n` +
+      `<b>Message:</b> ${error.message}\n` +
+      `<b>Stack:</b> <code>${error.stack?.substring(0, 500)}</code>`;
 
     await this.send(message);
+    console.error(`[Error] ${context}: ${error.message}`);
   }
 
-  // Standard error logging (console.error replacement)
-  error(message, error = null) {
-    // Log to console for development
-    if (error) {
-      console.error(message, error);
-    } else {
-      console.error(message);
-    }
-
-    // Optionally send to Telegram group (only for critical errors)
-    if (error && error.stack && this.enabled) {
-      this.logError(error, message).catch(() => {
-        // Silently fail if Telegram logging fails
-      });
-    }
+  // Optimized methods for standard logging
+  error(msg, err = null) {
+    if (err) this.logError(err, msg);
+    else console.error(`[Error] ${msg}`);
   }
 
-  // Info logging
   info(message) {
-    console.log(message);
+    // Minimal console output for performance
   }
 
-  // Warning logging
   warn(message) {
-    console.warn(message);
+    console.warn(`[Warn] ${message}`);
   }
 
-  // Channel membership check failed
-  async logChannelCheckFailed(user, channelUsername) {
-    // Handle both Telegram format (first_name, id) and our format (firstName, userId)
-    const firstName = user.firstName || user.first_name || "Unknown";
-    const userId = user.userId || user.id || "Unknown";
-    const username = user.username ? `@${user.username}` : "";
-
-    const message =
-      `⚠️ <b>Kanal tekshiruvi</b>\n\n` +
-      `Foydalanuvchi: ${firstName} ${username}\n` +
-      `ID: ${userId}\n` +
-      `Kanal: @${channelUsername}\n` +
-      `Holat: A'zo emas\n` +
-      `Vaqt: ${new Date().toLocaleString("uz-UZ")}`;
-
-    await this.send(message);
-  }
-
-  // Statistics (can be called daily/weekly)
-  async logStatistics(stats) {
-    const message =
-      `📊 <b>Statistika</b>\n\n` +
-      `Jami foydalanuvchilar: ${stats.totalUsers}\n` +
-      `Faol: ${stats.activeUsers}\n` +
-      `Yangi (24 soat): ${stats.newUsers}\n` +
-      `Til: O'zbek - ${stats.uzUsers}, Русский - ${stats.ruUsers}\n` +
-      `Vaqt: ${new Date().toLocaleString("uz-UZ")}`;
-
-    await this.send(message);
+  async logAdminAction(admin, action, details) {
+    const name = admin.firstName || admin.username || admin.userId;
+    await this.send(
+      `⚙️ <b>#admin_action</b>\nAdmin: ${name}\nAction: ${action}\nDetails: ${details}`
+    );
   }
 }
 
-// Singleton instance
 const logger = new Logger();
-
 module.exports = logger;

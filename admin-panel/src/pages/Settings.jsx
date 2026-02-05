@@ -21,11 +21,12 @@ function Settings() {
   const [termsEnabled, setTermsEnabled] = useState(false);
   const [termsUrl, setTermsUrl] = useState("");
   const [termsRecheckDays, setTermsRecheckDays] = useState(90);
-  const [termsInitialDelayDays, setTermsInitialDelayDays] = useState(0);
+  const [termsDelayHours, setTermsDelayHours] = useState(0);
 
   // Phone request settings state
   const [phoneRequestEnabled, setPhoneRequestEnabled] = useState(false);
   const [phoneRecheckDays, setPhoneRecheckDays] = useState(180);
+  const [phoneDelayHours, setPhoneDelayHours] = useState(0);
 
   // Cache settings state
   const [cacheTtl, setCacheTtl] = useState(86400); // 24 hours default
@@ -102,11 +103,11 @@ function Settings() {
         setTermsRecheckDays(termsRecheckSetting.value ?? 90);
       }
 
-      const termsInitialDelaySetting = data?.find(
-        (s) => s.key === "terms_initial_delay_days"
+      const termsDelaySetting = data?.find(
+        (s) => s.key === "terms_delay_hours"
       );
-      if (termsInitialDelaySetting) {
-        setTermsInitialDelayDays(termsInitialDelaySetting.value ?? 0);
+      if (termsDelaySetting) {
+        setTermsDelayHours(termsDelaySetting.value ?? 0);
       }
 
       // Phone request settings
@@ -122,6 +123,13 @@ function Settings() {
       );
       if (phoneRecheckSetting) {
         setPhoneRecheckDays(phoneRecheckSetting.value ?? 180);
+      }
+
+      const phoneDelaySetting = data?.find(
+        (s) => s.key === "phone_delay_hours"
+      );
+      if (phoneDelaySetting) {
+        setPhoneDelayHours(phoneDelaySetting.value ?? 0);
       }
     }
   }, [data]);
@@ -199,7 +207,7 @@ function Settings() {
         enabled: termsEnabled,
         url: termsUrl,
         recheckDays: parseInt(termsRecheckDays),
-        initialDelayDays: parseInt(termsInitialDelayDays),
+        delayHours: parseInt(termsDelayHours),
       }),
     onSuccess: () => {
       queryClient.invalidateQueries(["settings"]);
@@ -215,6 +223,7 @@ function Settings() {
       settings.setPhoneSettings({
         enabled: phoneRequestEnabled,
         recheckDays: parseInt(phoneRecheckDays),
+        delayHours: parseInt(phoneDelayHours),
       }),
     onSuccess: () => {
       queryClient.invalidateQueries(["settings"]);
@@ -589,17 +598,17 @@ function Settings() {
           </div>
 
           <div className="form-group">
-            <label>⏰ Dastlabki kechiktirish (kunlarda)</label>
+            <label>⏰ Dastlabki kechiktirish (soatlarda)</label>
             <input
               type="number"
-              value={termsInitialDelayDays}
-              onChange={(e) => setTermsInitialDelayDays(e.target.value)}
+              value={termsDelayHours}
+              onChange={(e) => setTermsDelayHours(e.target.value)}
               min="0"
-              max="30"
+              max="720"
             />
             <small className="help-text">
-              💡 Yangi foydalanuvchilarga shartlarni qabul qilishni necha kun
-              kechiktirib so'rash (masalan: 0 = darhol, 7 = 7 kundan keyin)
+              💡 Yangi foydalanuvchilarga shartlarni qabul qilishni necha soat
+              kechiktirib so'rash (masalan: 0 = darhol, 6 = 6 soatdan keyin)
             </small>
           </div>
 
@@ -656,8 +665,22 @@ function Settings() {
             />
             <small className="help-text">
               💡 Necha kundan keyin foydalanuvchilardan qayta telefon raqamini
-              so'rash (masalan: 180 kun). Bu foydalanuvchilarni bezovta
-              qilmaydi.
+              so'rash (masalan: 180 kun).
+            </small>
+          </div>
+
+          <div className="form-group">
+            <label>⏰ Dastlabki kechiktirish (soatlarda)</label>
+            <input
+              type="number"
+              value={phoneDelayHours}
+              onChange={(e) => setPhoneDelayHours(e.target.value)}
+              min="0"
+              max="720"
+            />
+            <small className="help-text">
+              💡 Yangi foydalanuvchilardan telefon raqamini necha soatdan keyin
+              so'rash (masalan: 12 = botga kirgandan 12 soat o'tgach)
             </small>
           </div>
 

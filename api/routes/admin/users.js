@@ -3,6 +3,7 @@ const express = require("express");
 const router = express.Router();
 const { authMiddleware } = require("../../middleware/adminAuth");
 const User = require("../../models/User");
+const Settings = require("../../models/Settings");
 
 // Get all users with pagination and search
 router.get("/", authMiddleware, async (req, res) => {
@@ -34,13 +35,37 @@ router.get("/", authMiddleware, async (req, res) => {
       }
     }
 
-    const total = await User.countDocuments(query).maxTimeMS(5000);
-    const users = await User.find(query)
+    const [total, delaySettings] = await Promise.all([
+      User.countDocuments(query).maxTimeMS(5000),
+      Settings.getSetting("channel_join_delay", { days: 0, hours: 0 }),
+    ]);
+
+    const delayMs =
+      (delaySettings.days || 0) * 24 * 60 * 60 * 1000 +
+      (delaySettings.hours || 0) * 60 * 60 * 1000;
+
+    const usersData = await User.find(query)
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
       .select("-__v")
+      .lean() // Better performance for data modification
       .maxTimeMS(10000);
+
+    const now = Date.now();
+    const users = usersData.map((user) => {
+      let delayRemaining = 0;
+      if (user.delayStartedAt) {
+        const timeSinceStart = now - new Date(user.delayStartedAt).getTime();
+        delayRemaining = Math.max(0, delayMs - timeSinceStart);
+      }
+      return {
+        ...user,
+        delayRemaining,
+        delayMs,
+      };
+    });
+
     res.json({
       users,
       pagination: {
@@ -89,10 +114,32 @@ router.get("/search", authMiddleware, async (req, res) => {
 // Get user by ID
 router.get("/:userId", authMiddleware, async (req, res) => {
   try {
-    const user = await User.findOne({ userId: parseInt(req.params.userId) });
-    if (!user) {
+    const [userDoc, delaySettings] = await Promise.all([
+      User.findOne({ userId: parseInt(req.params.userId) }).lean(),
+      Settings.getSetting("channel_join_delay", { days: 0, hours: 0 }),
+    ]);
+
+    if (!userDoc) {
       return res.status(404).json({ error: "Foydalanuvchi topilmadi" });
     }
+
+    const delayMs =
+      (delaySettings.days || 0) * 24 * 60 * 60 * 1000 +
+      (delaySettings.hours || 0) * 60 * 60 * 1000;
+
+    const now = Date.now();
+    let delayRemaining = 0;
+    if (userDoc.delayStartedAt) {
+      const timeSinceStart = now - new Date(userDoc.delayStartedAt).getTime();
+      delayRemaining = Math.max(0, delayMs - timeSinceStart);
+    }
+
+    const user = {
+      ...userDoc,
+      delayRemaining,
+      delayMs,
+    };
+
     res.json({ user });
   } catch (error) {
     logger.error("Get user error:", error);

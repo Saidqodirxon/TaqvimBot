@@ -67,6 +67,10 @@ const UserSchema = new mongoose.Schema(
       type: mongoose.SchemaTypes.Date,
       default: null,
     },
+    delayStartedAt: {
+      type: mongoose.SchemaTypes.Date,
+      default: null,
+    },
     locationId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Location",

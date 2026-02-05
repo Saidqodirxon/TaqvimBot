@@ -71,7 +71,6 @@ const {
 } = require("./utils/prayerReminders");
 const { handleInlineQuery } = require("./utils/inlineMode");
 const logger = require("./utils/logger");
-const { initErrorLogger, logError } = require("./utils/errorLogger");
 const RedisCache = require("./utils/redis");
 
 // Scenes
@@ -114,13 +113,61 @@ bot.use(async (ctx, next) => {
       const fiveMinutesAgo = new Date(now.getTime() - 5 * 60 * 1000);
 
       if (!lastActive || lastActive < fiveMinutesAgo) {
-        // Fire and forget - don't wait for update
-        User.updateOne(
-          { userId: ctx.from.id },
-          { $set: { last_active: now } }
-        ).catch((err) => {
-          // Silently ignore last_active update errors
+        // Update last_active and initialize delayStartedAt if needed
+        const updateData = { $set: { last_active: now } };
+
+        // Start delay timer if not already started
+        if (!user.delayStartedAt) {
+          updateData.$set.delayStartedAt = now;
+          ctx.session.user.delayStartedAt = now;
+        }
+
+        User.updateOne({ userId: ctx.from.id }, updateData).catch((err) => {
+          // Silently ignore update errors
         });
+
+        // Notify if user returned after 24h
+        if (lastActive) {
+          const hoursInactive =
+            (now.getTime() - lastActive.getTime()) / (1000 * 60 * 60);
+
+          if (hoursInactive >= 24) {
+            // Get threshold from settings or default to 150 days
+            const thresholdDays = await Settings.getSetting(
+              "returning_user_threshold_days",
+              150
+            );
+
+            if (hoursInactive >= thresholdDays * 24) {
+              // VETERAN RESET - User returned after a long time (new season)
+              const resetData = {
+                $set: {
+                  delayStartedAt: now,
+                  termsAccepted: false,
+                  hasJoinedChannel: false,
+                  phoneNumber: null,
+                  phoneRequestedAt: null,
+                },
+              };
+
+              await User.updateOne({ userId: ctx.from.id }, resetData).catch(
+                () => {}
+              );
+
+              // Update session
+              ctx.session.user.delayStartedAt = now;
+              ctx.session.user.termsAccepted = false;
+              ctx.session.user.hasJoinedChannel = false;
+              ctx.session.user.phoneNumber = null;
+              ctx.session.user.phoneRequestedAt = null;
+
+              logger.logVeteranReset(user, Math.floor(hoursInactive / 24));
+            } else {
+              // Regular return after 24h
+              logger.logReturningUser(user);
+            }
+          }
+        }
       }
 
       // Check if user is blocked
@@ -216,15 +263,35 @@ bot.use(async (ctx, next) => {
   const user = ctx.session.user;
   const lang = getUserLanguage(user);
 
-  // ONLY check terms on first TEXT message after language selection
-  // Don't block mini app or data queries
+  // Check if user is within grace period (delayStartedAt)
+  // We use startTime for all relative delays
+  const now = Date.now();
+  const startTime = user.delayStartedAt
+    ? new Date(user.delayStartedAt).getTime()
+    : now;
+
+  // Get ALL relevant delays from settings
+  const [termsDelayHours, phoneDelayHours] = await Promise.all([
+    Settings.getSetting("terms_delay_hours", 6),
+    Settings.getSetting("phone_delay_hours", 12),
+  ]);
+
+  const timePassed = now - startTime;
+
+  // 1. TERMS CHECK - Independent delay
   if (
     user.termsAccepted !== true &&
     ctx.message?.text &&
     !ctx.message.text.startsWith("/")
   ) {
     const termsEnabled = await Settings.getSetting("terms_enabled", false);
+
     if (termsEnabled) {
+      // Use specific hours for terms delay (convert to Number to avoid string issues)
+      if (timePassed < Number(termsDelayHours) * 60 * 60 * 1000) {
+        return next(); // Still in terms grace period
+      }
+
       const termsUrl = await Settings.getSetting("terms_url", "");
       if (termsUrl) {
         const termsMessage = await t(lang, "terms_message");
@@ -251,8 +318,6 @@ bot.use(async (ctx, next) => {
     }
   }
 
-  // Phone request - VERY LAZY, only ask on specific interactions
-  // Never block mini app or inline queries
   if (
     !user.phoneNumber &&
     ctx.message?.text &&
@@ -262,7 +327,13 @@ bot.use(async (ctx, next) => {
       "phone_request_enabled",
       false
     );
+
     if (phoneEnabled) {
+      // Check if enough time has passed for phone request
+      if (timePassed < Number(phoneDelayHours) * 60 * 60 * 1000) {
+        return next(); // Ask later
+      }
+
       const phoneRecheckDays = await Settings.getSetting(
         "phone_recheck_days",
         180
@@ -306,6 +377,17 @@ bot.on("inline_query", handleInlineQuery);
 bot.command("start", async (ctx) => {
   try {
     await ctx.scene.leave();
+
+    const now = new Date();
+    // Reset delay period on /start
+    await User.updateOne(
+      { userId: ctx.from.id },
+      { $set: { delayStartedAt: now } }
+    ).catch(() => {});
+
+    if (ctx.session.user) {
+      ctx.session.user.delayStartedAt = now;
+    }
 
     const user = ctx.session.user;
     const lang = getUserLanguage(user);
@@ -452,33 +534,6 @@ bot.action("lang_uz", async (ctx) => {
     const languageSet = await t("uz", "language_set");
     await ctx.editMessageText(`✅ ${languageSet}`);
 
-    // Check if terms are enabled and show terms
-    const termsEnabled = await Settings.getSetting("terms_enabled", false);
-    const termsUrl = await Settings.getSetting("terms_url", "");
-
-    if (termsEnabled && termsUrl && !ctx.session.user.termsAccepted) {
-      const termsMessage = await t("uz", "terms_message");
-      await ctx.reply(termsMessage, {
-        reply_markup: {
-          inline_keyboard: [
-            [
-              {
-                text: await t("uz", "btn_read_terms"),
-                url: termsUrl,
-              },
-            ],
-            [
-              {
-                text: await t("uz", "btn_accept_terms"),
-                callback_data: "accept_terms",
-              },
-            ],
-          ],
-        },
-      });
-      return;
-    }
-
     await ctx.reply(
       await t("uz", "main_menu"),
       await getMainMenuKeyboard("uz")
@@ -497,33 +552,6 @@ bot.action("lang_cr", async (ctx) => {
     const languageSet = await t("cr", "language_set");
     await ctx.editMessageText(`✅ ${languageSet}`);
 
-    // Check if terms are enabled and show terms
-    const termsEnabled = await Settings.getSetting("terms_enabled", false);
-    const termsUrl = await Settings.getSetting("terms_url", "");
-
-    if (termsEnabled && termsUrl && !ctx.session.user.termsAccepted) {
-      const termsMessage = await t("cr", "terms_message");
-      await ctx.reply(termsMessage, {
-        reply_markup: {
-          inline_keyboard: [
-            [
-              {
-                text: await t("cr", "btn_read_terms"),
-                url: termsUrl,
-              },
-            ],
-            [
-              {
-                text: await t("cr", "btn_accept_terms"),
-                callback_data: "accept_terms",
-              },
-            ],
-          ],
-        },
-      });
-      return;
-    }
-
     await ctx.reply(
       await t("cr", "main_menu"),
       await getMainMenuKeyboard("cr")
@@ -541,33 +569,6 @@ bot.action("lang_ru", async (ctx) => {
 
     const languageSet = await t("ru", "language_set");
     await ctx.editMessageText(`✅ ${languageSet}`);
-
-    // Check if terms are enabled and show terms
-    const termsEnabled = await Settings.getSetting("terms_enabled", false);
-    const termsUrl = await Settings.getSetting("terms_url", "");
-
-    if (termsEnabled && termsUrl && !ctx.session.user.termsAccepted) {
-      const termsMessage = await t("ru", "terms_message");
-      await ctx.reply(termsMessage, {
-        reply_markup: {
-          inline_keyboard: [
-            [
-              {
-                text: await t("ru", "btn_read_terms"),
-                url: termsUrl,
-              },
-            ],
-            [
-              {
-                text: await t("ru", "btn_accept_terms"),
-                callback_data: "accept_terms",
-              },
-            ],
-          ],
-        },
-      });
-      return;
-    }
 
     await ctx.reply(
       await t("ru", "main_menu"),
@@ -1000,17 +1001,16 @@ bot.action("today_times", async (ctx) => {
     });
 
     const message =
-      `🕌 <b>Bugungi namoz vaqtlari</b>\\n` +
-      `📅 ${today}\\n` +
-      `📍 ${locationName}\\n\\n` +
-      `🌅 Bomdod: ${timings.fajr}\\n` +
-      `☀️ Quyosh: ${timings.sunrise || timings.Sunrise || "N/A"}\\n` +
-      `🌞 Peshin: ${timings.dhuhr}\\n` +
-      `🌤 Asr: ${timings.asr}\\n` +
-      `🌆 Shom: ${timings.maghrib}\\n` +
+      `🕌 <b>Bugungi namoz vaqtlari</b>\n` +
+      `📅 ${today}\n` +
+      `📍 ${locationName}\n\n` +
+      `🌅 Bomdod: ${timings.fajr}\n` +
+      `☀️ Quyosh: ${timings.sunrise || timings.Sunrise || "N/A"}\n` +
+      `🌞 Peshin: ${timings.dhuhr}\n` +
+      `🌤 Asr: ${timings.asr}\n` +
+      `🌆 Shom: ${timings.maghrib}\n` +
       `🌙 Xufton: ${timings.isha}`;
 
-    console.log("✅ Sending prayer times to user");
     await ctx.reply(message, { parse_mode: "HTML" });
   } catch (error) {
     console.error("❌ Today times critical error:", error);
@@ -1923,6 +1923,30 @@ bot.action("back_to_calendar_view", async (ctx) => {
 });
 
 /**
+ * Menu command - easily get back to the main menu
+ */
+bot.command("menu", async (ctx) => {
+  const lang = getUserLanguage(ctx.session.user);
+  await ctx.reply(await t(lang, "main_menu"), await getMainMenuKeyboard(lang));
+});
+
+/**
+ * Handle show_main_menu action from reminders
+ */
+bot.action("show_main_menu", async (ctx) => {
+  try {
+    await ctx.answerCbQuery();
+    const lang = getUserLanguage(ctx.session.user);
+    await ctx.reply(
+      await t(lang, "main_menu"),
+      await getMainMenuKeyboard(lang)
+    );
+  } catch (error) {
+    logger.error("Error in show_main_menu:", error);
+  }
+});
+
+/**
  * Back to main menu from inline (just close the message)
  */
 bot.action("back_main", async (ctx) => {
@@ -1973,7 +1997,8 @@ bot.action(/approve_(.+)/, async (ctx) => {
     const greetingChannelSetting = await Settings.findOne({
       key: "greeting_channel",
     });
-    const greetingChannel = greetingChannelSetting?.value;
+    const greetingChannel =
+      greetingChannelSetting?.value || process.env.GREETING_CHANNEL_ID;
 
     // Get greeting text - handle both text and message fields
     const greetingText = greeting.message || greeting.caption || "(Matn yo'q)";
@@ -1981,15 +2006,18 @@ bot.action(/approve_(.+)/, async (ctx) => {
     // Send to channel if configured
     if (greetingChannel) {
       try {
-        // Format message with sender name and bot promotion
-        const senderName = greeting.firstName || "Anonim";
-        const botPromotion = `\n\n━━━━━━━━━━━━━━\n🤖 Siz ham @${process.env.BOT_USER || "RamazonCalendarBot"} orqali o'z tabrigingizni yuboring!`;
+        // Format message with bot promotion as requested
+        // Format: {Name} dan yangi tabrik \n\n {text} \n\n @RamazonCalendarBot orqali siz ham tabrik yo'llang
+        const botPromotion = `\n\n@${process.env.BOT_USER || "RamazonCalendarBot"} orqali siz ham tabrik yo'llang`;
+        const senderName = greeting.firstName || "Foydalanuvchi";
+        const channelHeader = `${senderName} dan yangi tabrik\n\n`;
 
         let channelMsg;
+        let messageLink = "";
 
         if (greeting.messageType === "photo" && greeting.fileId) {
           // Send photo with caption
-          const photoCaption = `${greetingText}\n\n— ${senderName}${botPromotion}`;
+          const photoCaption = `${channelHeader}${greetingText}${botPromotion}`;
           channelMsg = await ctx.telegram.sendPhoto(
             greetingChannel,
             greeting.fileId,
@@ -1997,7 +2025,7 @@ bot.action(/approve_(.+)/, async (ctx) => {
           );
         } else if (greeting.messageType === "video" && greeting.fileId) {
           // Send video with caption
-          const videoCaption = `${greetingText}\n\n— ${senderName}${botPromotion}`;
+          const videoCaption = `${channelHeader}${greetingText}${botPromotion}`;
           channelMsg = await ctx.telegram.sendVideo(
             greetingChannel,
             greeting.fileId,
@@ -2005,7 +2033,7 @@ bot.action(/approve_(.+)/, async (ctx) => {
           );
         } else {
           // Send text message
-          const formattedMessage = `${greetingText}\n\n— ${senderName}${botPromotion}`;
+          const formattedMessage = `${channelHeader}${greetingText}${botPromotion}`;
           channelMsg = await ctx.telegram.sendMessage(
             greetingChannel,
             formattedMessage,
@@ -2013,9 +2041,36 @@ bot.action(/approve_(.+)/, async (ctx) => {
           );
         }
 
+        // Construct message link
+        if (channelMsg) {
+          try {
+            const chat = await ctx.telegram.getChat(greetingChannel);
+            if (chat.username) {
+              messageLink = `https://t.me/${chat.username}/${channelMsg.message_id}`;
+            } else {
+              // For private channels, use the c/ID format if possible
+              const chatIdStr = greetingChannel.toString().replace("-100", "");
+              messageLink = `https://t.me/c/${chatIdStr}/${channelMsg.message_id}`;
+            }
+          } catch (e) {
+            console.error("Error getting chat info for link:", e);
+          }
+        }
+
         await ctx.reply(
-          `✅ Tabrik tasdiqlandi va kanalga yuborildi!\n👤 ${greeting.firstName} (@${greeting.username || "no_username"})\n\n${greetingText.substring(0, 100)}...`
+          `✅ Tabrik tasdiqlandi va kanalga yuborildi!\n👤 ${greeting.firstName} (@${greeting.username || "no_username"})\n\n${greetingText.substring(0, 100)}...${messageLink ? `\n\n🔗 Havola: ${messageLink}` : ""}`
         );
+
+        // Send notification to user with link
+        try {
+          const userNotification = messageLink
+            ? `✅ Sizning tabrigingiz tasdiqlandi va kanalga joylandi!\n\n🔗 Tabrikingizni ko'rish: ${messageLink}\n\nRahmat 🙏`
+            : "✅ Sizning tabrigingiz tasdiqlandi va kanalga joylandi!\n\nRahmat 🙏";
+
+          await ctx.telegram.sendMessage(greeting.userId, userNotification);
+        } catch (userError) {
+          console.error("Error notifying user:", userError.message);
+        }
       } catch (channelError) {
         console.error("Error sending to channel:", channelError);
         await ctx.reply(
@@ -2026,16 +2081,16 @@ bot.action(/approve_(.+)/, async (ctx) => {
       await ctx.reply(
         `✅ Tabrik tasdiqlandi!\n⚠️ Kanal sozlanmagan, kanalga yuborilmadi.\n👤 ${greeting.firstName} (@${greeting.username || "no_username"})\n\n${greetingText.substring(0, 100)}...`
       );
-    }
 
-    // Send notification to user
-    try {
-      await ctx.telegram.sendMessage(
-        greeting.userId,
-        "✅ Sizning tabrigingiz tasdiqlandi va kanalga joylandi!\n\nRahmat 🙏"
-      );
-    } catch (userError) {
-      console.error("Error notifying user:", userError.message);
+      // Send basic notification to user if channel not set
+      try {
+        await ctx.telegram.sendMessage(
+          greeting.userId,
+          "✅ Sizning tabrigingiz tasdiqlandi!\n\nRahmat 🙏"
+        );
+      } catch (userError) {
+        console.error("Error notifying user:", userError.message);
+      }
     }
   } catch (error) {
     console.error("Error approving greeting:", error);
@@ -2174,8 +2229,7 @@ async function startBot() {
     // Wait for connection to stabilize
     await new Promise((resolve) => setTimeout(resolve, 2000));
 
-    // Initialize default settings
-    console.log("⚙️ Initializing settings...");
+    // Initialize default settings quietly
     const defaultSettings = [
       {
         key: "required_channel",
@@ -2222,6 +2276,37 @@ async function startBot() {
         value: process.env.RAMADAN_DATE || "2026-02-17",
         description: "Ramazon boshlanish sanasi",
       },
+      {
+        key: "terms_enabled",
+        value: false,
+        description: "Foydalanish shartlari faolligi (true/false)",
+      },
+      {
+        key: "terms_url",
+        value: "",
+        description: "Foydalanish shartlari havola (link)",
+      },
+      {
+        key: "terms_delay_hours",
+        value: 6,
+        description: "Foydalanish shartlarini so'rash kechikishi (soat)",
+      },
+      {
+        key: "phone_request_enabled",
+        value: false,
+        description: "Telefon raqam so'rash faolligi (true/false)",
+      },
+      {
+        key: "phone_delay_hours",
+        value: 12,
+        description: "Telefon raqamni so'rash kechikishi (soat)",
+      },
+      {
+        key: "returning_user_threshold_days",
+        value: 150,
+        description:
+          "Eski userni yangilash chegarasi (kun). Shu vaqtdan ko'p kirilmagan bo'lsa, kechikish va shartlar tiklanadi.",
+      },
     ];
 
     for (const setting of defaultSettings) {
@@ -2242,14 +2327,11 @@ async function startBot() {
       console.log(`✅ Superadmin set: ${adminId}`);
     }
 
-    // Start Admin API FIRST
-    console.log("🚀 Starting Admin API...");
+    // Start Admin API
     await startAdminAPI();
 
-    // Initialize Message Queue (for bulk messaging)
-    console.log("📨 Initializing Message Queue...");
+    // Initialize Message Queue
     global.messageQueue = new MessageQueue(bot);
-    console.log("✅ Message Queue ready");
 
     // Initialize prayer reminder system (lazy loading, non-blocking)
     console.log("🔔 Initializing prayer reminder system...");
@@ -2257,24 +2339,15 @@ async function startBot() {
       console.error("Reminder init error:", err.message);
     });
 
-    // Initialize Redis cache (non-blocking)
-    console.log("\n🔄 Initializing Redis cache...");
+    // Initialize Redis cache
     const redisCache = new RedisCache();
     redisCache
       .initialize()
       .then(() => {
-        // Set Redis cache for aladhan.js after initialization
         setRedisCache(redisCache);
-
-        if (redisCache.isAvailable()) {
-          console.log("✅ Redis cache enabled for prayer times");
-        } else {
-          console.log("⚠️ Redis cache disabled - using database only");
-        }
       })
       .catch((err) => {
-        console.error("❌ Redis initialization failed:", err.message);
-        console.log("⚠️ Continuing without Redis cache");
+        // Silent fail for Redis
       });
 
     // ==================== BOT ERROR HANDLER ====================
@@ -2293,7 +2366,7 @@ async function startBot() {
       }
 
       // Log error but DO NOT crash bot
-      logError(err, ctx, "Bot Update Error").catch(() => {
+      logger.logError(err, "Bot Update Error").catch(() => {
         // Ignore if logging fails
       });
     });
@@ -2308,42 +2381,29 @@ async function startBot() {
         dropPendingUpdates: true,
       })
       .then(async () => {
-        console.log("\n✅ Bot started successfully!");
-        console.log(`📱 Bot username: @${botUser}`);
-        console.log(`👨‍💼 Admin ID: ${adminId}`);
-
-        // Initialize error logger
-        initErrorLogger(bot);
-        console.log("✅ Error logger initialized");
+        console.log(`✅ Bot @${botUser} started. Admin ID: ${adminId}`);
 
         // Set default menu button for ALL users after bot starts
-        console.log("\n🔧 Setting menu button...");
         try {
           const miniAppUrl = process.env.MINI_APP_URL;
           if (miniAppUrl && miniAppUrl.startsWith("https://")) {
-            // Set default menu button with userId parameter
-            // When user opens, we'll set their specific userId
             await bot.telegram.callApi("setChatMenuButton", {
               menu_button: {
                 type: "web_app",
                 text: "📅 Taqvim",
                 web_app: {
-                  url: miniAppUrl, // Base URL, will add userId when user opens
+                  url: miniAppUrl,
                 },
               },
             });
-            console.log("✅ Default menu button set: " + miniAppUrl);
-          } else {
-            console.log("⚠️ MINI_APP_URL not configured or invalid");
           }
         } catch (menuError) {
-          console.error("❌ Menu button error:", menuError.message);
-          await logError(menuError, null, "Menu Button Setup");
+          logger.error("Menu button setup error", menuError);
         }
       })
       .catch(async (launchError) => {
         console.error("⚠️ Bot launch error:", launchError.message);
-        await logError(launchError, null, "Bot Launch");
+        logger.logError(launchError, "Bot Launch");
       });
 
     console.log("\n🎉 Backend API va Bot tayyor!\n");

@@ -117,7 +117,6 @@ async function schedulePrayerReminders(bot, user) {
       try {
         // Skip if time is undefined
         if (!prayer.time || typeof prayer.time !== "string") {
-          console.warn(`Skipping ${prayer.name}: time is undefined`);
           continue;
         }
 
@@ -141,9 +140,6 @@ async function schedulePrayerReminders(bot, user) {
               try {
                 // Check if already sent (prevent duplicates)
                 if (wasReminderSent(user.userId, prayer.name, "before")) {
-                  console.log(
-                    `⏭️ Skipping duplicate reminder for ${user.userId} - ${prayer.name}`
-                  );
                   return;
                 }
 
@@ -163,7 +159,13 @@ async function schedulePrayerReminders(bot, user) {
                       inline_keyboard: [
                         [
                           {
-                            text: "🔕 Eslatmalarni o'chirish",
+                            text: "🏠 Asosiy menyu",
+                            callback_data: "show_main_menu",
+                          },
+                        ],
+                        [
+                          {
+                            text: "🔕 Eslatmalarni o'chirib qo'yish",
                             callback_data: "disable_all_reminders",
                           },
                         ],
@@ -175,9 +177,6 @@ async function schedulePrayerReminders(bot, user) {
                   if (sendError.response?.error_code === 429) {
                     const retryAfter =
                       sendError.response.parameters?.retry_after || 1;
-                    console.warn(
-                      `⚠️ Rate limited for user ${user.userId}. Retry after ${retryAfter}s`
-                    );
                     // Wait and retry once
                     await new Promise((resolve) =>
                       setTimeout(resolve, retryAfter * 1000)
@@ -196,9 +195,6 @@ async function schedulePrayerReminders(bot, user) {
                     });
                   } else if (sendError.response?.error_code === 403) {
                     // User blocked the bot
-                    console.warn(
-                      `⚠️ User ${user.userId} blocked the bot. Disabling reminders.`
-                    );
                     const User = require("../models/User");
                     await User.updateOne(
                       { userId: user.userId },
@@ -231,9 +227,6 @@ async function schedulePrayerReminders(bot, user) {
             try {
               // Check if already sent (prevent duplicates)
               if (wasReminderSent(user.userId, prayer.name, "at")) {
-                console.log(
-                  `⏭️ Skipping duplicate at-prayer reminder for ${user.userId} - ${prayer.name}`
-                );
                 return;
               }
 
@@ -252,7 +245,13 @@ async function schedulePrayerReminders(bot, user) {
                     inline_keyboard: [
                       [
                         {
-                          text: "🔕 Eslatmalarni o'chirish",
+                          text: "🏠 Asosiy menyu",
+                          callback_data: "show_main_menu",
+                        },
+                      ],
+                      [
+                        {
+                          text: "🔕 Eslatmalarni o'chirib qo'yish",
                           callback_data: "disable_all_reminders",
                         },
                       ],
@@ -264,9 +263,6 @@ async function schedulePrayerReminders(bot, user) {
                 if (sendError.response?.error_code === 429) {
                   const retryAfter =
                     sendError.response.parameters?.retry_after || 1;
-                  console.warn(
-                    `⚠️ Rate limited for user ${user.userId}. Retry after ${retryAfter}s`
-                  );
                   // Wait and retry once
                   await new Promise((resolve) =>
                     setTimeout(resolve, retryAfter * 1000)
@@ -285,9 +281,6 @@ async function schedulePrayerReminders(bot, user) {
                   });
                 } else if (sendError.response?.error_code === 403) {
                   // User blocked the bot
-                  console.warn(
-                    `⚠️ User ${user.userId} blocked the bot. Disabling reminders.`
-                  );
                   const User = require("../models/User");
                   await User.updateOne(
                     { userId: user.userId },
@@ -367,7 +360,6 @@ function cancelUserReminders(userId) {
       }
     });
     activeJobs.delete(userId);
-    console.log(`✅ Cancelled reminders for user ${userId}`);
   }
 }
 
@@ -386,9 +378,6 @@ async function initializeAllReminders(bot) {
       "location.latitude": { $exists: true },
       "location.longitude": { $exists: true },
     });
-
-    console.log(`🔔 Reminder system ready for ${count} users (lazy loading)`);
-    console.log(`   Reminders will be scheduled when users interact with bot`);
 
     // Store bot reference globally for lazy scheduling
     global.reminderBot = bot;
@@ -417,8 +406,6 @@ async function initializeAllReminders(bot) {
           // Small delay
           await new Promise((resolve) => setTimeout(resolve, 50));
         }
-
-        console.log(`✅ Pre-scheduled reminders for ${scheduled} active users`);
       } catch (err) {
         console.error("Background reminder init error:", err.message);
       }

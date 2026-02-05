@@ -405,25 +405,22 @@ router.post("/bot-token", authMiddleware, superAdminOnly, async (req, res) => {
 // Set terms settings
 router.post("/terms", authMiddleware, superAdminOnly, async (req, res) => {
   try {
-    const { enabled, url, recheckDays, initialDelayDays } = req.body;
+    const { enabled, url, recheckDays, delayHours } = req.body;
 
     await Settings.setSetting("terms_enabled", enabled);
     await Settings.setSetting("terms_url", url);
     await Settings.setSetting("terms_recheck_days", recheckDays);
-    await Settings.setSetting(
-      "terms_initial_delay_days",
-      initialDelayDays || 0
-    );
+    await Settings.setSetting("terms_delay_hours", delayHours || 0);
 
     await logger.logAdminAction(
       req.user,
       "Terms sozlamalari yangilandi",
-      `enabled: ${enabled}, url: ${url}, recheckDays: ${recheckDays}, initialDelayDays: ${initialDelayDays}`
+      `enabled: ${enabled}, url: ${url}, recheckDays: ${recheckDays}, delayHours: ${delayHours}`
     );
 
     res.json({
       message: "Terms sozlamalari saqlandi!",
-      settings: { enabled, url, recheckDays, initialDelayDays },
+      settings: { enabled, url, recheckDays, delayHours },
     });
   } catch (error) {
     logger.error("Set terms settings error:", error);
@@ -434,20 +431,21 @@ router.post("/terms", authMiddleware, superAdminOnly, async (req, res) => {
 // Set phone request settings
 router.post("/phone", authMiddleware, superAdminOnly, async (req, res) => {
   try {
-    const { enabled, recheckDays } = req.body;
+    const { enabled, recheckDays, delayHours } = req.body;
 
     await Settings.setSetting("phone_request_enabled", enabled);
     await Settings.setSetting("phone_recheck_days", recheckDays);
+    await Settings.setSetting("phone_delay_hours", delayHours || 0);
 
     await logger.logAdminAction(
       req.user,
       "Telefon so'rash sozlamalari yangilandi",
-      `enabled: ${enabled}, recheckDays: ${recheckDays}`
+      `enabled: ${enabled}, recheckDays: ${recheckDays}, delayHours: ${delayHours}`
     );
 
     res.json({
       message: "Telefon sozlamalari saqlandi!",
-      settings: { enabled, recheckDays },
+      settings: { enabled, recheckDays, delayHours },
     });
   } catch (error) {
     logger.error("Set phone settings error:", error);

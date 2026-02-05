@@ -79,7 +79,6 @@ async function getPrayerTimes(
       try {
         const cachedData = await redisCache.get(cacheKey);
         if (cachedData) {
-          console.log(`✅ Redis cache hit for ${locationKey} on ${dateStr}`);
           return cachedData;
         }
       } catch (cacheError) {
@@ -330,8 +329,6 @@ async function getPrayerTimes(
         .lean();
 
       if (lastData) {
-        console.log(`⚠️ API failed, using saved data from ${lastData.date}`);
-
         // Get hijri date from API
         const hijriDate = await getHijriDate();
 
@@ -365,8 +362,6 @@ async function getPrayerTimes(
         .lean();
 
       if (nearbyData) {
-        console.log(`⚠️ Using nearby location data: ${nearbyData.locationKey}`);
-
         // Get hijri date from API
         const hijriDate = await getHijriDate();
 

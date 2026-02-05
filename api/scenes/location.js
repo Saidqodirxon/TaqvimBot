@@ -8,6 +8,7 @@ const {
   getCitiesByRegion,
   getAllRegions,
   getTopCities,
+  searchCities,
 } = require("../utils/nearestCity");
 
 // Location Scene
@@ -18,18 +19,51 @@ locationScene.enter(async (ctx) => {
     const user = ctx.session.user;
     const lang = getUserLanguage(user);
 
-    // Show main options: GPS, Manual by Region, or Top Cities
-    const buttons = [
-      [Markup.button.callback(await t(lang, "btn_gps_location"), "send_gps")],
-      [Markup.button.callback("🏙️ Mashhur shaharlar", "top_cities")],
-      [Markup.button.callback("🗺️ Viloyat bo'yicha", "select_region")],
-      [Markup.button.callback(await t(lang, "btn_back_menu"), "back_to_menu")],
-    ];
+    // Get 12 most popular cities
+    const topCities = await getTopCities(12);
 
-    await ctx.reply(
-      await t(lang, "select_location_method"),
-      Markup.inlineKeyboard(buttons)
-    );
+    // Build buttons (2 cities per row)
+    const buttons = [];
+    for (let i = 0; i < topCities.length; i += 2) {
+      const row = [];
+      const citiesInRow = topCities.slice(i, i + 2);
+
+      for (const city of citiesInRow) {
+        let cityName = city.nameUz || city.name;
+        if (lang === "cr") cityName = city.nameCyrillic || city.name;
+        if (lang === "ru") cityName = city.nameRu || city.name;
+
+        row.push(
+          Markup.button.callback(
+            `📍 ${cityName}`,
+            `select_location_${city._id}`
+          )
+        );
+      }
+      buttons.push(row);
+    }
+
+    // Add utility buttons
+    buttons.push([
+      Markup.button.callback("🗺️ Viloyatlar", "select_region"),
+      Markup.button.callback("🛰️ GPS (Auto)", "send_gps"),
+    ]);
+
+    buttons.push([
+      Markup.button.callback(await t(lang, "btn_back_menu"), "back_to_menu"),
+    ]);
+
+    const instruction =
+      lang === "uz"
+        ? "📍 <b>Joylashuvingizni tanlang:</b>\n\nQuyidagi ro'yxatdan tanlang yoki shahringiz nomini <b>yozib yuboring</b> (masalan: <i>Namangan</i>)"
+        : lang === "ru"
+          ? "📍 <b>Выберите ваше местоположение:</b>\n\nВыберите из списка ниже или <b>введите</b> название города (например: <i>Самарканд</i>)"
+          : "📍 <b>Жойлашувингизни танланг:</b>\n\nҚуйидаги рўйхатдан танланг ёki шаҳрингиз номини <b>ёзиб юборинг</b> (масалан: <i>Наманган</i>)";
+
+    await ctx.reply(instruction, {
+      parse_mode: "HTML",
+      ...Markup.inlineKeyboard(buttons),
+    });
   } catch (error) {
     console.error("Error entering location scene:", error);
     const lang = getUserLanguage(ctx.session.user);
@@ -596,6 +630,70 @@ locationScene.hears(/❌|Bekor|Отмена|Cancel/, async (ctx) => {
     ...(await getMainMenuKeyboard(lang)),
   });
   await ctx.scene.leave();
+});
+
+// Handle search by name
+locationScene.on("text", async (ctx) => {
+  try {
+    const query = ctx.message.text;
+    const user = ctx.session.user;
+    const lang = getUserLanguage(user);
+
+    // Filter out menu/back buttons
+    if (
+      query.startsWith("/") ||
+      query.includes("Orqaga") ||
+      query.includes("Back") ||
+      query.includes("Назад") ||
+      query.includes("Bekor") ||
+      query.includes("Отмена") ||
+      query.includes("Cancel")
+    ) {
+      if (!query.startsWith("/")) {
+        await ctx.reply(
+          await t(lang, "main_menu"),
+          await getMainMenuKeyboard(lang)
+        );
+        return await ctx.scene.leave();
+      }
+      return;
+    }
+
+    const results = await searchCities(query, 10);
+
+    if (results.length === 0) {
+      await ctx.reply(
+        lang === "ru"
+          ? "❓ Город не найден. Попробуйте ввести другое название или выберите из списка."
+          : "❓ Shahar topilmadi. Boshqa nom kiritib ko'ring yoki ro'yxatdan tanlang."
+      );
+      return;
+    }
+
+    const buttons = results.map((city) => {
+      let cityName = city.nameUz || city.name;
+      if (lang === "cr") cityName = city.nameCyrillic || city.name;
+      if (lang === "ru") cityName = city.nameRu || city.name;
+
+      return [
+        Markup.button.callback(
+          `📍 ${cityName} (${city.region})`,
+          `select_location_${city._id}`
+        ),
+      ];
+    });
+
+    buttons.push([
+      Markup.button.callback("◀️ Orqaga", "back_to_location_menu"),
+    ]);
+
+    await ctx.reply(
+      lang === "ru" ? "🔍 Результаты поиска:" : "🔍 Qidiruv natijalari:",
+      Markup.inlineKeyboard(buttons)
+    );
+  } catch (error) {
+    console.error("Error in location search:", error);
+  }
 });
 
 // Handle any command - leave scene
