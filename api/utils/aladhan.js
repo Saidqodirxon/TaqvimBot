@@ -504,15 +504,16 @@ function getNextPrayer(timings) {
   const currentTime = now.getHours() * 60 + now.getMinutes();
 
   const prayers = [
-    { name: "Bomdod", time: timings.fajr },
-    { name: "Quyosh", time: timings.sunrise },
-    { name: "Peshin", time: timings.dhuhr },
-    { name: "Asr", time: timings.asr },
-    { name: "Shom", time: timings.maghrib },
-    { name: "Xufton", time: timings.isha },
+    { name: "Bomdod", time: timings?.fajr },
+    { name: "Quyosh", time: timings?.sunrise },
+    { name: "Peshin", time: timings?.dhuhr },
+    { name: "Asr", time: timings?.asr },
+    { name: "Shom", time: timings?.maghrib },
+    { name: "Xufton", time: timings?.isha },
   ];
 
   for (const prayer of prayers) {
+    if (!prayer.time) continue;
     const [hours, minutes] = prayer.time.split(":").map(Number);
     const prayerTime = hours * 60 + minutes;
 

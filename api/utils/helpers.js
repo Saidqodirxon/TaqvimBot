@@ -40,6 +40,7 @@ function formatDate(date, format = "DD.MM.YYYY HH:mm") {
  * Check if user is admin
  */
 function isAdmin(userId) {
+  if (!userId) return false;
   const adminId = process.env.ADMIN_ID;
   return userId.toString() === adminId;
 }

@@ -1563,7 +1563,14 @@ bot.action("calendar_weekly", async (ctx) => {
       },
     });
   } catch (error) {
-    logger.error("Error in calendar_weekly:", error);
+    if (
+      error.description &&
+      error.description.includes("message is not modified")
+    ) {
+      // Ignore this error
+      return;
+    }
+    logger.error(`Error in calendar_weekly (User: ${ctx.from?.id}):`, error);
   }
 });
 
@@ -2469,6 +2476,7 @@ async function startAdminAPI() {
           password: hashedPassword,
           firstName: "Admin",
           role: "superadmin",
+          isActive: true,
         });
         console.log("✅ Web admin created: username='admin', password='admin'");
       } else {
