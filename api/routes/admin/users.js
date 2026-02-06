@@ -35,6 +35,11 @@ router.get("/", authMiddleware, async (req, res) => {
       }
     }
 
+    // Filter by phone number existence
+    if (req.query.hasPhone === "true") {
+      query.phoneNumber = { $exists: true, $ne: null };
+    }
+
     const [total, delaySettings] = await Promise.all([
       User.countDocuments(query).maxTimeMS(5000),
       Settings.getSetting("channel_join_delay", { days: 0, hours: 0 }),

@@ -169,8 +169,8 @@ greetingScene.action("confirm", async (ctx) => {
     const botUser = process.env.BOT_USER;
 
     if (adminId) {
-      const adminMessage = `💌 Yangi tabrik:\n\n👤 ${
-        greetingData.firstName
+      const adminMessage = `💌 Yangi tabrik:\n\n👤 ${greetingData.firstName} ${
+        user.last_name || ""
       } (@${greetingData.username || "yo'q"})\n🆔 ${greetingData.userId}\n\n${
         greetingData.message || greetingData.caption || ""
       }`;

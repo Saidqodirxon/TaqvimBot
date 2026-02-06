@@ -211,6 +211,26 @@ class MessageQueue {
     console.log(`   Failed: ${this.stats.failed}`);
     console.log(`   Duration: ${duration}s`);
     console.log(`   Avg Rate: ${avgRate} msg/s\n`);
+
+    // Notify admin
+    const adminId = process.env.ADMIN_ID;
+    if (adminId) {
+      try {
+        await this.bot.telegram.sendMessage(
+          adminId,
+          `✅ <b>Broadcast yakunlandi!</b>\n\n` +
+            `📊 <b>Statistika:</b>\n` +
+            `👥 Jami: ${this.stats.total}\n` +
+            `✅ Yuborildi: ${this.stats.sent}\n` +
+            `❌ Xatolik: ${this.stats.failed}\n` +
+            `⏱ Vaqt: ${duration} soniya\n` +
+            `⚡️ Tezlik: ${avgRate} xabar/sek`,
+          { parse_mode: "HTML" }
+        );
+      } catch (e) {
+        console.error("Failed to send broadcast report to admin", e);
+      }
+    }
   }
 
   /**

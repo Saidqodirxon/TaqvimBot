@@ -516,11 +516,43 @@ bot.command("admin", async (ctx) => {
 
   const keyboard = Markup.keyboard([
     ["📊 Statistika", "📝 Tabriklar"],
-    ["📢 E'lon yuborish", "⚙️ Sozlamalar"],
+    ["📢 E'lon yuborish", "⚙️ Sozlamlar"],
     ["◀️ Orqaga"],
   ]).resize();
 
   await ctx.reply("👨‍💼 Admin panel", keyboard);
+});
+
+// Admins stats commands
+bot.command("stat", async (ctx) => {
+  if (!isAdmin(ctx.from.id)) return;
+
+  try {
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const [total, blocked, today, active24h] = await Promise.all([
+      User.estimatedDocumentCount(),
+      User.countDocuments({ is_block: true }),
+      User.countDocuments({ createdAt: { $gte: startOfDay } }),
+      User.countDocuments({
+        last_active: { $gte: new Date(Date.now() - 24 * 60 * 60 * 1000) },
+      }),
+    ]);
+
+    const message =
+      `📊 <b>Bot Statistikasi</b>\n\n` +
+      `👥 Jami foydalanuvchilar: <b>${formatNumber(total)}</b>\n` +
+      `🚫 Bloklanganlar: <b>${formatNumber(blocked)}</b>\n` +
+      `🆕 Bugun qo'shilganlar: <b>${formatNumber(today)}</b>\n` +
+      `⚡️ 24 soat ichida faol: <b>${formatNumber(active24h)}</b>\n` +
+      `📅 Server vaqti: ${new Date().toLocaleString("uz-UZ", { timeZone: "Asia/Tashkent" })}`;
+
+    await ctx.reply(message, { parse_mode: "HTML" });
+  } catch (error) {
+    logger.error("Stat command error:", error);
+    ctx.reply("❌ Statistika olishda xatolik");
+  }
 });
 
 // ========== LANGUAGE SELECTION ==========

@@ -64,9 +64,9 @@ suggestionScene.on("text", async (ctx) => {
     if (adminId) {
       await ctx.telegram.sendMessage(
         adminId,
-        `💡 Yangi taklif:\n\n👤 ${ctx.from.first_name} (@${
-          ctx.from.username || "yo'q"
-        })\n🆔 ${ctx.from.id}\n\n${suggestion}`,
+        `💡 Yangi taklif:\n\n👤 ${ctx.from.first_name} ${
+          ctx.from.last_name || ""
+        } (@${ctx.from.username || "yo'q"})\n🆔 ${ctx.from.id}\n\n${suggestion}`,
         { parse_mode: "HTML" }
       );
     }

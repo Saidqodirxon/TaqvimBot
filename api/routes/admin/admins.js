@@ -40,22 +40,35 @@ router.get("/:userId", async (req, res) => {
  */
 router.post("/", async (req, res) => {
   try {
-    const { userId, username, firstName, role, permissions } = req.body;
+    const { userId, username, password, firstName, role, permissions } =
+      req.body;
     // Check if admin already exists
     const existingAdmin = await Admin.findOne({ userId });
     if (existingAdmin) {
       return res.status(400).json({ error: "Admin already exists" });
     }
+
+    // Require password
+    if (!password) {
+      return res.status(400).json({ error: "Parol majburiy" });
+    }
+
+    const bcrypt = require("bcryptjs");
+    const hashedPassword = await bcrypt.hash(password, 10);
+
     // Get default permissions for role or use custom
     const adminPermissions =
       permissions || Admin.getDefaultPermissions(role || "moderator");
+
     const admin = new Admin({
       userId,
       username,
+      password: hashedPassword,
       firstName,
       role: role || "moderator",
       permissions: adminPermissions,
       addedBy: req.user?.id, // from auth middleware
+      isActive: true,
     });
     await admin.save();
     await logger.logAdminAction(
