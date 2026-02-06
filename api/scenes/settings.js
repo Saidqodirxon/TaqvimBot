@@ -149,13 +149,19 @@ settingsScene.action(/toggle_prayer_(.+)/, async (ctx) => {
         "enable_all_reminders"
       );
 
-  await ctx.editMessageText(
-    (await t(lang, "configure_reminders")) +
-      `\n\n⏱ ${await t(lang, "current_reminder_time")}: ${
-        user.reminderSettings.minutesBefore
-      } ${await t(lang, "minutes")}`,
-    Markup.inlineKeyboard([...buttons, minuteButtons, [toggleAllButton]])
-  );
+  try {
+    await ctx.editMessageText(
+      (await t(lang, "configure_reminders")) +
+        `\n\n⏱ ${await t(lang, "current_reminder_time")}: ${
+          user.reminderSettings.minutesBefore
+        } ${await t(lang, "minutes")}`,
+      Markup.inlineKeyboard([...buttons, minuteButtons, [toggleAllButton]])
+    );
+  } catch (error) {
+    if (!error.description?.includes("message is not modified")) {
+      throw error;
+    }
+  }
 });
 
 // Set minutes before
@@ -290,13 +296,19 @@ settingsScene.action("disable_all_reminders", async (ctx) => {
     "enable_all_reminders"
   );
 
-  await ctx.editMessageText(
-    (await t(lang, "configure_reminders")) +
-      `\n\n⏱ ${await t(lang, "current_reminder_time")}: ${
-        user.reminderSettings.minutesBefore
-      } ${await t(lang, "minutes")}`,
-    Markup.inlineKeyboard([...buttons, minuteButtons, [toggleAllButton]])
-  );
+  try {
+    await ctx.editMessageText(
+      (await t(lang, "configure_reminders")) +
+        `\n\n⏱ ${await t(lang, "current_reminder_time")}: ${
+          user.reminderSettings.minutesBefore
+        } ${await t(lang, "minutes")}`,
+      Markup.inlineKeyboard([...buttons, minuteButtons, [toggleAllButton]])
+    );
+  } catch (error) {
+    if (!error.description?.includes("message is not modified")) {
+      throw error;
+    }
+  }
 });
 
 // Enable all reminders
@@ -353,13 +365,19 @@ settingsScene.action("enable_all_reminders", async (ctx) => {
     "disable_all_reminders"
   );
 
-  await ctx.editMessageText(
-    (await t(lang, "configure_reminders")) +
-      `\n\n⏱ ${await t(lang, "current_reminder_time")}: ${
-        user.reminderSettings.minutesBefore
-      } ${await t(lang, "minutes")}`,
-    Markup.inlineKeyboard([...buttons, minuteButtons, [toggleAllButton]])
-  );
+  try {
+    await ctx.editMessageText(
+      (await t(lang, "configure_reminders")) +
+        `\n\n⏱ ${await t(lang, "current_reminder_time")}: ${
+          user.reminderSettings.minutesBefore
+        } ${await t(lang, "minutes")}`,
+      Markup.inlineKeyboard([...buttons, minuteButtons, [toggleAllButton]])
+    );
+  } catch (error) {
+    if (!error.description?.includes("message is not modified")) {
+      throw error;
+    }
+  }
 });
 
 // Change location
@@ -499,10 +517,16 @@ settingsScene.action("select_calc_method", async (ctx) => {
     Markup.button.callback(await t(lang, "btn_back"), "back_prayer_settings"),
   ]);
 
-  await ctx.editMessageText(
-    await t(lang, "select_calculation_method"),
-    Markup.inlineKeyboard(buttons)
-  );
+  try {
+    await ctx.editMessageText(
+      await t(lang, "select_calculation_method"),
+      Markup.inlineKeyboard(buttons)
+    );
+  } catch (error) {
+    if (!error.description?.includes("message is not modified")) {
+      throw error;
+    }
+  }
 });
 
 // Set calculation method
@@ -599,10 +623,16 @@ settingsScene.action("select_madhab", async (ctx) => {
     Markup.button.callback(await t(lang, "btn_back"), "back_prayer_settings"),
   ]);
 
-  await ctx.editMessageText(
-    await t(lang, "select_madhab"),
-    Markup.inlineKeyboard(buttons)
-  );
+  try {
+    await ctx.editMessageText(
+      await t(lang, "select_madhab"),
+      Markup.inlineKeyboard(buttons)
+    );
+  } catch (error) {
+    if (!error.description?.includes("message is not modified")) {
+      throw error;
+    }
+  }
 });
 
 // Set madhab
