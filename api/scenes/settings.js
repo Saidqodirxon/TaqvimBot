@@ -213,14 +213,22 @@ settingsScene.action(/set_minutes_(\d+)/, async (ctx) => {
         "enable_all_reminders"
       );
 
-  await ctx.editMessageText(
-    (await t(lang, "configure_reminders")) +
-      `\n\n⏱ ${await t(lang, "current_reminder_time")}: ${minutes} ${await t(
-        lang,
-        "minutes"
-      )}`,
-    Markup.inlineKeyboard([...buttons, minuteButtons, [toggleAllButton]])
-  );
+  try {
+    await ctx.editMessageText(
+      (await t(lang, "configure_reminders")) +
+        `\n\n⏱ ${await t(lang, "current_reminder_time")}: ${minutes} ${await t(
+          lang,
+          "minutes"
+        )}`,
+      Markup.inlineKeyboard([...buttons, minuteButtons, [toggleAllButton]])
+    );
+  } catch (error) {
+    // Ignore "message is not modified" error
+    if (!error.description?.includes("message is not modified")) {
+      console.error("Error editing message:", error);
+      throw error;
+    }
+  }
 });
 
 // Back to settings
