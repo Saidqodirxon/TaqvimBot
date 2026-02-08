@@ -499,22 +499,47 @@ async function getMonthlyPrayerTimes(latitude, longitude, month, year) {
  * @param {Object} timings - Namoz vaqtlari
  * @returns {Object} Keyingi namoz
  */
+/**
+ * Yaqin namoz vaqtini aniqlash
+ * @param {Object} timings - Namoz vaqtlari
+ * @returns {Object} Keyingi namoz
+ */
 function getNextPrayer(timings) {
+  if (!timings) return null;
+
   const now = new Date();
   const currentTime = now.getHours() * 60 + now.getMinutes();
 
+  // Normalize timings keys (some sources might use capitalized keys)
+  const normalizedTimings = {};
+  for (const key in timings) {
+    normalizedTimings[key.toLowerCase()] = timings[key];
+  }
+
   const prayers = [
-    { name: "Bomdod", time: timings?.fajr },
-    { name: "Quyosh", time: timings?.sunrise },
-    { name: "Peshin", time: timings?.dhuhr },
-    { name: "Asr", time: timings?.asr },
-    { name: "Shom", time: timings?.maghrib },
-    { name: "Xufton", time: timings?.isha },
+    { name: "Bomdod", time: normalizedTimings.fajr },
+    { name: "Quyosh", time: normalizedTimings.sunrise },
+    { name: "Peshin", time: normalizedTimings.dhuhr },
+    { name: "Asr", time: normalizedTimings.asr },
+    { name: "Shom", time: normalizedTimings.maghrib },
+    { name: "Xufton", time: normalizedTimings.isha },
   ];
 
   for (const prayer of prayers) {
-    if (!prayer.time) continue;
-    const [hours, minutes] = prayer.time.split(":").map(Number);
+    if (
+      !prayer.time ||
+      typeof prayer.time !== "string" ||
+      !prayer.time.includes(":")
+    ) {
+      continue;
+    }
+
+    const parts = prayer.time.split(":");
+    const hours = parseInt(parts[0]);
+    const minutes = parseInt(parts[1]);
+
+    if (isNaN(hours) || isNaN(minutes)) continue;
+
     const prayerTime = hours * 60 + minutes;
 
     if (prayerTime > currentTime) {
@@ -531,23 +556,39 @@ function getNextPrayer(timings) {
   }
 
   // Agar barcha namozlar o'tgan bo'lsa, ertangi bomdodni ko'rsat
-  if (!prayers[0].time) {
+  const firstPrayer = prayers[0];
+  if (
+    !firstPrayer.time ||
+    typeof firstPrayer.time !== "string" ||
+    !firstPrayer.time.includes(":")
+  ) {
     return {
-      name: prayers[0].name,
-      time: "--:--",
+      name: firstPrayer.name,
+      time: typeof firstPrayer.time === "string" ? firstPrayer.time : "--:--",
       remaining: "Noma'lum",
     };
   }
 
-  const [hours, minutes] = prayers[0].time.split(":").map(Number);
+  const parts = firstPrayer.time.split(":");
+  const hours = parseInt(parts[0]);
+  const minutes = parseInt(parts[1]);
+
+  if (isNaN(hours) || isNaN(minutes)) {
+    return {
+      name: firstPrayer.name,
+      time: firstPrayer.time,
+      remaining: "Noma'lum",
+    };
+  }
+
   const prayerTime = hours * 60 + minutes;
   const diff = 24 * 60 - currentTime + prayerTime;
   const hoursLeft = Math.floor(diff / 60);
   const minutesLeft = diff % 60;
 
   return {
-    name: prayers[0].name,
-    time: prayers[0].time,
+    name: firstPrayer.name,
+    time: firstPrayer.time,
     remaining: `${hoursLeft} soat ${minutesLeft} daqiqa`,
   };
 }
