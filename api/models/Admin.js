@@ -25,12 +25,14 @@ const AdminSchema = new mongoose.Schema(
     permissions: {
       type: mongoose.Schema.Types.Mixed,
       default: {
-        users: true,
-        broadcast: true,
-        settings: true,
-        admins: true,
-        prayers: true,
-        greetings: true,
+        viewUsers: true,
+        editUsers: true,
+        viewBroadcast: true,
+        sendBroadcast: true,
+        viewSettings: false,
+        viewAdmins: false,
+        viewPrayers: true,
+        viewGreetings: true,
       },
     },
     addedBy: {
@@ -48,34 +50,59 @@ const AdminSchema = new mongoose.Schema(
 );
 
 AdminSchema.statics.getDefaultPermissions = function (role) {
+  const fullAccess = {
+    viewUsers: true,
+    editUsers: true,
+    deleteUsers: true,
+    viewBroadcast: true,
+    sendBroadcast: true,
+    viewPrayers: true,
+    editPrayers: true,
+    deletePrayers: true,
+    viewChannels: true,
+    editChannels: true,
+    viewSettings: true,
+    editSettings: true,
+    viewAdmins: true,
+    editAdmins: true,
+    deleteAdmins: true,
+    viewLogs: true,
+    viewSuggestions: true,
+    viewLocations: true,
+    viewGreetings: true,
+    viewTranslations: true,
+  };
+
   switch (role) {
     case "superadmin":
-      return {
-        users: true,
-        broadcast: true,
-        settings: true,
-        admins: true,
-        prayers: true,
-        greetings: true,
-      };
+      return fullAccess;
     case "admin":
       return {
-        users: true,
-        broadcast: true,
-        settings: false,
-        admins: false,
-        prayers: true,
-        greetings: true,
+        ...fullAccess,
+        viewSettings: false,
+        editSettings: false,
+        viewAdmins: false,
+        editAdmins: false,
+        deleteAdmins: false,
       };
     case "moderator":
     default:
       return {
-        users: true,
-        broadcast: false,
-        settings: false,
-        admins: false,
-        prayers: true,
-        greetings: true,
+        viewUsers: true,
+        editUsers: false,
+        deleteUsers: false,
+        viewBroadcast: false,
+        sendBroadcast: false,
+        viewPrayers: true,
+        editPrayers: false,
+        deletePrayers: false,
+        viewChannels: false,
+        viewSettings: false,
+        viewAdmins: false,
+        viewSuggestions: true,
+        viewLocations: false,
+        viewGreetings: true,
+        viewTranslations: false,
       };
   }
 };
