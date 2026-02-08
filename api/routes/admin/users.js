@@ -175,15 +175,42 @@ router.patch("/:userId/block", authMiddleware, async (req, res) => {
 // Make user admin
 router.patch("/:userId/admin", authMiddleware, async (req, res) => {
   try {
-    const { isAdmin, role } = req.body;
+    const { isAdmin, role, password, username } = req.body;
+    const userId = parseInt(req.params.userId);
+
     const user = await User.findOneAndUpdate(
-      { userId: parseInt(req.params.userId) },
+      { userId },
       { isAdmin, role },
       { new: true }
     );
+
     if (!user) {
       return res.status(404).json({ error: "Foydalanuvchi topilmadi" });
     }
+
+    // If making admin, also ensure they exist in Admin model for dashboard access
+    if (isAdmin) {
+      const Admin = require("../../models/Admin");
+      const bcrypt = require("bcrypt");
+
+      let adminData = {
+        userId,
+        username: username || user.username || `user_${userId}`,
+        firstName: user.firstName,
+        role: role || "moderator",
+        isActive: true,
+      };
+
+      if (password) {
+        adminData.password = await bcrypt.hash(password, 10);
+      }
+
+      await Admin.findOneAndUpdate({ userId }, adminData, {
+        upsert: true,
+        new: true,
+      });
+    }
+
     res.json({
       message: "Admin huquqi o'zgartirildi",
       user,

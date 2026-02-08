@@ -53,7 +53,7 @@ router.post("/", async (req, res) => {
       return res.status(400).json({ error: "Parol majburiy" });
     }
 
-    const bcrypt = require("bcryptjs");
+    const bcrypt = require("bcrypt");
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Get default permissions for role or use custom

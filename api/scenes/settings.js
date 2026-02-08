@@ -158,7 +158,7 @@ settingsScene.action(/toggle_prayer_(.+)/, async (ctx) => {
       Markup.inlineKeyboard([...buttons, minuteButtons, [toggleAllButton]])
     );
   } catch (error) {
-    if (!error.description?.includes("message is not modified")) {
+    const errorMsg = error.description || error.message || ""; if (!errorMsg.includes("message is not modified")) {
       throw error;
     }
   }
@@ -229,10 +229,9 @@ settingsScene.action(/set_minutes_(\d+)/, async (ctx) => {
       Markup.inlineKeyboard([...buttons, minuteButtons, [toggleAllButton]])
     );
   } catch (error) {
-    // Ignore "message is not modified" error
-    if (!error.description?.includes("message is not modified")) {
+    const errorMsg = error.description || error.message || "";
+    if (!errorMsg.includes("message is not modified")) {
       console.error("Error editing message:", error);
-      throw error;
     }
   }
 });
@@ -305,7 +304,7 @@ settingsScene.action("disable_all_reminders", async (ctx) => {
       Markup.inlineKeyboard([...buttons, minuteButtons, [toggleAllButton]])
     );
   } catch (error) {
-    if (!error.description?.includes("message is not modified")) {
+    const errorMsg = error.description || error.message || ""; if (!errorMsg.includes("message is not modified")) {
       throw error;
     }
   }
@@ -374,7 +373,7 @@ settingsScene.action("enable_all_reminders", async (ctx) => {
       Markup.inlineKeyboard([...buttons, minuteButtons, [toggleAllButton]])
     );
   } catch (error) {
-    if (!error.description?.includes("message is not modified")) {
+    const errorMsg = error.description || error.message || ""; if (!errorMsg.includes("message is not modified")) {
       throw error;
     }
   }
@@ -523,7 +522,7 @@ settingsScene.action("select_calc_method", async (ctx) => {
       Markup.inlineKeyboard(buttons)
     );
   } catch (error) {
-    if (!error.description?.includes("message is not modified")) {
+    const errorMsg = error.description || error.message || ""; if (!errorMsg.includes("message is not modified")) {
       throw error;
     }
   }
@@ -629,7 +628,7 @@ settingsScene.action("select_madhab", async (ctx) => {
       Markup.inlineKeyboard(buttons)
     );
   } catch (error) {
-    if (!error.description?.includes("message is not modified")) {
+    const errorMsg = error.description || error.message || ""; if (!errorMsg.includes("message is not modified")) {
       throw error;
     }
   }

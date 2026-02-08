@@ -531,6 +531,14 @@ function getNextPrayer(timings) {
   }
 
   // Agar barcha namozlar o'tgan bo'lsa, ertangi bomdodni ko'rsat
+  if (!prayers[0].time) {
+    return {
+      name: prayers[0].name,
+      time: "--:--",
+      remaining: "Noma'lum",
+    };
+  }
+
   const [hours, minutes] = prayers[0].time.split(":").map(Number);
   const prayerTime = hours * 60 + minutes;
   const diff = 24 * 60 - currentTime + prayerTime;
