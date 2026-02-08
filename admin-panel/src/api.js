@@ -49,8 +49,8 @@ export const users = {
   getById: (userId) => api.get(`/users/${userId}`),
   block: (userId, is_block) =>
     api.patch(`/users/${userId}/block`, { is_block }),
-  makeAdmin: (userId, isAdmin, role) =>
-    api.patch(`/users/${userId}/admin`, { isAdmin, role }),
+  makeAdmin: (userId, isAdmin, role, password, username) =>
+    api.patch(`/users/${userId}/admin`, { isAdmin, role, password, username }),
   sendMessage: (userId, message) =>
     api.post(`/users/${userId}/message`, { message }),
   reset: (userId) => api.delete(`/users/${userId}/reset`),

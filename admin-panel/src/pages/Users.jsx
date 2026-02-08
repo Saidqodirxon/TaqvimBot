@@ -59,8 +59,8 @@ function Users() {
   });
 
   const adminMutation = useMutation({
-    mutationFn: ({ userId, isAdmin, role }) =>
-      users.makeAdmin(userId, isAdmin, role),
+    mutationFn: ({ userId, isAdmin, role, password, username }) =>
+      users.makeAdmin(userId, isAdmin, role, password, username),
     onSuccess: () => {
       queryClient.invalidateQueries(["users"]);
     },
@@ -81,18 +81,36 @@ function Users() {
     }
   };
 
-  const handleMakeAdmin = (userId, currentlyAdmin) => {
-    if (
-      confirm(
-        currentlyAdmin
-          ? "Admin huquqini olib tashlansinmi?"
-          : "Admin qilinsinmi?"
-      )
-    ) {
+  const handleMakeAdmin = (userId, currentlyAdmin, userName) => {
+    if (currentlyAdmin) {
+      if (confirm("Admin huquqini olib tashlansinmi?")) {
+        adminMutation.mutate({
+          userId,
+          isAdmin: false,
+          role: "user",
+        });
+      }
+    } else {
+      const password = prompt(
+        `Foydalanuvchi (${userName}) uchun admin parolini o'rnating:`
+      );
+      if (password === null) return; // Cancelled
+      if (!password) {
+        alert("Parol majburiy!");
+        return;
+      }
+
+      const customUsername = prompt(
+        `Foydalanuvchi uchun admin username o'rnating (bo'sh qolsa Telegram username ishlatiladi):`,
+        ""
+      );
+
       adminMutation.mutate({
         userId,
-        isAdmin: !currentlyAdmin,
-        role: currentlyAdmin ? "user" : "admin",
+        isAdmin: true,
+        role: "admin",
+        password,
+        username: customUsername || undefined,
       });
     }
   };
@@ -373,8 +391,8 @@ function Users() {
                     <td>
                       <span
                         className={`badge ${user.delayRemaining > 0
-                            ? "badge-warning"
-                            : "badge-secondary"
+                          ? "badge-warning"
+                          : "badge-secondary"
                           }`}
                         title={`Jami kechikish: ${Math.round(
                           user.delayMs / 1000 / 60 / 60
@@ -424,7 +442,7 @@ function Users() {
                         <button
                           className="btn-icon primary"
                           onClick={() =>
-                            handleMakeAdmin(user.userId, user.isAdmin)
+                            handleMakeAdmin(user.userId, user.isAdmin, user.firstName)
                           }
                           title={
                             user.isAdmin ? "Adminlikdan olish" : "Admin qilish"

@@ -38,6 +38,7 @@ function Admins() {
   const [newAdmin, setNewAdmin] = useState({
     userId: "",
     username: "",
+    password: "",
     firstName: "",
     role: "moderator",
     permissions: {},
@@ -63,8 +64,8 @@ function Admins() {
   };
 
   const handleAddAdmin = async () => {
-    if (!newAdmin.userId || !newAdmin.username || !newAdmin.firstName) {
-      alert("Barcha maydonlarni to'ldiring");
+    if (!newAdmin.userId || !newAdmin.username || !newAdmin.firstName || !newAdmin.password) {
+      alert("Barcha maydonlarni, jumladan parolni ham to'ldiring");
       return;
     }
 
@@ -77,6 +78,7 @@ function Admins() {
       setNewAdmin({
         userId: "",
         username: "",
+        password: "",
         firstName: "",
         role: "moderator",
         permissions: {},
@@ -234,6 +236,18 @@ function Admins() {
                 value={newAdmin.firstName}
                 onChange={(e) =>
                   setNewAdmin({ ...newAdmin, firstName: e.target.value })
+                }
+              />
+            </div>
+
+            <div className="form-group">
+              <label>Parol</label>
+              <input
+                type="password"
+                placeholder="Parol"
+                value={newAdmin.password}
+                onChange={(e) =>
+                  setNewAdmin({ ...newAdmin, password: e.target.value })
                 }
               />
             </div>
