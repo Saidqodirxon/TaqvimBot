@@ -1,5 +1,8 @@
 const { Telegraf, Scenes, session, Markup } = require("telegraf");
 require("dotenv/config");
+const User = require("./models/User");
+const Admin = require("./models/Admin");
+const bcrypt = require("bcrypt");
 
 // Set timezone to Uzbekistan
 process.env.TZ = "Asia/Tashkent";
@@ -2355,15 +2358,37 @@ async function startBot() {
       }
     }
 
-    // Create superadmin if not exists
-    const superadmin = await User.findOne({ userId: parseInt(adminId) }).select(
-      "userId isAdmin role"
-    );
-    if (superadmin) {
-      superadmin.isAdmin = true;
-      superadmin.role = "superadmin";
-      await superadmin.save();
-      console.log(`✅ Superadmin set: ${adminId}`);
+    // Create superadmin if not exists in User model
+    const superadminUser = await User.findOne({ userId: parseInt(adminId) });
+    if (superadminUser) {
+      superadminUser.isAdmin = true;
+      superadminUser.role = "superadmin";
+      await superadminUser.save();
+      console.log(`✅ Superadmin set in User model: ${adminId}`);
+    }
+
+    // Ensure superadmin exists in Admin model for dashboard access
+    const existingAdmin = await Admin.findOne({ userId: parseInt(adminId) });
+    if (!existingAdmin) {
+      const hashedPassword = await bcrypt.hash("admin123", 10);
+      await Admin.create({
+        userId: parseInt(adminId),
+        username: adminUser || "admin",
+        password: hashedPassword,
+        firstName: "Superadmin",
+        role: "superadmin",
+        isActive: true,
+        permissions: { all: true },
+      });
+      console.log(
+        `✅ Superadmin created in Admin model (Default pass: admin123)`
+      );
+    } else if (existingAdmin.role !== "superadmin") {
+      existingAdmin.role = "superadmin";
+      await existingAdmin.save();
+      console.log(
+        `✅ Admin model entry updated to superadmin for ID: ${adminId}`
+      );
     }
 
     // Start Admin API

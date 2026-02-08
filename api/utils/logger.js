@@ -117,7 +117,14 @@ class Logger {
   }
 
   async logAdminAction(admin, action, details) {
-    const name = admin.firstName || admin.username || admin.userId;
+    if (!admin) {
+      await this.send(
+        `⚙️ <b>#admin_action</b>\nAdmin: Noma'lum\nAction: ${action}\nDetails: ${details}`
+      );
+      return;
+    }
+    const name =
+      admin.firstName || admin.username || admin.userId || "Noma'lum";
     await this.send(
       `⚙️ <b>#admin_action</b>\nAdmin: ${name}\nAction: ${action}\nDetails: ${details}`
     );

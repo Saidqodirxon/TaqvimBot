@@ -13,26 +13,42 @@ router.post("/login", async (req, res) => {
     if (!username || !password) {
       return res.status(400).json({ error: "Username va parol kerak" });
     }
-    // Find admin
-    const admin = await Admin.findOne({ username });
+    // Find admin by username or userId
+    const query = { isActive: true };
+    if (!isNaN(username)) {
+      query.$or = [{ userId: parseInt(username) }, { username: username }];
+    } else {
+      query.username = username;
+    }
+
+    const admin = await Admin.findOne(query);
     if (!admin) {
       return res.status(401).json({ error: "Noto'g'ri username yoki parol" });
     }
+
     // Check password
-    const validPassword = await bcrypt.compare(password, admin.password);
-    if (!validPassword) {
-      return res.status(401).json({ error: "Noto'g'ri username yoki parol" });
+    try {
+      const validPassword = await bcrypt.compare(password, admin.password);
+      if (!validPassword) {
+        return res.status(401).json({ error: "Noto'g'ri username yoki parol" });
+      }
+    } catch (bcryptErr) {
+      logger.error("Bcrypt compare error:", bcryptErr);
+      return res.status(500).json({ error: "Serverda xatolik yuz berdi" });
     }
-    // Check if active
-    if (!admin.isActive) {
-      return res.status(403).json({ error: "Admin account faol emas" });
-    }
+
     // Generate token
     const token = jwt.sign(
-      { userId: admin.userId, role: admin.role },
+      {
+        userId: admin.userId,
+        role: admin.role,
+        username: admin.username,
+        firstName: admin.firstName,
+      },
       process.env.JWT_SECRET,
       { expiresIn: "24h" }
     );
+
     res.json({
       token,
       admin: {

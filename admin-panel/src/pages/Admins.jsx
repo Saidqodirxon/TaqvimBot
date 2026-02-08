@@ -381,6 +381,21 @@ function Admins() {
                   placeholder="username"
                 />
               </div>
+
+              <div className="form-group">
+                <label>Parol (o'zgartirish uchun kiritish kifoya)</label>
+                <input
+                  type="password"
+                  value={editingAdmin.password || ""}
+                  onChange={(e) =>
+                    setEditingAdmin({
+                      ...editingAdmin,
+                      password: e.target.value,
+                    })
+                  }
+                  placeholder="Yangi parol"
+                />
+              </div>
             </div>
 
             <div className="form-group">

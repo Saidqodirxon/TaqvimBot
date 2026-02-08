@@ -10,6 +10,17 @@ function authMiddleware(req, res, next) {
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    // Add compatibility for both 'id' and 'userId'
+    if (decoded.userId && !decoded.id) {
+      decoded.id = decoded.userId;
+    }
+
+    // Ensure firstName exists for logging
+    if (!decoded.firstName) {
+      decoded.firstName = "Admin";
+    }
+
     req.admin = decoded;
     req.user = decoded; // For compatibility
     next();

@@ -2,6 +2,11 @@ const logger = require("../../utils/logger");
 const express = require("express");
 const router = express.Router();
 const Admin = require("../../models/Admin");
+const bcrypt = require("bcrypt");
+const { authMiddleware } = require("../../middleware/adminAuth");
+
+// Protected all routes
+router.use(authMiddleware);
 
 /**
  * Get all admins
@@ -43,9 +48,13 @@ router.post("/", async (req, res) => {
     const { userId, username, password, firstName, role, permissions } =
       req.body;
     // Check if admin already exists
-    const existingAdmin = await Admin.findOne({ userId });
+    const existingAdmin = await Admin.findOne({
+      $or: [{ userId: parseInt(userId) }, { username }],
+    });
     if (existingAdmin) {
-      return res.status(400).json({ error: "Admin already exists" });
+      return res
+        .status(400)
+        .json({ error: "Admin (ID yoki Username) allaqachon mavjud" });
     }
 
     // Require password
@@ -53,7 +62,6 @@ router.post("/", async (req, res) => {
       return res.status(400).json({ error: "Parol majburiy" });
     }
 
-    const bcrypt = require("bcrypt");
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Get default permissions for role or use custom
@@ -61,18 +69,19 @@ router.post("/", async (req, res) => {
       permissions || Admin.getDefaultPermissions(role || "moderator");
 
     const admin = new Admin({
-      userId,
+      userId: parseInt(userId),
       username,
       password: hashedPassword,
       firstName,
       role: role || "moderator",
       permissions: adminPermissions,
-      addedBy: req.user?.id, // from auth middleware
+      addedBy: req.user?.userId || req.admin?.userId, // from auth middleware
       isActive: true,
     });
     await admin.save();
+
     await logger.logAdminAction(
-      { userId: req.user?.id || "system", firstName: "Superadmin" },
+      { userId: req.user?.userId || "system", firstName: "Superadmin" },
       "Yangi admin qo'shildi",
       `${firstName} (@${username}) - ${role}`
     );
@@ -90,23 +99,37 @@ router.post("/", async (req, res) => {
 router.put("/:userId", async (req, res) => {
   try {
     const { userId } = req.params;
-    const { role, permissions, isActive, username, firstName } = req.body;
+    const { role, permissions, isActive, username, firstName, password } =
+      req.body;
+
     const admin = await Admin.findOne({ userId: parseInt(userId) });
     if (!admin) {
-      return res.status(404).json({ error: "Admin not found" });
+      return res.status(404).json({ error: "Admin topilmadi" });
     }
+
     // Update fields
     if (role !== undefined) admin.role = role;
     if (permissions !== undefined) admin.permissions = permissions;
     if (isActive !== undefined) admin.isActive = isActive;
     if (username !== undefined) admin.username = username;
     if (firstName !== undefined) admin.firstName = firstName;
+
+    // Update password if provided
+    if (password) {
+      admin.password = await bcrypt.hash(password, 10);
+    }
+
     await admin.save();
+
     await logger.logAdminAction(
-      req.user,
-      "Admin tahrirlandi",
-      `${admin.firstName} (@${admin.username}) - rol: ${admin.role}`
+      {
+        userId: req.user?.userId || req.admin?.userId,
+        firstName: req.user?.firstName || "Admin",
+      },
+      "Admin ma'lumotlari tahrirlandi",
+      `${admin.firstName} (@${admin.username})`
     );
+
     res.json(admin);
   } catch (error) {
     logger.error("Error updating admin:", error);

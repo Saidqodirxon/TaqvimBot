@@ -10,6 +10,7 @@ const AdminSchema = new mongoose.Schema(
     username: {
       type: String,
       required: true,
+      unique: true,
     },
     password: {
       type: String,
@@ -22,12 +23,15 @@ const AdminSchema = new mongoose.Schema(
       default: "moderator",
     },
     permissions: {
-      users: { type: Boolean, default: true },
-      broadcast: { type: Boolean, default: false },
-      settings: { type: Boolean, default: false },
-      admins: { type: Boolean, default: false },
-      prayers: { type: Boolean, default: true },
-      greetings: { type: Boolean, default: true },
+      type: mongoose.Schema.Types.Mixed,
+      default: {
+        users: true,
+        broadcast: true,
+        settings: true,
+        admins: true,
+        prayers: true,
+        greetings: true,
+      },
     },
     addedBy: {
       type: Number,
