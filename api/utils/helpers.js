@@ -43,7 +43,7 @@ function isAdmin(userId) {
   if (userId === undefined || userId === null || userId === false) return false;
   const adminId = process.env.ADMIN_ID;
   if (!adminId) return false;
-  return userId.toString() === adminId.toString();
+  return userId.toString().trim() === adminId.toString().trim();
 }
 
 /**

@@ -32,7 +32,6 @@ process.on("warning", (warning) => {
 const db = require("./modules/db");
 
 // Models
-const User = require("./models/User");
 const Settings = require("./models/Settings");
 const Prayer = require("./models/Prayer");
 const MessageQueue = require("./modules/messageQueue");
@@ -2519,30 +2518,7 @@ async function startAdminAPI() {
   // Make bot instance available to routes
   app.set("bot", bot);
 
-  // Create default admin (non-blocking)
-  setTimeout(async () => {
-    try {
-      const adminExists = await Admin.findOne({ username: "admin" }).maxTimeMS(
-        5000
-      );
-      if (!adminExists) {
-        const hashedPassword = await bcrypt.hash("admin", 10);
-        await Admin.create({
-          userId: parseInt(process.env.ADMIN_ID) || 1234567890,
-          username: "admin",
-          password: hashedPassword,
-          firstName: "Admin",
-          role: "superadmin",
-          isActive: true,
-        });
-        console.log("✅ Web admin created: username='admin', password='admin'");
-      } else {
-        console.log("ℹ️  Web admin already exists");
-      }
-    } catch (err) {
-      console.log("⚠️  Admin creation failed:", err.message);
-    }
-  }, 2000);
+  // Admin creation is now handled globally in startBot()
 
   // CORS - Completely open for all origins with explicit support
   app.use((req, res, next) => {
