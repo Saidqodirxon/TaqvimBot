@@ -100,6 +100,30 @@
   border-top: 1px solid rgba(255, 255, 255, 0.15);
 }
 
+.admin-profile-sidebar {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.admin-profile-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: white;
+}
+
+.admin-role-label {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.6);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
 .logout-btn {
   display: flex;
   align-items: center;

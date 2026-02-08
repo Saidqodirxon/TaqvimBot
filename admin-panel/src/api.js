@@ -37,6 +37,7 @@ export const auth = {
   login: (username, password) =>
     api.post("/auth/login", { username, password }),
   register: (data) => api.post("/auth/register", data),
+  profile: () => api.get("/auth/profile"),
 };
 
 // Users

@@ -323,6 +323,25 @@ function Admins() {
                   Qo'shilgan:{" "}
                   {new Date(admin.createdAt).toLocaleDateString("uz-UZ")}
                 </p>
+
+                <div className="admin-permissions-preview">
+                  <strong>Ruxsatlar:</strong>
+                  <div className="permission-tags">
+                    {Object.entries(admin.permissions || {})
+                      .filter(([_, value]) => value === true)
+                      .map(([key, _]) => {
+                        const perm = ALL_PERMISSIONS.find(p => p.key === key);
+                        return (
+                          <span key={key} className="perm-tag">
+                            {perm ? perm.name : key}
+                          </span>
+                        );
+                      })}
+                    {(!admin.permissions || Object.values(admin.permissions).every(v => v !== true)) && (
+                      <span className="no-perms">Hech qanday ruxsat yo'q</span>
+                    )}
+                  </div>
+                </div>
               </div>
 
               <div className="admin-actions">

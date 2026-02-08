@@ -26,13 +26,29 @@ import Layout from "./components/Layout";
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [admin, setAdmin] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    setIsAuthenticated(!!token);
-    setLoading(false);
-  }, []);
+    const fetchProfile = async () => {
+      const token = localStorage.getItem("token");
+      if (token) {
+        setIsAuthenticated(true);
+        try {
+          const { auth } = await import("./api");
+          const response = await auth.profile();
+          setAdmin(response.data);
+        } catch (err) {
+          console.error("Profile fetch error:", err);
+          setIsAuthenticated(false);
+          localStorage.removeItem("token");
+        }
+      }
+      setLoading(false);
+    };
+
+    fetchProfile();
+  }, [isAuthenticated]);
 
   if (loading) {
     return (
@@ -52,7 +68,7 @@ function App() {
   }
 
   return (
-    <Layout setAuth={setIsAuthenticated}>
+    <Layout setAuth={setIsAuthenticated} admin={admin}>
       <Routes>
         <Route path="/" element={<Dashboard />} />
         <Route path="/users" element={<Users />} />

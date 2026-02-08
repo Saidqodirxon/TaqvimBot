@@ -24,10 +24,16 @@ import {
 } from "lucide-react";
 import "./Layout.css";
 
-function Layout({ children, setAuth }) {
+function Layout({ children, setAuth, admin }) {
   const handleLogout = () => {
     localStorage.removeItem("token");
     setAuth(false);
+  };
+
+  const hasPermission = (key) => {
+    if (!admin) return true; // Loading or superadmin check below
+    if (admin.role === "superadmin") return true;
+    return admin.permissions && admin.permissions[key] === true;
   };
 
   return (
@@ -49,185 +55,217 @@ function Layout({ children, setAuth }) {
             <span>Dashboard</span>
           </NavLink>
 
-          <NavLink
-            to="/users"
-            className={({ isActive }) =>
-              isActive ? "nav-item active" : "nav-item"
-            }
-          >
-            <Users size={20} />
-            <span>Foydalanuvchilar</span>
-          </NavLink>
+          {hasPermission("viewUsers") && (
+            <NavLink
+              to="/users"
+              className={({ isActive }) =>
+                isActive ? "nav-item active" : "nav-item"
+              }
+            >
+              <Users size={20} />
+              <span>Foydalanuvchilar</span>
+            </NavLink>
+          )}
 
-          <NavLink
-            to="/greetings"
-            className={({ isActive }) =>
-              isActive ? "nav-item active" : "nav-item"
-            }
-          >
-            <MessageSquare size={20} />
-            <span>Tabriklar</span>
-          </NavLink>
+          {hasPermission("viewGreetings") && (
+            <NavLink
+              to="/greetings"
+              className={({ isActive }) =>
+                isActive ? "nav-item active" : "nav-item"
+              }
+            >
+              <MessageSquare size={20} />
+              <span>Tabriklar</span>
+            </NavLink>
+          )}
 
-          <NavLink
-            to="/prayers"
-            className={({ isActive }) =>
-              isActive ? "nav-item active" : "nav-item"
-            }
-          >
-            <BookOpen size={20} />
-            <span>Duolar</span>
-          </NavLink>
+          {hasPermission("viewPrayers") && (
+            <NavLink
+              to="/prayers"
+              className={({ isActive }) =>
+                isActive ? "nav-item active" : "nav-item"
+              }
+            >
+              <BookOpen size={20} />
+              <span>Duolar</span>
+            </NavLink>
+          )}
 
-          <NavLink
-            to="/prayer-defaults"
-            className={({ isActive }) =>
-              isActive ? "nav-item active" : "nav-item"
-            }
-          >
-            <Clock size={20} />
-            <span>Namoz Sozlamalari</span>
-          </NavLink>
+          {hasPermission("viewSettings") && (
+            <>
+              <NavLink
+                to="/prayer-defaults"
+                className={({ isActive }) =>
+                  isActive ? "nav-item active" : "nav-item"
+                }
+              >
+                <Clock size={20} />
+                <span>Namoz Sozlamalari</span>
+              </NavLink>
 
-          <NavLink
-            to="/bot-info"
-            className={({ isActive }) =>
-              isActive ? "nav-item active" : "nav-item"
-            }
-          >
-            <Info size={20} />
-            <span>Bot Ma'lumotlari</span>
-          </NavLink>
+              <NavLink
+                to="/bot-info"
+                className={({ isActive }) =>
+                  isActive ? "nav-item active" : "nav-item"
+                }
+              >
+                <Info size={20} />
+                <span>Bot Ma'lumotlari</span>
+              </NavLink>
 
-          <NavLink
-            to="/channels"
-            className={({ isActive }) =>
-              isActive ? "nav-item active" : "nav-item"
-            }
-          >
-            <Radio size={20} />
-            <span>Kanallar</span>
-          </NavLink>
+              <NavLink
+                to="/settings"
+                className={({ isActive }) =>
+                  isActive ? "nav-item active" : "nav-item"
+                }
+              >
+                <Bell size={20} />
+                <span>Eslatmalar</span>
+              </NavLink>
+            </>
+          )}
 
-          <NavLink
-            to="/admins"
-            className={({ isActive }) =>
-              isActive ? "nav-item active" : "nav-item"
-            }
-          >
-            <Shield size={20} />
-            <span>Adminlar</span>
-          </NavLink>
+          {hasPermission("viewChannels") && (
+            <NavLink
+              to="/channels"
+              className={({ isActive }) =>
+                isActive ? "nav-item active" : "nav-item"
+              }
+            >
+              <Radio size={20} />
+              <span>Kanallar</span>
+            </NavLink>
+          )}
 
-          <NavLink
-            to="/locations"
-            className={({ isActive }) =>
-              isActive ? "nav-item active" : "nav-item"
-            }
-          >
-            <MapPin size={20} />
-            <span>Joylashuvlar</span>
-          </NavLink>
+          {hasPermission("viewAdmins") && (
+            <NavLink
+              to="/admins"
+              className={({ isActive }) =>
+                isActive ? "nav-item active" : "nav-item"
+              }
+            >
+              <Shield size={20} />
+              <span>Adminlar</span>
+            </NavLink>
+          )}
 
-          <NavLink
-            to="/cache"
-            className={({ isActive }) =>
-              isActive ? "nav-item active" : "nav-item"
-            }
-          >
-            <Database size={20} />
-            <span>Cache</span>
-          </NavLink>
+          {hasPermission("viewLocations") && (
+            <NavLink
+              to="/locations"
+              className={({ isActive }) =>
+                isActive ? "nav-item active" : "nav-item"
+              }
+            >
+              <MapPin size={20} />
+              <span>Joylashuvlar</span>
+            </NavLink>
+          )}
 
-          <NavLink
-            to="/redis"
-            className={({ isActive }) =>
-              isActive ? "nav-item active" : "nav-item"
-            }
-          >
-            <Activity size={20} />
-            <span>Redis</span>
-          </NavLink>
+          {hasPermission("viewSettings") && (
+            <>
+              <NavLink
+                to="/cache"
+                className={({ isActive }) =>
+                  isActive ? "nav-item active" : "nav-item"
+                }
+              >
+                <Database size={20} />
+                <span>Cache</span>
+              </NavLink>
 
-          <NavLink
-            to="/suggestions"
-            className={({ isActive }) =>
-              isActive ? "nav-item active" : "nav-item"
-            }
-          >
-            <Lightbulb size={20} />
-            <span>Takliflar</span>
-          </NavLink>
+              <NavLink
+                to="/redis"
+                className={({ isActive }) =>
+                  isActive ? "nav-item active" : "nav-item"
+                }
+              >
+                <Activity size={20} />
+                <span>Redis</span>
+              </NavLink>
+            </>
+          )}
 
-          <NavLink
-            to="/broadcast"
-            className={({ isActive }) =>
-              isActive ? "nav-item active" : "nav-item"
-            }
-          >
-            <Send size={20} />
-            <span>Xabar Yuborish</span>
-          </NavLink>
+          {hasPermission("viewSuggestions") && (
+            <NavLink
+              to="/suggestions"
+              className={({ isActive }) =>
+                isActive ? "nav-item active" : "nav-item"
+              }
+            >
+              <Lightbulb size={20} />
+              <span>Takliflar</span>
+            </NavLink>
+          )}
 
-          <NavLink
-            to="/broadcast-location"
-            className={({ isActive }) =>
-              isActive ? "nav-item active" : "nav-item"
-            }
-          >
-            <MapPin size={20} />
-            <span>📍 Joylashuv Broadcast</span>
-          </NavLink>
+          {hasPermission("viewBroadcast") && (
+            <>
+              <NavLink
+                to="/broadcast"
+                className={({ isActive }) =>
+                  isActive ? "nav-item active" : "nav-item"
+                }
+              >
+                <Send size={20} />
+                <span>Xabar Yuborish</span>
+              </NavLink>
 
-          <NavLink
-            to="/settings"
-            className={({ isActive }) =>
-              isActive ? "nav-item active" : "nav-item"
-            }
-          >
-            <Bell size={20} />
-            <span>Eslatmalar</span>
-          </NavLink>
+              <NavLink
+                to="/broadcast-location"
+                className={({ isActive }) =>
+                  isActive ? "nav-item active" : "nav-item"
+                }
+              >
+                <MapPin size={20} />
+                <span>📍 Joylashuv Broadcast</span>
+              </NavLink>
+            </>
+          )}
 
-          <NavLink
-            to="/translations"
-            className={({ isActive }) =>
-              isActive ? "nav-item active" : "nav-item"
-            }
-          >
-            <Languages size={20} />
-            <span>Tarjimalar</span>
-          </NavLink>
+          {hasPermission("viewTranslations") && (
+            <NavLink
+              to="/translations"
+              className={({ isActive }) =>
+                isActive ? "nav-item active" : "nav-item"
+              }
+            >
+              <Languages size={20} />
+              <span>Tarjimalar</span>
+            </NavLink>
+          )}
 
-          <NavLink
-            to="/resources"
-            className={({ isActive }) =>
-              isActive ? "nav-item active" : "nav-item"
-            }
-          >
-            <Activity size={20} />
-            <span>Resurslar</span>
-          </NavLink>
+          {admin?.role === "superadmin" && (
+            <>
+              <NavLink
+                to="/resources"
+                className={({ isActive }) =>
+                  isActive ? "nav-item active" : "nav-item"
+                }
+              >
+                <Activity size={20} />
+                <span>Resurslar</span>
+              </NavLink>
 
-          <NavLink
-            to="/backups"
-            className={({ isActive }) =>
-              isActive ? "nav-item active" : "nav-item"
-            }
-          >
-            <HardDrive size={20} />
-            <span>Backuplar</span>
-          </NavLink>
+              <NavLink
+                to="/backups"
+                className={({ isActive }) =>
+                  isActive ? "nav-item active" : "nav-item"
+                }
+              >
+                <HardDrive size={20} />
+                <span>Backuplar</span>
+              </NavLink>
 
-          <NavLink
-            to="/test"
-            className={({ isActive }) =>
-              isActive ? "nav-item active" : "nav-item"
-            }
-          >
-            <TestTube2 size={20} />
-            <span>Testlar</span>
-          </NavLink>
+              <NavLink
+                to="/test"
+                className={({ isActive }) =>
+                  isActive ? "nav-item active" : "nav-item"
+                }
+              >
+                <TestTube2 size={20} />
+                <span>Testlar</span>
+              </NavLink>
+            </>
+          )}
         </nav>
 
         <div className="sidebar-footer">
@@ -237,8 +275,15 @@ function Layout({ children, setAuth }) {
               isActive ? "nav-item active" : "nav-item"
             }
           >
-            <User size={20} />
-            <span>Profil</span>
+            <div className="admin-profile-sidebar">
+              <User size={20} />
+              <div className="admin-profile-info">
+                <span className="admin-name">
+                  {admin?.firstName || "Profil"}
+                </span>
+                <span className="admin-role-label">{admin?.role}</span>
+              </div>
+            </div>
           </NavLink>
 
           <button className="logout-btn" onClick={handleLogout}>

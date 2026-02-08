@@ -129,6 +129,18 @@ class Logger {
       `⚙️ <b>#admin_action</b>\nAdmin: ${name}\nAction: ${action}\nDetails: ${details}`
     );
   }
+
+  async logChannelCheckFailed(user, channels) {
+    const message =
+      `📢 <b>#obuna_xatolik</b>\n\n` +
+      `Foydalanuvchi kanallarga a'zo bo'lmagani uchun to'xtatildi:\n\n` +
+      `ID: <code>${user.id || user.userId}</code>\n` +
+      `Ism: ${user.first_name || user.firstName || "N/A"}\n` +
+      `Username: ${user.username ? "@" + user.username : "N/A"}\n` +
+      `Kanallar: ${channels}`;
+
+    await this.send(message);
+  }
 }
 
 const logger = new Logger();
