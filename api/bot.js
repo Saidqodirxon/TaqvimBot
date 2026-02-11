@@ -567,7 +567,14 @@ bot.action("lang_uz", async (ctx) => {
     ctx.session.user.language = "uz";
 
     const languageSet = await t("uz", "language_set");
-    await ctx.editMessageText(`✅ ${languageSet}`);
+    try {
+      await ctx.editMessageText(`✅ ${languageSet}`);
+    } catch (e) {
+      // Ignore not modified error
+      if (!e.description?.includes("message is not modified")) {
+        throw e;
+      }
+    }
 
     await ctx.reply(
       await t("uz", "main_menu"),
@@ -585,7 +592,13 @@ bot.action("lang_cr", async (ctx) => {
     ctx.session.user.language = "cr";
 
     const languageSet = await t("cr", "language_set");
-    await ctx.editMessageText(`✅ ${languageSet}`);
+    try {
+      await ctx.editMessageText(`✅ ${languageSet}`);
+    } catch (e) {
+      if (!e.description?.includes("message is not modified")) {
+        throw e;
+      }
+    }
 
     await ctx.reply(
       await t("cr", "main_menu"),
@@ -603,7 +616,13 @@ bot.action("lang_ru", async (ctx) => {
     ctx.session.user.language = "ru";
 
     const languageSet = await t("ru", "language_set");
-    await ctx.editMessageText(`✅ ${languageSet}`);
+    try {
+      await ctx.editMessageText(`✅ ${languageSet}`);
+    } catch (e) {
+      if (!e.description?.includes("message is not modified")) {
+        throw e;
+      }
+    }
 
     await ctx.reply(
       await t("ru", "main_menu"),
@@ -1196,6 +1215,12 @@ bot.action("refresh_countdown", async (ctx) => {
 
     await ctx.editMessageText(message, keyboard);
   } catch (error) {
+    if (
+      error.description &&
+      error.description.includes("message is not modified")
+    ) {
+      return; // Ignore this error
+    }
     logger.error("Refresh countdown error", error);
   }
 });
@@ -1389,10 +1414,26 @@ bot.action("calendar_daily", async (ctx) => {
       );
     } catch (prayerError) {
       console.error("Prayer times fetch error:", prayerError.message);
+
+      // Check if location error
+      const errorMsg = prayerError.message || "";
+      let userMsg =
+        "❌ Namoz vaqtlarini yuklashda xatolik yuz berdi.\\n\\nIltimos, qayta urinib ko'ring.";
+      if (errorMsg.includes("location") || errorMsg.includes("coordinates")) {
+        userMsg =
+          "❌ Sizning joylashuvingiz bo'yicha ma'lumot topilmadi.\\n\\nIltimos, joylashuvni qayta yuboring: /start -> ⚙️ Sozlamalar -> 📍 Joylashuv";
+      }
+
       await ctx.editMessageText(
-        "❌ Namoz vaqtlarini yuklashda xatolik yuz berdi.\n\nIltimos, qayta urinib ko'ring.",
+        userMsg,
         Markup.inlineKeyboard([
           [Markup.button.callback("🔄 Qayta urinish", "calendar_daily")],
+          [
+            Markup.button.callback(
+              "📍 Joylashuvni yangilash",
+              "enter_location_scene"
+            ),
+          ],
           [Markup.button.callback("◀️ Orqaga", "back_to_calendar_view")],
         ])
       );
@@ -1464,6 +1505,12 @@ bot.action("calendar_daily", async (ctx) => {
       },
     });
   } catch (error) {
+    if (
+      error.description &&
+      error.description.includes("message is not modified")
+    ) {
+      return;
+    }
     logger.error("Error in calendar_daily:", error);
   }
 });
@@ -1695,6 +1742,12 @@ bot.action("open_location_settings", async (ctx) => {
 
     await ctx.editMessageText(message, await getLocationSettingsKeyboard(lang));
   } catch (error) {
+    if (
+      error.description &&
+      error.description.includes("message is not modified")
+    ) {
+      return;
+    }
     logger.error("Error in open_location_settings:", error);
   }
 });
@@ -1725,6 +1778,13 @@ bot.action("open_reminder_settings", async (ctx) => {
       await getReminderSettingsKeyboard(lang, reminderSettings)
     );
   } catch (error) {
+    // Ignore "message is not modified"
+    if (
+      error.description &&
+      error.description.includes("message is not modified")
+    ) {
+      return;
+    }
     logger.error("Error in open_reminder_settings:", error);
   }
 });
@@ -1761,6 +1821,12 @@ bot.action("toggle_reminders", async (ctx) => {
       await getReminderSettingsKeyboard(lang, newSettings)
     );
   } catch (error) {
+    if (
+      error.description &&
+      error.description.includes("message is not modified")
+    ) {
+      return;
+    }
     console.error("Error toggling reminders:", error);
   }
 });

@@ -5,7 +5,7 @@ const { authMiddleware } = require("../../middleware/adminAuth");
 const User = require("../../models/User");
 const Settings = require("../../models/Settings");
 
-// Get all users with pagination and search
+// Get all users with pagination and advanced filtering
 router.get("/", authMiddleware, async (req, res) => {
   try {
     if (require("mongoose").connection.readyState !== 1) {
@@ -16,28 +16,52 @@ router.get("/", authMiddleware, async (req, res) => {
     const skip = (page - 1) * limit;
     const search = req.query.search || "";
 
-    // Build search query
+    // Filters
+    const { isBlock, hasPhone, language } = req.query;
+
+    // Build filter query
     let query = {};
+
+    // Status filter (blocked/active)
+    if (isBlock === "true" || isBlock === true) {
+      query.is_block = true;
+    } else if (isBlock === "false" || isBlock === false) {
+      query.is_block = { $ne: true };
+    }
+
+    // Phone filter
+    if (hasPhone === "true" || hasPhone === true) {
+      query.phoneNumber = { $exists: true, $ne: null };
+    } else if (hasPhone === "false" || hasPhone === false) {
+      query.phoneNumber = { $eq: null }; // or $exists: false
+    }
+
+    // Language filter
+    if (language && ["uz", "cr", "ru"].includes(language)) {
+      query.language = language;
+    }
+
+    // Search functionality
     if (search.trim()) {
       const searchRegex = { $regex: search, $options: "i" };
-      query = {
-        $or: [
-          { firstName: searchRegex },
-          { username: searchRegex },
-          { "location.name": searchRegex },
-          { phoneNumber: searchRegex },
-        ],
-      };
+      const searchConditions = [
+        { firstName: searchRegex },
+        { username: searchRegex },
+        { "location.name": searchRegex },
+        { phoneNumber: searchRegex },
+      ];
 
       // If search is a number, also search by userId
       if (!isNaN(search)) {
-        query.$or.push({ userId: parseInt(search) });
+        searchConditions.push({ userId: parseInt(search) });
       }
-    }
 
-    // Filter by phone number existence
-    if (req.query.hasPhone === "true") {
-      query.phoneNumber = { $exists: true, $ne: null };
+      // Combine with existing filters using $and
+      if (Object.keys(query).length > 0) {
+        query = { $and: [query, { $or: searchConditions }] };
+      } else {
+        query = { $or: searchConditions };
+      }
     }
 
     const [total, delaySettings] = await Promise.all([
@@ -54,7 +78,7 @@ router.get("/", authMiddleware, async (req, res) => {
       .skip(skip)
       .limit(limit)
       .select("-__v")
-      .lean() // Better performance for data modification
+      .lean()
       .maxTimeMS(10000);
 
     const now = Date.now();

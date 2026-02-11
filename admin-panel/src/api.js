@@ -42,9 +42,13 @@ export const auth = {
 
 // Users
 export const users = {
-  getAll: (page = 1, limit = 20, search = "") =>
+  getAll: (page = 1, limit = 20, search = "", filters = {}) =>
     api.get(
-      `/users?page=${page}&limit=${limit}&search=${encodeURIComponent(search)}`
+      `/users?page=${page}&limit=${limit}&search=${encodeURIComponent(
+        search
+      )}&isBlock=${filters.isBlock ?? ""}&hasPhone=${
+        filters.hasPhone ?? ""
+      }&language=${filters.language ?? ""}`
     ),
   search: (query) => api.get(`/users/search?query=${query}`),
   getById: (userId) => api.get(`/users/${userId}`),

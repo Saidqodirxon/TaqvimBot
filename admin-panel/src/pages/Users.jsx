@@ -22,13 +22,18 @@ function Users() {
   const [exportModalOpen, setExportModalOpen] = useState(false);
   const [exportFormat, setExportFormat] = useState("excel");
   const [exportFilters, setExportFilters] = useState({});
+  const [filters, setFilters] = useState({
+    isBlock: "",
+    hasPhone: "",
+    language: ""
+  });
   const queryClient = useQueryClient();
   const token = localStorage.getItem("token");
 
   const { data, isLoading } = useQuery({
-    queryKey: ["users", page, limit, searchQuery],
+    queryKey: ["users", page, limit, searchQuery, filters],
     queryFn: async () => {
-      const response = await users.getAll(page, limit, searchQuery);
+      const response = await users.getAll(page, limit, searchQuery, filters);
       return response.data;
     },
   });
@@ -285,6 +290,49 @@ function Users() {
             <option value={50}>50 ta</option>
             <option value={100}>100 ta</option>
           </select>
+        </div>
+
+        <div className="filters-bar" style={{ display: 'flex', gap: '10px', marginTop: '10px', flexWrap: 'wrap' }}>
+          <select
+            className="input"
+            value={filters.isBlock}
+            onChange={(e) => setFilters({ ...filters, isBlock: e.target.value })}
+            style={{ flex: 1, minWidth: '150px' }}
+          >
+            <option value="">Barcha holatlar</option>
+            <option value="false">✅ Faol</option>
+            <option value="true">🚫 Bloklangan</option>
+          </select>
+
+          <select
+            className="input"
+            value={filters.hasPhone}
+            onChange={(e) => setFilters({ ...filters, hasPhone: e.target.value })}
+            style={{ flex: 1, minWidth: '150px' }}
+          >
+            <option value="">Barcha telefonlar</option>
+            <option value="true">📱 Telefoni bor</option>
+            <option value="false">❌ Telefoni yo'q</option>
+          </select>
+
+          <select
+            className="input"
+            value={filters.language}
+            onChange={(e) => setFilters({ ...filters, language: e.target.value })}
+            style={{ flex: 1, minWidth: '150px' }}
+          >
+            <option value="">Barcha tillar</option>
+            <option value="uz">🇺🇿 O'zbekcha</option>
+            <option value="cr">🇺🇿 Ўзбекcha</option>
+            <option value="ru">🇷🇺 Русcha</option>
+          </select>
+
+          <button
+            className="btn btn-secondary"
+            onClick={() => setFilters({ isBlock: "", hasPhone: "", language: "" })}
+          >
+            Tozalash
+          </button>
         </div>
 
         <div className="table-container">

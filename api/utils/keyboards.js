@@ -195,38 +195,52 @@ async function getCalendarViewKeyboard(lang = "uz") {
 /**
  * Create reminder settings keyboard
  */
-function getReminderSettingsKeyboard(lang = "uz", currentSettings) {
+async function getReminderSettingsKeyboard(lang = "uz", currentSettings) {
   const enabled = currentSettings?.enabled !== false;
   const minutesBefore = currentSettings?.minutesBefore || 15;
 
   return Markup.inlineKeyboard([
     [
       Markup.button.callback(
-        enabled ? t(lang, "reminder_enabled") : t(lang, "reminder_disabled"),
+        enabled
+          ? await t(lang, "reminder_enabled")
+          : await t(lang, "reminder_disabled"),
         "toggle_reminders"
       ),
     ],
     [
       Markup.button.callback(
-        t(lang, "btn_reminder_time", { minutes: minutesBefore }),
+        await t(lang, "btn_reminder_time", { minutes: minutesBefore }),
         "reminder_time_header"
       ),
     ],
     [
-      Markup.button.callback(t(lang, "btn_reminder_5min"), "reminder_time_5"),
-      Markup.button.callback(t(lang, "btn_reminder_10min"), "reminder_time_10"),
-    ],
-    [
-      Markup.button.callback(t(lang, "btn_reminder_15min"), "reminder_time_15"),
-      Markup.button.callback(t(lang, "btn_reminder_30min"), "reminder_time_30"),
+      Markup.button.callback(
+        await t(lang, "btn_reminder_5min"),
+        "reminder_time_5"
+      ),
+      Markup.button.callback(
+        await t(lang, "btn_reminder_10min"),
+        "reminder_time_10"
+      ),
     ],
     [
       Markup.button.callback(
-        "🗑 Barcha eslatmalarni o'chirish",
+        await t(lang, "btn_reminder_15min"),
+        "reminder_time_15"
+      ),
+      Markup.button.callback(
+        await t(lang, "btn_reminder_30min"),
+        "reminder_time_30"
+      ),
+    ],
+    [
+      Markup.button.callback(
+        await t(lang, "disable_all_reminders"),
         "disable_all_reminders"
       ),
     ],
-    [Markup.button.callback(t(lang, "btn_back"), "open_settings")],
+    [Markup.button.callback(await t(lang, "btn_back"), "open_settings")],
   ]);
 }
 

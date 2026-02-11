@@ -201,7 +201,7 @@ async function schedulePrayerReminders(bot, user) {
                       {
                         $set: {
                           "reminderSettings.enabled": false,
-                          is_block: true,
+                          // is_block: true - Removed to prevent auto-blocking
                         },
                       }
                     );
@@ -287,7 +287,7 @@ async function schedulePrayerReminders(bot, user) {
                     {
                       $set: {
                         "reminderSettings.enabled": false,
-                        is_block: true,
+                        // is_block: true - Removed to prevent auto-blocking
                       },
                     }
                   );
