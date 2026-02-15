@@ -75,6 +75,7 @@ const {
 const { handleInlineQuery } = require("./utils/inlineMode");
 const logger = require("./utils/logger");
 const RedisCache = require("./utils/redis");
+const { getRandomAd, getAdFooter } = require("./utils/advertisement");
 
 // Scenes
 const greetingScene = require("./scenes/greeting");
@@ -440,12 +441,41 @@ bot.command("start", async (ctx) => {
     }
 
     // 3. Send main menu IMMEDIATELY (user gets instant response)
-    const [mainMenuText, mainMenuKeyboard] = await Promise.all([
+    const [mainMenuTextBase, mainMenuKeyboard] = await Promise.all([
       t(lang, "main_menu"),
       getMainMenuKeyboard(lang),
     ]);
 
-    await ctx.reply(mainMenuText, mainMenuKeyboard);
+    // Add Advertisement to Main Menu
+    const ad = await getRandomAd("menu", user.location?.name);
+
+    const adFooter = getAdFooter(ad, adminUser);
+    const fullMessage = mainMenuTextBase + adFooter;
+
+    if (ad && ad.image) {
+      try {
+        await ctx.replyWithPhoto(ad.image, {
+          caption: fullMessage,
+          parse_mode: "HTML",
+          ...mainMenuKeyboard,
+        });
+      } catch (imgErr) {
+        // Fallback to text if image fails
+        await ctx.reply(fullMessage, {
+          parse_mode: "HTML",
+          disable_web_page_preview: true,
+          link_preview_options: { is_disabled: true },
+          ...mainMenuKeyboard,
+        });
+      }
+    } else {
+      await ctx.reply(fullMessage, {
+        parse_mode: "HTML",
+        disable_web_page_preview: true,
+        link_preview_options: { is_disabled: true },
+        ...mainMenuKeyboard,
+      });
+    }
 
     // 4. Background checks (non-blocking, user already sees menu)
     // Channel membership check - runs in background after menu is sent
@@ -493,6 +523,63 @@ bot.command("start", async (ctx) => {
       } catch (err) {
         // Silently ignore background check errors
         logger.error("Background channel check error", err);
+      }
+    });
+
+    // 5. Send Instruction if available (on start)
+    setImmediate(async () => {
+      try {
+        const lang = getUserLanguage(user);
+        const instructionText = await Settings.getSetting(
+          "instruction_text",
+          null
+        );
+        const instructionVideo = await Settings.getSetting(
+          "instruction_video",
+          null
+        );
+
+        if (instructionText || instructionVideo) {
+          const caption =
+            (instructionText && instructionText[lang]
+              ? instructionText[lang]
+              : instructionText?.uz) || "";
+
+          // Check if instructionVideo is a URL or file_id
+          const isUrl = instructionVideo && instructionVideo.startsWith("http");
+
+          if (isUrl) {
+            // If URL (e.g. YouTube), send as button and include in text for preview
+            const messageWithLink =
+              caption + (caption ? "\n\n" : "") + instructionVideo;
+            await ctx.reply(messageWithLink, {
+              reply_markup: {
+                inline_keyboard: [
+                  [
+                    {
+                      text: await t(lang, "btn_video_instruction"),
+                      url: instructionVideo,
+                    },
+                  ],
+                ],
+              },
+            });
+          } else if (instructionVideo) {
+            // If file_id, send as video with caption
+            try {
+              await ctx.replyWithVideo(instructionVideo, {
+                caption: caption,
+              });
+            } catch (videoErr) {
+              // Fallback to text if video fails
+              await ctx.reply(caption);
+            }
+          } else if (caption) {
+            await ctx.reply(caption);
+          }
+        }
+      } catch (err) {
+        logger.error("Start instruction error", err);
       }
     });
   } catch (error) {
@@ -777,6 +864,60 @@ bot.hears(/📅/, async (ctx) => {
     );
   } catch (error) {
     logger.error("Calendar handler error", error);
+  }
+});
+
+/**
+ * Instruction (Qo'llanma)
+ */
+bot.hears(/📚/, async (ctx) => {
+  try {
+    const lang = getUserLanguage(ctx.session.user);
+    const instructionText = await Settings.getSetting("instruction_text", null);
+    const instructionVideo = await Settings.getSetting(
+      "instruction_video",
+      null
+    );
+
+    const caption =
+      (instructionText && instructionText[lang]
+        ? instructionText[lang]
+        : instructionText?.uz) || (await t(lang, "instruction_missing"));
+
+    // Check if instructionVideo is a URL or file_id
+    const isUrl = instructionVideo && instructionVideo.startsWith("http");
+
+    if (isUrl) {
+      // If URL (e.g. YouTube), send as button and include in text for preview
+      const messageWithLink =
+        caption + (caption ? "\n\n" : "") + instructionVideo;
+      await ctx.reply(messageWithLink, {
+        reply_markup: {
+          inline_keyboard: [
+            [
+              {
+                text: await t(lang, "btn_video_instruction"),
+                url: instructionVideo,
+              },
+            ],
+          ],
+        },
+      });
+    } else if (instructionVideo) {
+      // If file_id, send as video with caption
+      try {
+        await ctx.replyWithVideo(instructionVideo, {
+          caption: caption,
+        });
+      } catch (videoErr) {
+        // Fallback to text if video fails
+        await ctx.reply(caption);
+      }
+    } else {
+      await ctx.reply(caption);
+    }
+  } catch (error) {
+    logger.error("Instruction handler error", error);
   }
 });
 
@@ -2665,8 +2806,12 @@ async function startAdminAPI() {
   const exportRoutes = require("./routes/admin/export");
   const botInfoRoutes = require("./routes/admin/bot-info");
 
+  const promoCodesRoutes = require("./routes/admin/promo-codes");
+  const advertisementsRoutes = require("./routes/admin/advertisements");
+
   app.use("/api/auth", authRoutes);
   app.use("/api/users", usersRoutes);
+
   app.use("/api/settings", settingsRoutes);
   app.use("/api/greetings", greetingsRoutes);
   app.use("/api/stats", statsRoutes);
@@ -2686,6 +2831,8 @@ async function startAdminAPI() {
   app.use("/api/backups", backupsRoutes);
   app.use("/api/export", exportRoutes);
   app.use("/api/bot-info", botInfoRoutes);
+  app.use("/api/v1/promo-codes", promoCodesRoutes);
+  app.use("/api/advertisements", advertisementsRoutes);
 
   // Health check
   app.get("/", (req, res) => {

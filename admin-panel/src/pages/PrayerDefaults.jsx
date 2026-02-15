@@ -23,17 +23,19 @@ const PrayerDefaults = () => {
   const fetchDefaults = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem("adminToken");
+      const token = localStorage.getItem("token"); // Consistency
       const response = await axios.get(`${API_URL}/prayer-defaults`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      setDefaults(response.data.defaults);
-      setMethods(response.data.availableMethods);
-      setSchools(response.data.availableSchools);
+      if (response.data.defaults) {
+        setDefaults(response.data.defaults);
+      }
+      setMethods(response.data.availableMethods || {});
+      setSchools(response.data.availableSchools || {});
     } catch (error) {
       console.error("Error fetching defaults:", error);
-      alert("Xatolik yuz berdi!");
+      // Don't alert on initial load failure, just log it
     } finally {
       setLoading(false);
     }
@@ -42,7 +44,7 @@ const PrayerDefaults = () => {
   const handleSave = async () => {
     try {
       setSaving(true);
-      const token = localStorage.getItem("adminToken");
+      const token = localStorage.getItem("token"); // Consistency
       await axios.post(`${API_URL}/prayer-defaults`, defaults, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -55,6 +57,7 @@ const PrayerDefaults = () => {
       setSaving(false);
     }
   };
+
 
   if (loading) {
     return (

@@ -10,11 +10,10 @@ const { CALCULATION_METHODS, SCHOOLS } = require("../../utils/aladhan");
 router.get("/", async (req, res) => {
   try {
     const defaults = await Settings.getSetting("defaultPrayerSettings", {
-      calculationMethod: 3, // MWL - Musulmonlar dunyosi ligasi
-      school: 1, // Hanafi
+      calculationMethod: 3, // MWL - Musulmonlar dunyosi ligasi (Default as requested)
+      school: 1, // Hanafi (Default as requested)
       midnightMode: 0,
     });
-    console.log("� Retrieved prayer defaults from DB:", defaults);
     res.json({
       defaults,
       availableMethods: CALCULATION_METHODS,
@@ -33,19 +32,20 @@ router.post("/", async (req, res) => {
   try {
     const { calculationMethod, school, midnightMode } = req.body;
     const defaults = {
-      calculationMethod: parseInt(calculationMethod) || 1,
+      calculationMethod: parseInt(calculationMethod) || 3,
       school: parseInt(school) || 1,
       midnightMode: parseInt(midnightMode) || 0,
     };
-    console.log("💾 Saving prayer defaults:", defaults);
+
+    // FIX: Passing 'defaults' as the value argument
     const result = await Settings.setSetting(
       "defaultPrayerSettings",
+      defaults, // This was missing!
       "Default namoz sozlamalari (yangi foydalanuvchilar uchun)"
     );
-    console.log("✅ Saved to database:", result);
-    console.log("✅ Prayer defaults saved successfully");
+
     await logger.logAdminAction(
-      { userId: req.user?.id || "system", firstName: "Admin" },
+      { userId: req.user?.userId || "system", firstName: "Admin" },
       "Default namoz sozlamalari yangilandi",
       JSON.stringify(defaults)
     );
@@ -56,7 +56,6 @@ router.post("/", async (req, res) => {
     });
   } catch (error) {
     logger.error("Error updating prayer defaults:", error);
-    await logger.logError(error, "Prayer defaults update failed");
     res.status(500).json({ error: "Internal server error" });
   }
 });

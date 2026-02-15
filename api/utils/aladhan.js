@@ -51,7 +51,7 @@ function setRedisCache(cache) {
 async function getPrayerTimes(
   latitude,
   longitude,
-  method = 1,
+  method = 3,
   school = 1,
   midnightMode = 0,
   latitudeAdjustment = 1,

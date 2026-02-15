@@ -1,0 +1,13 @@
+import { Megaphone } from "lucide-react";
+
+{hasPermission("viewAdvertisements") && (
+  <NavLink
+    to="/advertisements"
+    className={({ isActive }) =>
+      isActive ? "nav-item active" : "nav-item"
+    }
+  >
+    <Megaphone size={20} />
+    <span>Reklamalar</span>
+  </NavLink>
+)}

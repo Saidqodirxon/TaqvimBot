@@ -83,7 +83,7 @@ router.post("/prayer-times", async (req, res) => {
       return res.status(404).json({ error: "User not found" });
     }
     // Get user's prayer settings
-    const method = user.prayerSettings?.calculationMethod || 1;
+    const method = user.prayerSettings?.calculationMethod || 3;
     const school = user.prayerSettings?.school || 1;
     const midnightMode = user.prayerSettings?.midnightMode || 0;
     const latitudeAdjustment = user.prayerSettings?.latitudeAdjustment || 1;
@@ -121,6 +121,22 @@ router.post("/prayer-times", async (req, res) => {
       });
     }
 
+    // Add Advertisement
+    try {
+      const { getRandomAd } = require("../../utils/advertisement");
+      const ad = await getRandomAd("menu", user.location?.name); // Use 'menu' type for miniapp display
+      if (ad) {
+        prayerData.ad = {
+          title: ad.title,
+          content: ad.content,
+          image: ad.image,
+          link: ad.link, // if exists
+        };
+      }
+    } catch (adError) {
+      logger.error("Error fetching ad for miniapp:", adError);
+    }
+
     res.json(prayerData);
   } catch (error) {
     logger.error("Prayer times error", {
@@ -153,7 +169,7 @@ router.post("/weekly-prayer-times", async (req, res) => {
       return res.status(404).json({ error: "User not found" });
     }
     // Get user's prayer settings
-    const method = user.prayerSettings?.calculationMethod || 1;
+    const method = user.prayerSettings?.calculationMethod || 3;
     const school = user.prayerSettings?.school || 1;
     const midnightMode = user.prayerSettings?.midnightMode || 0;
     const latitudeAdjustment = user.prayerSettings?.latitudeAdjustment || 1;

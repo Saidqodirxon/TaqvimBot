@@ -3,6 +3,9 @@ const moment = require("moment-timezone");
 const { getPrayerTimes } = require("./aladhan");
 const { t, getUserLanguage } = require("./translator");
 const User = require("../models/User");
+const { getRandomAd, getAdFooter } = require("./advertisement");
+
+const ADMIN_USER = process.env.ADMIN_USER || "admin";
 
 // Store active reminder jobs
 const activeJobs = new Map();
@@ -146,70 +149,21 @@ async function schedulePrayerReminders(bot, user) {
                 // Mark as sent BEFORE sending
                 markReminderSent(user.userId, prayer.name, "before");
 
-                const message = await t(lang, "reminder_before_prayer", {
+                let message = await t(lang, "reminder_before_prayer", {
                   prayer: prayer.name,
                   minutes: minutesBefore,
                   time: prayer.time,
                 });
 
+                // Add Advertisement
+                const ad = await getRandomAd(
+                  "notification",
+                  user.location?.name
+                );
+                message += getAdFooter(ad, ADMIN_USER);
+
                 // Send with retry and rate limit handling
-                try {
-                  await bot.telegram.sendMessage(user.userId, message, {
-                    reply_markup: {
-                      inline_keyboard: [
-                        [
-                          {
-                            text: "🏠 Asosiy menyu",
-                            callback_data: "show_main_menu",
-                          },
-                        ],
-                        [
-                          {
-                            text: "🔕 Eslatmalarni o'chirib qo'yish",
-                            callback_data: "disable_all_reminders",
-                          },
-                        ],
-                      ],
-                    },
-                  });
-                } catch (sendError) {
-                  // Handle Telegram rate limits
-                  if (sendError.response?.error_code === 429) {
-                    const retryAfter =
-                      sendError.response.parameters?.retry_after || 1;
-                    // Wait and retry once
-                    await new Promise((resolve) =>
-                      setTimeout(resolve, retryAfter * 1000)
-                    );
-                    await bot.telegram.sendMessage(user.userId, message, {
-                      reply_markup: {
-                        inline_keyboard: [
-                          [
-                            {
-                              text: "🔕 Eslatmalarni o'chirish",
-                              callback_data: "disable_all_reminders",
-                            },
-                          ],
-                        ],
-                      },
-                    });
-                  } else if (sendError.response?.error_code === 403) {
-                    // User blocked the bot
-                    const User = require("../models/User");
-                    await User.updateOne(
-                      { userId: user.userId },
-                      {
-                        $set: {
-                          "reminderSettings.enabled": false,
-                          // is_block: true - Removed to prevent auto-blocking
-                        },
-                      }
-                    );
-                    cancelUserReminders(user.userId);
-                  } else {
-                    throw sendError;
-                  }
-                }
+                await sendReminderMessage(bot, user, message);
               } catch (error) {
                 console.error(
                   `Error sending before-prayer reminder to ${user.userId}:`,
@@ -219,6 +173,66 @@ async function schedulePrayerReminders(bot, user) {
             }
           );
           userJobs.push(beforeJob);
+        }
+
+        // --- SAHARLIK SPECIAL REMINDERS (FAJR) ---
+        if (prayer.nameKey === "prayer_fajr") {
+          // 1. Saharlik 1 hour before
+          const saharlik1HourTime = prayerTime.clone().subtract(1, "hour");
+          if (saharlik1HourTime.isAfter(now)) {
+            const saharlik1HourJob = schedule.scheduleJob(
+              saharlik1HourTime.toDate(),
+              async () => {
+                try {
+                  if (wasReminderSent(user.userId, "saharlik", "1hour")) return;
+                  markReminderSent(user.userId, "saharlik", "1hour");
+
+                  let message = await t(lang, "reminder_saharlik_1hour");
+
+                  // Ads
+                  const ad = await getRandomAd(
+                    "notification",
+                    user.location?.name
+                  );
+                  message += getAdFooter(ad, ADMIN_USER);
+
+                  await sendReminderMessage(bot, user, message);
+                } catch (e) {
+                  console.error(`Saharlik 1h error ${user.userId}`, e.message);
+                }
+              }
+            );
+            userJobs.push(saharlik1HourJob);
+          }
+
+          // 2. Saharlik 15 mins before (Dua)
+          const saharlik15MinTime = prayerTime.clone().subtract(15, "minutes");
+          if (saharlik15MinTime.isAfter(now)) {
+            const saharlik15MinJob = schedule.scheduleJob(
+              saharlik15MinTime.toDate(),
+              async () => {
+                try {
+                  if (wasReminderSent(user.userId, "saharlik", "15min")) return;
+                  markReminderSent(user.userId, "saharlik", "15min");
+
+                  // Dua Text
+                  let message = await t(lang, "dua_saharlik");
+
+                  // Ads
+                  const ad = await getRandomAd(
+                    "notification",
+                    user.location?.name
+                  );
+                  message += getAdFooter(ad, ADMIN_USER);
+
+                  await sendReminderMessage(bot, user, message);
+                } catch (e) {
+                  console.error(`Saharlik 15m error ${user.userId}`, e.message);
+                }
+              }
+            );
+            userJobs.push(saharlik15MinJob);
+          }
         }
 
         // Schedule reminder AT prayer time (only if prayer time hasn't passed)
@@ -233,69 +247,30 @@ async function schedulePrayerReminders(bot, user) {
               // Mark as sent BEFORE sending
               markReminderSent(user.userId, prayer.name, "at");
 
-              const message = await t(lang, "reminder_prayer_time", {
-                prayer: prayer.name,
-                time: prayer.time,
-              });
+              let message = "";
+
+              if (prayer.nameKey === "prayer_fajr") {
+                // Saharlik tugadi
+                message = await t(lang, "reminder_saharlik_end");
+              } else if (prayer.nameKey === "prayer_maghrib") {
+                // Iftorlik vaqti
+                const iftarMsg = await t(lang, "reminder_iftorlik_time");
+                const dua = await t(lang, "dua_iftorlik");
+                message = `${iftarMsg}\n\n${dua}`;
+              } else {
+                // Standard prayer
+                message = await t(lang, "reminder_prayer_time", {
+                  prayer: prayer.name,
+                  time: prayer.time,
+                });
+              }
+
+              // Ads
+              const ad = await getRandomAd("notification", user.location?.name);
+              message += getAdFooter(ad, ADMIN_USER);
 
               // Send with retry and rate limit handling
-              try {
-                await bot.telegram.sendMessage(user.userId, message, {
-                  reply_markup: {
-                    inline_keyboard: [
-                      [
-                        {
-                          text: "🏠 Asosiy menyu",
-                          callback_data: "show_main_menu",
-                        },
-                      ],
-                      [
-                        {
-                          text: "🔕 Eslatmalarni o'chirib qo'yish",
-                          callback_data: "disable_all_reminders",
-                        },
-                      ],
-                    ],
-                  },
-                });
-              } catch (sendError) {
-                // Handle Telegram rate limits
-                if (sendError.response?.error_code === 429) {
-                  const retryAfter =
-                    sendError.response.parameters?.retry_after || 1;
-                  // Wait and retry once
-                  await new Promise((resolve) =>
-                    setTimeout(resolve, retryAfter * 1000)
-                  );
-                  await bot.telegram.sendMessage(user.userId, message, {
-                    reply_markup: {
-                      inline_keyboard: [
-                        [
-                          {
-                            text: "🔕 Eslatmalarni o'chirish",
-                            callback_data: "disable_all_reminders",
-                          },
-                        ],
-                      ],
-                    },
-                  });
-                } else if (sendError.response?.error_code === 403) {
-                  // User blocked the bot
-                  const User = require("../models/User");
-                  await User.updateOne(
-                    { userId: user.userId },
-                    {
-                      $set: {
-                        "reminderSettings.enabled": false,
-                        // is_block: true - Removed to prevent auto-blocking
-                      },
-                    }
-                  );
-                  cancelUserReminders(user.userId);
-                } else {
-                  throw sendError;
-                }
-              }
+              await sendReminderMessage(bot, user, message);
             } catch (error) {
               console.error(
                 `Error sending at-prayer reminder to ${user.userId}:`,
@@ -441,6 +416,69 @@ async function updateUserReminders(bot, userId, newSettings) {
   } catch (error) {
     console.error(`Error updating reminders for user ${userId}:`, error);
     throw error;
+  }
+}
+
+/**
+ * Helper function to send reminder message with error handling
+ */
+async function sendReminderMessage(bot, user, message) {
+  try {
+    await bot.telegram.sendMessage(user.userId, message, {
+      parse_mode: "HTML",
+      disable_web_page_preview: true,
+      link_preview_options: { is_disabled: true },
+      reply_markup: {
+        inline_keyboard: [
+          [
+            {
+              text: "🏠 Asosiy menyu",
+              callback_data: "show_main_menu",
+            },
+          ],
+          [
+            {
+              text: "🔕 Eslatmalarni o'chirib qo'yish",
+              callback_data: "disable_all_reminders",
+            },
+          ],
+        ],
+      },
+    });
+  } catch (sendError) {
+    // Handle Telegram rate limits
+    if (sendError.response?.error_code === 429) {
+      const retryAfter = sendError.response.parameters?.retry_after || 1;
+      // Wait and retry once
+      await new Promise((resolve) => setTimeout(resolve, retryAfter * 1000));
+      await bot.telegram.sendMessage(user.userId, message, {
+        parse_mode: "HTML",
+        reply_markup: {
+          inline_keyboard: [
+            [
+              {
+                text: "🔕 Eslatmalarni o'chirish",
+                callback_data: "disable_all_reminders",
+              },
+            ],
+          ],
+        },
+      });
+    } else if (sendError.response?.error_code === 403) {
+      // User blocked the bot
+      const User = require("../models/User");
+      await User.updateOne(
+        { userId: user.userId },
+        {
+          $set: {
+            "reminderSettings.enabled": false,
+          },
+        }
+      );
+      cancelUserReminders(user.userId);
+    } else {
+      throw sendError;
+    }
   }
 }
 

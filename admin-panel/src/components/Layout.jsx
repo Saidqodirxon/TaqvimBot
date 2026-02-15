@@ -21,7 +21,11 @@ import {
   Activity,
   TestTube2,
   HardDrive,
+  Megaphone,
+  FileText,
 } from "lucide-react";
+
+
 import "./Layout.css";
 
 function Layout({ children, setAuth, admin }) {
@@ -114,14 +118,26 @@ function Layout({ children, setAuth, admin }) {
               </NavLink>
 
               <NavLink
+                to="/instruction"
+                className={({ isActive }) =>
+                  isActive ? "nav-item active" : "nav-item"
+                }
+              >
+                <FileText size={20} />
+                <span>Bot Qo'llanmasi</span>
+              </NavLink>
+
+
+              <NavLink
                 to="/settings"
                 className={({ isActive }) =>
                   isActive ? "nav-item active" : "nav-item"
                 }
               >
                 <Bell size={20} />
-                <span>Eslatmalar</span>
+                <span>Eslatma Sozlamalari</span>
               </NavLink>
+
             </>
           )}
 
@@ -196,6 +212,19 @@ function Layout({ children, setAuth, admin }) {
               <span>Takliflar</span>
             </NavLink>
           )}
+
+          {hasPermission("viewAdvertisements") && (
+            <NavLink
+              to="/advertisements"
+              className={({ isActive }) =>
+                isActive ? "nav-item active" : "nav-item"
+              }
+            >
+              <Megaphone size={20} />
+              <span>Reklamalar</span>
+            </NavLink>
+          )}
+
 
           {hasPermission("viewBroadcast") && (
             <>

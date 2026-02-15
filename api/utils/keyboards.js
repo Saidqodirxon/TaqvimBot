@@ -31,7 +31,7 @@ async function getMainMenuKeyboard(lang = "uz") {
       await t(lang, "btn_ramadan_countdown"),
     ],
     [await t(lang, "btn_suggest"), await t(lang, "btn_settings")],
-    [await t(lang, "btn_about")],
+    [await t(lang, "btn_instruction"), await t(lang, "btn_about")],
   ];
 
   return Markup.keyboard(buttons).resize().persistent(true);

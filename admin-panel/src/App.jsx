@@ -22,7 +22,10 @@ import Profile from "./pages/Profile";
 import Resources from "./pages/Resources";
 import Test from "./pages/Test";
 import Backups from "./pages/Backups";
+import Advertisements from "./pages/Advertisements";
+import Instruction from "./pages/Instruction";
 import Layout from "./components/Layout";
+
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -94,7 +97,10 @@ function App() {
         <Route path="/broadcast" element={<Broadcast />} />
         <Route path="/broadcast-location" element={<BroadcastLocation />} />
         <Route path="/settings" element={<Settings />} />
+        <Route path="/advertisements" element={<Advertisements />} />
+        <Route path="/instruction" element={<Instruction />} />
         <Route path="*" element={<Navigate to="/" replace />} />
+
       </Routes>
     </Layout>
   );

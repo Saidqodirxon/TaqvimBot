@@ -392,6 +392,49 @@ router.post("/reminders", adminAuth, async (req, res) => {
 });
 
 /**
+ * Send test reminder with AD
+ */
+router.post("/send-test-reminder", adminAuth, async (req, res) => {
+  try {
+    const adminId = process.env.ADMIN_ID;
+    if (!adminId) {
+      return res
+        .status(400)
+        .json({ success: false, error: "ADMIN_ID not configured" });
+    }
+
+    const { getRandomAd, getAdFooter } = require("../../utils/advertisement");
+
+    // Simulate user context (using Tashkent/Admin data)
+    const userContext = { location: { name: "Tashkent" } };
+    const ad = await getRandomAd("notification", userContext.location.name);
+
+    let message = `🧪 <b>Test Eslatma</b>\n\nBu namoz vaqti eslatmasi testi.\n\n⏰ Vaqt: ${new Date().toLocaleTimeString("uz-UZ")}`;
+
+    // Append Ad
+    message += getAdFooter(ad, process.env.ADMIN_USER || "admin");
+
+    await bot.telegram.sendMessage(adminId, message, {
+      parse_mode: "HTML",
+      disable_web_page_preview: true,
+      link_preview_options: { is_disabled: true },
+      reply_markup: {
+        inline_keyboard: [[{ text: "✅ Tushundim", callback_data: "noop" }]],
+      },
+    });
+
+    res.json({
+      success: true,
+      message: "Test eslatma (reklama bilan) yuborildi",
+      ad: ad ? { title: ad.title, type: ad.type } : "No ad found",
+    });
+  } catch (error) {
+    logger.error("Test reminder error:", error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/**
  * Send custom test message
  */
 router.post("/send-custom-message", adminAuth, async (req, res) => {

@@ -28,6 +28,12 @@ function Settings() {
   const [phoneRecheckDays, setPhoneRecheckDays] = useState(180);
   const [phoneDelayHours, setPhoneDelayHours] = useState(0);
 
+  // Instruction settings state
+  const [instructionTextUz, setInstructionTextUz] = useState("");
+  const [instructionTextCr, setInstructionTextCr] = useState("");
+  const [instructionTextRu, setInstructionTextRu] = useState("");
+  const [instructionVideo, setInstructionVideo] = useState("");
+
   // Cache settings state
   const [cacheTtl, setCacheTtl] = useState(86400); // 24 hours default
   const [cacheMaxSize, setCacheMaxSize] = useState(1000);
@@ -131,6 +137,19 @@ function Settings() {
       if (phoneDelaySetting) {
         setPhoneDelayHours(phoneDelaySetting.value ?? 0);
       }
+
+      // Instruction settings
+      const instTextSetting = data?.find((s) => s.key === "instruction_text");
+      if (instTextSetting?.value) {
+        setInstructionTextUz(instTextSetting.value.uz || "");
+        setInstructionTextCr(instTextSetting.value.cr || "");
+        setInstructionTextRu(instTextSetting.value.ru || "");
+      }
+
+      const instVideoSetting = data?.find((s) => s.key === "instruction_video");
+      if (instVideoSetting) {
+        setInstructionVideo(instVideoSetting.value || "");
+      }
     }
   }, [data]);
 
@@ -228,6 +247,25 @@ function Settings() {
     onSuccess: () => {
       queryClient.invalidateQueries(["settings"]);
       alert("Telefon so'rash sozlamalari saqlandi!");
+    },
+    onError: () => {
+      alert("Xatolik yuz berdi!");
+    },
+  });
+
+  const instructionMutation = useMutation({
+    mutationFn: () =>
+      settings.setInstruction({
+        text: {
+          uz: instructionTextUz,
+          cr: instructionTextCr,
+          ru: instructionTextRu,
+        },
+        video: instructionVideo,
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries(["settings"]);
+      alert("Bot qo'llanmasi saqlandi!");
     },
     onError: () => {
       alert("Xatolik yuz berdi!");

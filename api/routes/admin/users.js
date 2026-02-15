@@ -74,8 +74,9 @@ router.get("/", authMiddleware, async (req, res) => {
       (delaySettings.hours || 0) * 60 * 60 * 1000;
 
     const usersData = await User.find(query)
-      .sort({ createdAt: -1 })
+      .sort({ points: -1, createdAt: -1 })
       .skip(skip)
+
       .limit(limit)
       .select("-__v")
       .lean()
@@ -140,21 +141,37 @@ router.get("/search", authMiddleware, async (req, res) => {
     res.status(500).json({ error: "Server xatosi" });
   }
 });
-// Get user by ID
+// Get user by ID with promo details
 router.get("/:userId", authMiddleware, async (req, res) => {
   try {
-    const [userDoc, delaySettings] = await Promise.all([
-      User.findOne({ userId: parseInt(req.params.userId) }).lean(),
+    const userId = parseInt(req.params.userId);
+    const PromoCode = require("../../models/PromoCode");
+
+    const [userDoc, delaySettings, promoUsages] = await Promise.all([
+      User.findOne({ userId }).lean(),
       Settings.getSetting("channel_join_delay", { days: 0, hours: 0 }),
+      PromoCode.find({ "usedBy.userId": userId }).lean(),
     ]);
 
     if (!userDoc) {
       return res.status(404).json({ error: "Foydalanuvchi topilmadi" });
     }
 
+    // Process promo codes to show details
+    const promoDetails = promoUsages.map((promo) => {
+      const usage = promo.usedBy.find((u) => u.userId === userId);
+      return {
+        code: promo.code,
+        points: promo.rewardPoints,
+        usedAt: usage ? usage.usedAt : null,
+      };
+    });
+
     const delayMs =
       (delaySettings.days || 0) * 24 * 60 * 60 * 1000 +
       (delaySettings.hours || 0) * 60 * 60 * 1000;
+
+    // ... existing delay logic ...
 
     const now = Date.now();
     let delayRemaining = 0;
@@ -167,6 +184,7 @@ router.get("/:userId", authMiddleware, async (req, res) => {
       ...userDoc,
       delayRemaining,
       delayMs,
+      promoDetails, // Add promo details to response
     };
 
     res.json({ user });

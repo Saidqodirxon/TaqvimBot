@@ -131,6 +131,13 @@ function Test() {
       icon: <AlertTriangle size={20} />,
     },
     {
+      name: "testReminderWithAd",
+      title: "Test Reminder + Ad",
+      description: "Eslatma + Reklama test qilish",
+      endpoint: "send-test-reminder",
+      icon: <Bell size={20} />,
+    },
+    {
       name: "backup",
       title: "Backup",
       description: "MongoDB backup yaratish (background)",
@@ -138,6 +145,7 @@ function Test() {
       icon: <Database size={20} />,
     },
   ];
+
 
   const runAllTests = async () => {
     for (const test of tests) {
@@ -287,6 +295,13 @@ function Test() {
                           {result.data.reminderUsers}
                         </div>
                       )}
+                      {result.data.ad && (
+                        <div className="result-details">
+                          <strong>Reklama:</strong> {result.data.ad.title || "Yo'q"} <br />
+                          <strong>Tur:</strong> {result.data.ad.type || "-"}
+                        </div>
+                      )}
+
                       {result.data.note && (
                         <div className="result-note">ℹ️ {result.data.note}</div>
                       )}

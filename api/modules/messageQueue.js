@@ -100,6 +100,13 @@ class MessageQueue {
         await this.addToQueue(user.userId, translatedMessage, {
           ...options,
           parse_mode: options.parse_mode || "HTML",
+          disable_web_page_preview:
+            options.disable_web_page_preview !== undefined
+              ? options.disable_web_page_preview
+              : true,
+          link_preview_options: options.link_preview_options || {
+            is_disabled: true,
+          },
         });
       }
 

@@ -13,6 +13,10 @@ module.exports = {
     btn_calendar_webapp: "📱 Taqvim (WebApp)",
     btn_send_greeting: "💌 Tabrik yuborish",
     btn_about: "ℹ️ Bot haqida",
+    btn_instruction: "📚 Qo'llanma",
+    instruction_missing:
+      "⚠️ Qo'llanma hali kiritilmagan. Tez orada qo'shiladi!",
+    btn_video_instruction: "🎥 Video qo'llanma",
     btn_suggest: "💡 Taklif yuborish",
     btn_settings: "⚙️ Sozlamalar",
     btn_prayers: "🤲 Duolar",
@@ -167,6 +171,16 @@ module.exports = {
     reminder_before_prayer:
       "🔔 Eslatma: {prayer} namoziga {minutes} daqiqa qoldi!\n⏰ Vaqti: {time}",
     reminder_prayer_time: "🕌 {prayer} namozi vaqti kirdi!\n⏰ {time}",
+    reminder_saharlik_1hour:
+      "⏳ Saharlik vaqti tugashiga 1 soat qoldi.\nSaharlik qilib oling! 🥣",
+    reminder_saharlik_end:
+      "🛑 Bomdod vaqti kirdi.\nSaharlik vaqti tugadi! Og'izni yoping.",
+    reminder_iftorlik_time:
+      "🍽 Shom vaqti kirdi.\nIftorlik vaqti bo'ldi! Alloh qabul qilsin.",
+    dua_saharlik:
+      "🤲 Saharlik (Og'iz yopish) duosi:\n\nNavaytu an asuma sovma shahri ramazona minal fajri ilal mag'ribi, xolisan lillahi ta'ala. Allohu akbar.",
+    dua_iftorlik:
+      "🤲 Iftorlik (Og'iz ochish) duosi:\n\nAllohumma laka sumtu va bika amantu va a'layka tavakkaltu va a'la rizqika aftartu, fag'firli ya g'offaru ma qoddamtu va ma axxortu.",
 
     // Settings
     settings_menu: "⚙️ Sozlamalar menyu",
@@ -239,6 +253,9 @@ module.exports = {
     btn_calendar_webapp: "📱 Тақвим (WebApp)",
     btn_send_greeting: "💌 Табрик юбориш",
     btn_about: "ℹ️ Бот ҳақида",
+    btn_instruction: "📚 Қўлланма",
+    instruction_missing: "⚠️ Қўлланма ҳали киритилмаган. Тез орада қўшилади!",
+    btn_video_instruction: "🎥 Видео қўлланма",
     btn_suggest: "💡 Таклиф юбориш",
     btn_settings: "⚙️ Созламалар",
     btn_prayers: "🤲 Дуолар",
@@ -430,6 +447,16 @@ module.exports = {
     reminder_before_prayer:
       "🔔 Эслатма: {prayer} намозига {minutes} дақиқа қолди!\n⏰ Вақти: {time}",
     reminder_prayer_time: "🕌 {prayer} намози вақти кирди!\n⏰ {time}",
+    reminder_saharlik_1hour:
+      "⏳ Саҳарлик вақти тугашига 1 соат қолди.\nСаҳарлик қилиб олинг! 🥣",
+    reminder_saharlik_end:
+      "🛑 Бомдод вақти кирди.\nСаҳарлик вақти тугади! Оғизни ёпинг.",
+    reminder_iftorlik_time:
+      "🍽 Шом вақти кирди.\nИфторлик вақти бўлди! Аллоҳ қабул қилсин.",
+    dua_saharlik:
+      "🤲 Саҳарлик (Оғиз ёпиш) дуоси:\n\nНавайту ан асума совма шаҳри рамазона минал фажри илал мағриби, холисан лиллаҳи таъала. Аллоҳу акбар.",
+    dua_iftorlik:
+      "🤲 Ифторлик (Оғиз очиш) дуоси:\n\nАллоҳумма лака сумту ва бика аманту ва аълайка таваккалту ва аъла ризқика афтарту, фағфирли я ғоффару ма қоддамту ва ма аххорту.",
 
     // Week days
     monday: "Душанба",
@@ -461,6 +488,9 @@ module.exports = {
     btn_calendar_webapp: "📱 Календарь (WebApp)",
     btn_send_greeting: "💌 Отправить поздравление",
     btn_about: "ℹ️ О боте",
+    btn_instruction: "📚 Инструкция",
+    instruction_missing: "⚠️ Инструкция еще не добавлена. Скоро появится!",
+    btn_video_instruction: "🎥 Видео инструкция",
     btn_suggest: "💡 Отправить предложение",
     btn_settings: "⚙️ Настройки",
     btn_prayers: "🤲 Молитвы",
@@ -613,6 +643,16 @@ module.exports = {
     reminder_before_prayer:
       "🔔 Напоминание: до {prayer} осталось {minutes} минут!\n⏰ Время: {time}",
     reminder_prayer_time: "🕌 Наступило время {prayer}!\n⏰ {time}",
+    reminder_saharlik_1hour:
+      "⏳ До окончания сухура остался 1 час.\nПокушайте сухур! 🥣",
+    reminder_saharlik_end:
+      "🛑 Время Фаджр наступло.\nВремя сухура закончилось! Закрывайте пост.",
+    reminder_iftorlik_time:
+      "🍽 Время Магриб наступило.\nВремя ифтара! Пусть Аллах примет ваш пост.",
+    dua_saharlik:
+      "🤲 Дуа для сухура (Намерение):\n\nНавайту ан асума совма шаҳри рамазона минал фажри илал мағриби, холисан лиллаҳи таъала. Аллоҳу акбар.",
+    dua_iftorlik:
+      "🤲 Дуа для ифтара (Разговение):\n\nАллоҳумма лака сумту ва бика аманту ва аълайка таваккалту ва аъла ризқика афтарту, фағфирли я ғоффару ма қоддамту ва ма аххорту.",
 
     // Settings scene
     settings_menu: "⚙️ Меню настроек",

@@ -71,6 +71,7 @@ AdminSchema.statics.getDefaultPermissions = function (role) {
     viewLocations: true,
     viewGreetings: true,
     viewTranslations: true,
+    viewAdvertisements: true, // Added
   };
 
   switch (role) {

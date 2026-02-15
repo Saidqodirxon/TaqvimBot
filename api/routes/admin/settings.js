@@ -484,4 +484,46 @@ router.post("/redis", authMiddleware, superAdminOnly, async (req, res) => {
   }
 });
 
+// Set instruction settings
+router.post(
+  "/instruction",
+  authMiddleware,
+  superAdminOnly,
+  async (req, res) => {
+    try {
+      const { text, video } = req.body;
+
+      if (text) {
+        await Settings.setSetting(
+          "instruction_text",
+          text,
+          "Bot qo'llanmasi matni (uz, cr, ru)"
+        );
+      }
+
+      if (video !== undefined) {
+        await Settings.setSetting(
+          "instruction_video",
+          video,
+          "Bot qo'llanmasi video/file ID"
+        );
+      }
+
+      await logger.logAdminAction(
+        req.user,
+        "Bot qo'llanmasi yangilandi",
+        `Text: ${text ? "updated" : "no change"}, Video: ${video ? "updated" : "no change"}`
+      );
+
+      res.json({
+        message: "Bot qo'llanmasi saqlandi!",
+        settings: { text, video },
+      });
+    } catch (error) {
+      logger.error("Set instruction settings error:", error);
+      res.status(500).json({ error: "Server xatosi" });
+    }
+  }
+);
+
 module.exports = router;

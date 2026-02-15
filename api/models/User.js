@@ -110,6 +110,11 @@ const UserSchema = new mongoose.Schema(
       default: Date.now,
       index: true,
     },
+    points: {
+      type: mongoose.SchemaTypes.Number,
+      default: 0,
+      index: true,
+    },
     reminderSettings: {
       enabled: {
         type: mongoose.SchemaTypes.Boolean,

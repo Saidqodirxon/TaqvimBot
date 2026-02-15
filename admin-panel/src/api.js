@@ -93,6 +93,8 @@ export const settings = {
     api.post("/settings/terms", termsSettings),
   setPhoneSettings: (phoneSettings) =>
     api.post("/settings/phone", phoneSettings),
+  setInstruction: (instructionData) =>
+    api.post("/settings/instruction", instructionData),
 };
 
 // Greetings
@@ -144,6 +146,15 @@ export const translations = {
 export const resources = {
   getSystem: () => api.get("/resources"),
   getMongoDB: () => api.get("/resources/mongodb"),
+};
+
+// Advertisements
+export const advertisements = {
+  getAll: (page = 1, limit = 20) =>
+    api.get(`/advertisements?page=${page}&limit=${limit}`),
+  create: (data) => api.post("/advertisements", data),
+  update: (id, data) => api.put(`/advertisements/${id}`, data),
+  delete: (id) => api.delete(`/advertisements/${id}`),
 };
 
 export default api;

@@ -44,6 +44,7 @@ router.post("/login", async (req, res) => {
         role: admin.role,
         username: admin.username,
         firstName: admin.firstName,
+        permissions: admin.permissions || {}, // Include permissions
       },
       process.env.JWT_SECRET,
       { expiresIn: "24h" }
