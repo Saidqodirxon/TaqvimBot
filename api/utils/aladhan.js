@@ -78,7 +78,8 @@ function applyOffset(
 
     const date = new Date();
     date.setHours(hours, minutes, 0, 0);
-    date.setMinutes(date.getMinutes() + totalOffset);
+    // Convert hours to minutes (input is now in hours)
+    date.setMinutes(date.getMinutes() + Math.round(totalOffset * 60));
 
     const newHours = String(date.getHours()).padStart(2, "0");
     const newMinutes = String(date.getMinutes()).padStart(2, "0");

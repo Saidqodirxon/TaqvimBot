@@ -26,7 +26,7 @@ router.post(
       await Settings.setSetting(
         "global_prayer_offsets",
         offsets,
-        "Global namoz vaqtlari offsetlari (daqiqalarda)"
+        "Global namoz vaqtlari offsetlari (soatlarda)"
       );
 
       // Clear legacy single offset to avoid double counting
