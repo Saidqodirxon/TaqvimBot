@@ -434,10 +434,10 @@ function Settings() {
           <div className="setting-header">
             <Database size={24} />
             <div>
-              <h3>Global Namoz Vaqti Qo'shish (Offset)</h3>
+              <h3>Global Namoz Vaqti Qo'shish (Offset Soatlarda)</h3>
               <p>
                 Barcha namoz vaqtlariga global ravishda vaqt qo'shish yoki
-                ayirish. Bu sozlama barcha joylashuvlarga ta'sir qiladi.
+                ayirish. <b>Eslatma: Qiymatlarni soatda kiriting (masalan: 1 yoki -0.5)</b>
               </p>
             </div>
           </div>
@@ -452,62 +452,99 @@ function Settings() {
               <label>🌅 Bomdod</label>
               <input
                 type="number"
+                step="0.1"
+                placeholder="0.0"
                 value={globalPrayerOffsets.fajr}
-                onChange={(e) => setGlobalPrayerOffsets({ ...globalPrayerOffsets, fajr: parseInt(e.target.value) || 0 })}
+                onChange={(e) => setGlobalPrayerOffsets({ ...globalPrayerOffsets, fajr: parseFloat(e.target.value) || 0 })}
               />
             </div>
             <div className="form-group">
               <label>☀️ Quyosh</label>
               <input
                 type="number"
+                step="0.1"
+                placeholder="0.0"
                 value={globalPrayerOffsets.sunrise}
-                onChange={(e) => setGlobalPrayerOffsets({ ...globalPrayerOffsets, sunrise: parseInt(e.target.value) || 0 })}
+                onChange={(e) => setGlobalPrayerOffsets({ ...globalPrayerOffsets, sunrise: parseFloat(e.target.value) || 0 })}
               />
             </div>
             <div className="form-group">
               <label>🌞 Peshin</label>
               <input
                 type="number"
+                step="0.1"
+                placeholder="0.0"
                 value={globalPrayerOffsets.dhuhr}
-                onChange={(e) => setGlobalPrayerOffsets({ ...globalPrayerOffsets, dhuhr: parseInt(e.target.value) || 0 })}
+                onChange={(e) => setGlobalPrayerOffsets({ ...globalPrayerOffsets, dhuhr: parseFloat(e.target.value) || 0 })}
               />
             </div>
             <div className="form-group">
               <label>🌤 Asr</label>
               <input
                 type="number"
+                step="0.1"
+                placeholder="0.0"
                 value={globalPrayerOffsets.asr}
-                onChange={(e) => setGlobalPrayerOffsets({ ...globalPrayerOffsets, asr: parseInt(e.target.value) || 0 })}
+                onChange={(e) => setGlobalPrayerOffsets({ ...globalPrayerOffsets, asr: parseFloat(e.target.value) || 0 })}
               />
             </div>
             <div className="form-group">
               <label>🌇 Shom</label>
               <input
                 type="number"
+                step="0.1"
+                placeholder="0.0"
                 value={globalPrayerOffsets.maghrib}
-                onChange={(e) => setGlobalPrayerOffsets({ ...globalPrayerOffsets, maghrib: parseInt(e.target.value) || 0 })}
+                onChange={(e) => setGlobalPrayerOffsets({ ...globalPrayerOffsets, maghrib: parseFloat(e.target.value) || 0 })}
               />
             </div>
             <div className="form-group">
               <label>🌙 Xufton</label>
               <input
                 type="number"
+                step="0.1"
+                placeholder="0.0"
                 value={globalPrayerOffsets.isha}
-                onChange={(e) => setGlobalPrayerOffsets({ ...globalPrayerOffsets, isha: parseInt(e.target.value) || 0 })}
+                onChange={(e) => setGlobalPrayerOffsets({ ...globalPrayerOffsets, isha: parseFloat(e.target.value) || 0 })}
               />
             </div>
           </div>
 
-          <button
-            className="btn-primary"
-            onClick={() => prayerOffsetMutation.mutate()}
-            disabled={prayerOffsetMutation.isLoading}
-          >
-            <Save size={18} />
-            {prayerOffsetMutation.isLoading
-              ? "Saqlanmoqda..."
-              : "Global Offsetlarni Saqlash"}
-          </button>
+          <div style={{ display: "flex", gap: "12px", marginTop: "16px" }}>
+            <button
+              className="btn-primary"
+              onClick={() => prayerOffsetMutation.mutate()}
+              disabled={prayerOffsetMutation.isLoading}
+            >
+              <Save size={18} />
+              {prayerOffsetMutation.isLoading
+                ? "Saqlanmoqda..."
+                : "Global Offsetlarni Saqlash"}
+            </button>
+
+            <button
+              className="btn-secondary"
+              onClick={() => {
+                if (window.confirm("Barcha offsetlarni 0 ga tushirmoqchimisiz?")) {
+                  const resetValue = {
+                    fajr: 0,
+                    sunrise: 0,
+                    dhuhr: 0,
+                    asr: 0,
+                    maghrib: 0,
+                    isha: 0,
+                  };
+                  setGlobalPrayerOffsets(resetValue);
+                  settings.setPrayerOffset(resetValue).then(() => {
+                    queryClient.invalidateQueries(["settings"]);
+                    alert("Barcha offsetlar 0 ga tushirildi!");
+                  });
+                }
+              }}
+            >
+              🔄 Hammasini 0 qilish
+            </button>
+          </div>
         </div>
       </div>
 
@@ -923,7 +960,7 @@ function Settings() {
           </li>
         </ul>
       </div>
-    </div>
+    </div >
   );
 }
 
