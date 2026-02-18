@@ -250,6 +250,35 @@ router.post("/prayers", authMiddleware, superAdminOnly, async (req, res) => {
   }
 });
 
+// Set prayer time offset
+router.post(
+  "/prayer-offset",
+  authMiddleware,
+  superAdminOnly,
+  async (req, res) => {
+    try {
+      const { offsets } = req.body;
+      if (!offsets || typeof offsets !== "object") {
+        return res.status(400).json({ error: "offsets obyekt bo'lishi kerak" });
+      }
+
+      await Settings.setSetting(
+        "global_prayer_offsets",
+        offsets,
+        "Global namoz vaqtlari offsetlari (daqiqalarda)"
+      );
+
+      res.json({
+        message: "Global namoz vaqtlari offsetlari saqlandi",
+        offsets,
+      });
+    } catch (error) {
+      logger.error("Set prayer offset error:", error);
+      res.status(500).json({ error: "Server xatosi" });
+    }
+  }
+);
+
 // Set cache settings
 router.post(
   "/cache-settings",
@@ -522,35 +551,6 @@ router.post(
       });
     } catch (error) {
       logger.error("Set instruction settings error:", error);
-      res.status(500).json({ error: "Server xatosi" });
-    }
-  }
-);
-
-// Set prayer time offset
-router.post(
-  "/prayer-offset",
-  authMiddleware,
-  superAdminOnly,
-  async (req, res) => {
-    try {
-      const { offsets } = req.body;
-      if (!offsets || typeof offsets !== "object") {
-        return res.status(400).json({ error: "offsets obyekt bo'lishi kerak" });
-      }
-
-      await Settings.setSetting(
-        "global_prayer_offsets",
-        offsets,
-        "Global namoz vaqtlari offsetlari (daqiqalarda)"
-      );
-
-      res.json({
-        message: "Global namoz vaqtlari offsetlari saqlandi",
-        offsets,
-      });
-    } catch (error) {
-      logger.error("Set prayer offset error:", error);
       res.status(500).json({ error: "Server xatosi" });
     }
   }
