@@ -25,6 +25,7 @@ const DEFAULT_SETTINGS = {
   redis_prayer_times_ttl_hours: 24,
   redis_location_ttl_days: 7,
   redis_user_data_ttl_hours: 1,
+  prayer_time_offset: 0,
 };
 
 // Get setting by key
@@ -521,6 +522,30 @@ router.post(
       });
     } catch (error) {
       logger.error("Set instruction settings error:", error);
+      res.status(500).json({ error: "Server xatosi" });
+    }
+  }
+);
+
+// Set prayer time offset
+router.post(
+  "/prayer-offset",
+  authMiddleware,
+  superAdminOnly,
+  async (req, res) => {
+    try {
+      const { offset } = req.body;
+      if (typeof offset !== "number") {
+        return res.status(400).json({ error: "offset son bo'lishi kerak" });
+      }
+      await Settings.setSetting(
+        "prayer_time_offset",
+        offset,
+        "Namoz vaqtlari offseti (daqiqalarda)"
+      );
+      res.json({ message: "Namoz vaqtlari offseti saqlandi", offset });
+    } catch (error) {
+      logger.error("Set prayer offset error:", error);
       res.status(500).json({ error: "Server xatosi" });
     }
   }

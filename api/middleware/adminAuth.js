@@ -37,8 +37,26 @@ function superAdminOnly(req, res, next) {
   next();
 }
 
+// Check for specific permission
+function checkPermission(permission) {
+  return function (req, res, next) {
+    if (req.admin.role === "superadmin") {
+      return next();
+    }
+    if (req.admin.permissions && req.admin.permissions[permission] === true) {
+      return next();
+    }
+    return res
+      .status(403)
+      .json({
+        error: `Sizda bu amal uchun yetarli huquq yo'q (${permission})`,
+      });
+  };
+}
+
 // Export with both names for compatibility
 module.exports = authMiddleware;
 module.exports.authMiddleware = authMiddleware;
 module.exports.superAdminOnly = superAdminOnly;
+module.exports.checkPermission = checkPermission;
 module.exports.adminAuth = authMiddleware;

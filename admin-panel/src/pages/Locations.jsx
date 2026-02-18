@@ -27,6 +27,14 @@ const Locations = () => {
     timezone: "Asia/Tashkent",
     country: "Uzbekistan",
     isDefault: false,
+    prayerOffsets: {
+      fajr: 0,
+      sunrise: 0,
+      dhuhr: 0,
+      asr: 0,
+      maghrib: 0,
+      isha: 0,
+    },
     manualPrayerTimes: {
       enabled: false,
       fajr: "",
@@ -67,6 +75,15 @@ const Locations = () => {
         manualPrayerTimes: {
           ...formData.manualPrayerTimes,
           [field]: type === "checkbox" ? checked : value,
+        },
+      });
+    } else if (name.startsWith("prayerOffsets.")) {
+      const field = name.split(".")[1];
+      setFormData({
+        ...formData,
+        prayerOffsets: {
+          ...formData.prayerOffsets,
+          [field]: parseInt(value) || 0,
         },
       });
     } else {
@@ -133,6 +150,14 @@ const Locations = () => {
       timezone: location.timezone || "Asia/Tashkent",
       country: location.country || "Uzbekistan",
       isDefault: location.isDefault || false,
+      prayerOffsets: location.prayerOffsets || {
+        fajr: 0,
+        sunrise: 0,
+        dhuhr: 0,
+        asr: 0,
+        maghrib: 0,
+        isha: 0,
+      },
       manualPrayerTimes: location.manualPrayerTimes || {
         enabled: false,
         fajr: "",
@@ -173,6 +198,14 @@ const Locations = () => {
       timezone: "Asia/Tashkent",
       country: "Uzbekistan",
       isDefault: false,
+      prayerOffsets: {
+        fajr: 0,
+        sunrise: 0,
+        dhuhr: 0,
+        asr: 0,
+        maghrib: 0,
+        isha: 0,
+      },
       manualPrayerTimes: {
         enabled: false,
         fajr: "",
@@ -387,13 +420,12 @@ const Locations = () => {
                   </td>
                   <td>
                     <span
-                      className={`growth-badge ${
-                        (location.growth || 0) > 0
-                          ? "positive"
-                          : (location.growth || 0) < 0
-                            ? "negative"
-                            : ""
-                      }`}
+                      className={`growth-badge ${(location.growth || 0) > 0
+                        ? "positive"
+                        : (location.growth || 0) < 0
+                          ? "negative"
+                          : ""
+                        }`}
                     >
                       {(location.growth || 0) > 0 ? "+" : ""}
                       {location.growth || 0}%
@@ -402,14 +434,13 @@ const Locations = () => {
                   <td>
                     <div className="data-completeness">
                       <span
-                        className={`completeness-badge ${
-                          (location.prayerDataStats?.completeness || 0) >= 90
-                            ? "good"
-                            : (location.prayerDataStats?.completeness || 0) >=
-                                50
-                              ? "warning"
-                              : "danger"
-                        }`}
+                        className={`completeness-badge ${(location.prayerDataStats?.completeness || 0) >= 90
+                          ? "good"
+                          : (location.prayerDataStats?.completeness || 0) >=
+                            50
+                            ? "warning"
+                            : "danger"
+                          }`}
                         title={`PrayerTimeData: ${location.prayerDataStats?.prayerTimeDataDays || 0} kun, Monthly: ${location.prayerDataStats?.monthlyPrayerDays || 0} kun`}
                       >
                         {location.prayerDataStats?.hasManualTimes
@@ -421,6 +452,13 @@ const Locations = () => {
                           ⚠️ {location.prayerDataStats.firstMissingDate}
                         </small>
                       )}
+                    </div>
+                  </td>
+                  <td>
+                    <div className="prayer-offsets-list" style={{ fontSize: '11px' }}>
+                      <div>B:{location.prayerOffsets?.fajr || 0}m, Q:{location.prayerOffsets?.sunrise || 0}m</div>
+                      <div>P:{location.prayerOffsets?.dhuhr || 0}m, A:{location.prayerOffsets?.asr || 0}m</div>
+                      <div>Sh:{location.prayerOffsets?.maghrib || 0}m, X:{location.prayerOffsets?.isha || 0}m</div>
                     </div>
                   </td>
                   <td className="actions">
@@ -488,13 +526,12 @@ const Locations = () => {
                   <div className="stat-item">
                     <span className="stat-label">O'sish</span>
                     <span
-                      className={`stat-value ${
-                        (location.growth || 0) > 0
-                          ? "positive"
-                          : (location.growth || 0) < 0
-                            ? "negative"
-                            : ""
-                      }`}
+                      className={`stat-value ${(location.growth || 0) > 0
+                        ? "positive"
+                        : (location.growth || 0) < 0
+                          ? "negative"
+                          : ""
+                        }`}
                     >
                       {(location.growth || 0) > 0 ? "+" : ""}
                       {location.growth || 0}%
@@ -634,6 +671,76 @@ const Locations = () => {
                     value={formData.country}
                     onChange={handleInputChange}
                   />
+                </div>
+              </div>
+
+              <div className="form-section">
+                <h4>⏱ Namoz Vaqtlari Offseti (daqiqalarda)</h4>
+                <p className="info-text">
+                  Faqat ushbu joylashuv uchun har bir namoz vaqtini alohida sozlash.
+                </p>
+
+                <div className="form-row">
+                  <div className="form-group">
+                    <label>🌅 Bomdod</label>
+                    <input
+                      type="number"
+                      name="prayerOffsets.fajr"
+                      value={formData.prayerOffsets.fajr}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>☀️ Quyosh</label>
+                    <input
+                      type="number"
+                      name="prayerOffsets.sunrise"
+                      value={formData.prayerOffsets.sunrise}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                </div>
+
+                <div className="form-row">
+                  <div className="form-group">
+                    <label>🌞 Peshin</label>
+                    <input
+                      type="number"
+                      name="prayerOffsets.dhuhr"
+                      value={formData.prayerOffsets.dhuhr}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>🌤 Asr</label>
+                    <input
+                      type="number"
+                      name="prayerOffsets.asr"
+                      value={formData.prayerOffsets.asr}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                </div>
+
+                <div className="form-row">
+                  <div className="form-group">
+                    <label>🌇 Shom</label>
+                    <input
+                      type="number"
+                      name="prayerOffsets.maghrib"
+                      value={formData.prayerOffsets.maghrib}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>🌙 Xufton</label>
+                    <input
+                      type="number"
+                      name="prayerOffsets.isha"
+                      value={formData.prayerOffsets.isha}
+                      onChange={handleInputChange}
+                    />
+                  </div>
                 </div>
               </div>
 

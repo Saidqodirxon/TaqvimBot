@@ -22,7 +22,7 @@ router.get("/", async (req, res) => {
     // 1. Get all locations (fast)
     const locations = await Location.find({ isActive: true })
       .select(
-        "name nameUz nameCr nameRu latitude longitude timezone country isDefault manualPrayerTimes"
+        "name nameUz nameCr nameRu latitude longitude timezone country isDefault manualPrayerTimes prayerOffsets"
       )
       .sort({ name: 1 })
       .lean();
@@ -214,6 +214,7 @@ router.post("/", async (req, res) => {
       country,
       isDefault,
       manualPrayerTimes,
+      prayerOffsets,
     } = req.body;
     // Validate required fields
     if (!name || !nameUz || !nameCr || !nameRu || !latitude || !longitude) {
@@ -235,6 +236,14 @@ router.post("/", async (req, res) => {
       timezone: timezone || "Asia/Tashkent",
       country: country || "Uzbekistan",
       isDefault: isDefault || false,
+      prayerOffsets: prayerOffsets || {
+        fajr: 0,
+        sunrise: 0,
+        dhuhr: 0,
+        asr: 0,
+        maghrib: 0,
+        isha: 0,
+      },
       manualPrayerTimes: manualPrayerTimes || {
         enabled: false,
       },

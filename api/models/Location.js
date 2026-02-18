@@ -79,6 +79,15 @@ const LocationSchema = new mongoose.Schema(
       default: false,
       index: true,
     },
+    // Per-location individual prayer time offsets in minutes
+    prayerOffsets: {
+      fajr: { type: Number, default: 0 },
+      sunrise: { type: Number, default: 0 },
+      dhuhr: { type: Number, default: 0 },
+      asr: { type: Number, default: 0 },
+      maghrib: { type: Number, default: 0 },
+      isha: { type: Number, default: 0 },
+    },
     // Manual prayer times (optional - if not set, API will be used)
     manualPrayerTimes: {
       enabled: {

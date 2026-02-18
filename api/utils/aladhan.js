@@ -2,6 +2,76 @@ const axios = require("axios");
 const Location = require("../models/Location");
 const MonthlyPrayerTime = require("../models/MonthlyPrayerTime");
 const PrayerTimeData = require("../models/PrayerTimeData");
+const Settings = require("../models/Settings");
+
+/**
+ * Apply time offset to prayer timings
+ * @param {Object} timings - Original timings
+ * @param {number} offsetMinutes - Offset in minutes
+ * @returns {Object} Adjusted timings
+ */
+/**
+ * Apply time offset to prayer timings
+ * @param {Object} timings - Original timings
+ * @param {number} globalOffset - Global offset from settings
+ * @param {Object} perPrayerOffsets - Individual prayer offsets (fajr, dhuhr, etc)
+ * @returns {Object} Adjusted timings
+ */
+function applyOffset(timings, globalOffset = 0, perPrayerOffsets = null) {
+  if (!globalOffset && !perPrayerOffsets) return timings;
+
+  const adjusted = { ...timings };
+  const fields = {
+    fajr: ["fajr", "bomdod"],
+    sunrise: ["sunrise", "quyosh"],
+    dhuhr: ["dhuhr", "peshin"],
+    asr: ["asr"],
+    maghrib: ["maghrib", "shom"],
+    isha: ["isha", "xufton"],
+  };
+
+  for (const key in adjusted) {
+    if (typeof adjusted[key] !== "string" || !adjusted[key].includes(":"))
+      continue;
+
+    const lowerKey = key.toLowerCase();
+    let totalOffset = Number(globalOffset) || 0;
+
+    // Add per-prayer offset if exists
+    if (perPrayerOffsets) {
+      for (const [field, synonyms] of Object.entries(fields)) {
+        if (lowerKey === field || synonyms.includes(lowerKey)) {
+          totalOffset += Number(perPrayerOffsets[field]) || 0;
+          break;
+        }
+      }
+    }
+
+    if (totalOffset === 0) continue;
+
+    // Handle times like "05:30 (EEST)" or just "05:30"
+    const timePart = adjusted[key].split(" ")[0];
+    const [hours, minutes] = timePart.split(":").map(Number);
+
+    if (isNaN(hours) || isNaN(minutes)) continue;
+
+    const date = new Date();
+    date.setHours(hours, minutes, 0, 0);
+    date.setMinutes(date.getMinutes() + totalOffset);
+
+    const newHours = String(date.getHours()).padStart(2, "0");
+    const newMinutes = String(date.getMinutes()).padStart(2, "0");
+
+    // Preserve the original format (e.g. if it had a timezone suffix)
+    if (adjusted[key].includes(" ")) {
+      const suffix = adjusted[key].substring(timePart.length);
+      adjusted[key] = `${newHours}:${newMinutes}${suffix}`;
+    } else {
+      adjusted[key] = `${newHours}:${newMinutes}`;
+    }
+  }
+  return adjusted;
+}
 
 // Redis cache instance (imported globally in bot.js)
 let redisCache = null;
@@ -49,6 +119,55 @@ function setRedisCache(cache) {
  * @returns {Promise<Object>} Namoz vaqtlari
  */
 async function getPrayerTimes(
+  latitude,
+  longitude,
+  method = 3,
+  school = 1,
+  midnightMode = 0,
+  latitudeAdjustment = 1,
+  date = null
+) {
+  const result = await _getPrayerTimes(
+    latitude,
+    longitude,
+    method,
+    school,
+    midnightMode,
+    latitudeAdjustment,
+    date
+  );
+
+  if (result.success && result.timings) {
+    const globalOffset = await Settings.getSetting("prayer_time_offset", 0);
+
+    // Fetch location to get per-location offsets
+    const location = await Location.findOne({
+      latitude: Number(latitude),
+      longitude: Number(longitude),
+      isActive: true,
+    })
+      .select("prayerOffsets")
+      .lean();
+
+    const perPrayerOffsets = location?.prayerOffsets || null;
+
+    if (globalOffset !== 0 || perPrayerOffsets) {
+      result.timings = applyOffset(
+        result.timings,
+        globalOffset,
+        perPrayerOffsets
+      );
+      result.offsetApplied = {
+        global: globalOffset,
+        perPrayer: perPrayerOffsets,
+      };
+    }
+  }
+
+  return result;
+}
+
+async function _getPrayerTimes(
   latitude,
   longitude,
   method = 3,
@@ -457,18 +576,37 @@ async function getMonthlyPrayerTimes(latitude, longitude, month, year) {
     });
 
     if (response.data.code === 200) {
+      const globalOffset = await Settings.getSetting("prayer_time_offset", 0);
+
+      // Fetch location to get per-location offsets
+      const location = await Location.findOne({
+        latitude: Number(latitude),
+        longitude: Number(longitude),
+        isActive: true,
+      })
+        .select("prayerOffsets")
+        .lean();
+
+      const perPrayerOffsets = location?.prayerOffsets || null;
+
       const calendar = response.data.data.map((day) => {
+        let timings = {
+          fajr: day.timings.Fajr,
+          sunrise: day.timings.Sunrise,
+          dhuhr: day.timings.Dhuhr,
+          asr: day.timings.Asr,
+          maghrib: day.timings.Maghrib,
+          isha: day.timings.Isha,
+        };
+
+        if (globalOffset !== 0 || perPrayerOffsets) {
+          timings = applyOffset(timings, globalOffset, perPrayerOffsets);
+        }
+
         return {
           date: day.date.readable,
           hijri: `${day.date.hijri.month.en} ${day.date.hijri.day}`,
-          timings: {
-            fajr: day.timings.Fajr,
-            sunrise: day.timings.Sunrise,
-            dhuhr: day.timings.Dhuhr,
-            asr: day.timings.Asr,
-            maghrib: day.timings.Maghrib,
-            isha: day.timings.Isha,
-          },
+          timings,
         };
       });
 
