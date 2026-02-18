@@ -534,16 +534,21 @@ router.post(
   superAdminOnly,
   async (req, res) => {
     try {
-      const { offset } = req.body;
-      if (typeof offset !== "number") {
-        return res.status(400).json({ error: "offset son bo'lishi kerak" });
+      const { offsets } = req.body;
+      if (!offsets || typeof offsets !== "object") {
+        return res.status(400).json({ error: "offsets obyekt bo'lishi kerak" });
       }
+
       await Settings.setSetting(
-        "prayer_time_offset",
-        offset,
-        "Namoz vaqtlari offseti (daqiqalarda)"
+        "global_prayer_offsets",
+        offsets,
+        "Global namoz vaqtlari offsetlari (daqiqalarda)"
       );
-      res.json({ message: "Namoz vaqtlari offseti saqlandi", offset });
+
+      res.json({
+        message: "Global namoz vaqtlari offsetlari saqlandi",
+        offsets,
+      });
     } catch (error) {
       logger.error("Set prayer offset error:", error);
       res.status(500).json({ error: "Server xatosi" });

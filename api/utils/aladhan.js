@@ -13,12 +13,23 @@ const Settings = require("../models/Settings");
 /**
  * Apply time offset to prayer timings
  * @param {Object} timings - Original timings
- * @param {number} globalOffset - Global offset from settings
- * @param {Object} perPrayerOffsets - Individual prayer offsets (fajr, dhuhr, etc)
+ * @param {number} legacyGlobalOffset - Legacy global offset
+ * @param {Object} globalPerPrayerOffsets - Global per-prayer offsets
+ * @param {Object} locationPerPrayerOffsets - Location-specific per-prayer offsets
  * @returns {Object} Adjusted timings
  */
-function applyOffset(timings, globalOffset = 0, perPrayerOffsets = null) {
-  if (!globalOffset && !perPrayerOffsets) return timings;
+function applyOffset(
+  timings,
+  legacyGlobalOffset = 0,
+  globalPerPrayerOffsets = null,
+  locationPerPrayerOffsets = null
+) {
+  if (
+    !legacyGlobalOffset &&
+    !globalPerPrayerOffsets &&
+    !locationPerPrayerOffsets
+  )
+    return timings;
 
   const adjusted = { ...timings };
   const fields = {
@@ -35,13 +46,23 @@ function applyOffset(timings, globalOffset = 0, perPrayerOffsets = null) {
       continue;
 
     const lowerKey = key.toLowerCase();
-    let totalOffset = Number(globalOffset) || 0;
+    let totalOffset = Number(legacyGlobalOffset) || 0;
 
-    // Add per-prayer offset if exists
-    if (perPrayerOffsets) {
+    // Add global per-prayer offset
+    if (globalPerPrayerOffsets) {
       for (const [field, synonyms] of Object.entries(fields)) {
         if (lowerKey === field || synonyms.includes(lowerKey)) {
-          totalOffset += Number(perPrayerOffsets[field]) || 0;
+          totalOffset += Number(globalPerPrayerOffsets[field]) || 0;
+          break;
+        }
+      }
+    }
+
+    // Add location-specific per-prayer offset
+    if (locationPerPrayerOffsets) {
+      for (const [field, synonyms] of Object.entries(fields)) {
+        if (lowerKey === field || synonyms.includes(lowerKey)) {
+          totalOffset += Number(locationPerPrayerOffsets[field]) || 0;
           break;
         }
       }
@@ -138,7 +159,11 @@ async function getPrayerTimes(
   );
 
   if (result.success && result.timings) {
-    const globalOffset = await Settings.getSetting("prayer_time_offset", 0);
+    const globalOffsetsObj = await Settings.getSetting(
+      "global_prayer_offsets",
+      null
+    );
+    const legacyOffset = await Settings.getSetting("prayer_time_offset", 0);
 
     // Fetch location to get per-location offsets
     const location = await Location.findOne({
@@ -149,17 +174,21 @@ async function getPrayerTimes(
       .select("prayerOffsets")
       .lean();
 
-    const perPrayerOffsets = location?.prayerOffsets || null;
+    const perLocationOffsets = location?.prayerOffsets || null;
 
-    if (globalOffset !== 0 || perPrayerOffsets) {
+    if (globalOffsetsObj || legacyOffset !== 0 || perLocationOffsets) {
+      // First apply legacy if exists, then individual global, then per-location
+      // Actually we can sum them up in applyOffset
       result.timings = applyOffset(
         result.timings,
-        globalOffset,
-        perPrayerOffsets
+        legacyOffset,
+        globalOffsetsObj,
+        perLocationOffsets
       );
       result.offsetApplied = {
-        global: globalOffset,
-        perPrayer: perPrayerOffsets,
+        legacy: legacyOffset,
+        global: globalOffsetsObj,
+        location: perLocationOffsets,
       };
     }
   }
@@ -576,7 +605,11 @@ async function getMonthlyPrayerTimes(latitude, longitude, month, year) {
     });
 
     if (response.data.code === 200) {
-      const globalOffset = await Settings.getSetting("prayer_time_offset", 0);
+      const globalOffsetsObj = await Settings.getSetting(
+        "global_prayer_offsets",
+        null
+      );
+      const legacyOffset = await Settings.getSetting("prayer_time_offset", 0);
 
       // Fetch location to get per-location offsets
       const location = await Location.findOne({
@@ -587,7 +620,7 @@ async function getMonthlyPrayerTimes(latitude, longitude, month, year) {
         .select("prayerOffsets")
         .lean();
 
-      const perPrayerOffsets = location?.prayerOffsets || null;
+      const perLocationOffsets = location?.prayerOffsets || null;
 
       const calendar = response.data.data.map((day) => {
         let timings = {
@@ -599,8 +632,13 @@ async function getMonthlyPrayerTimes(latitude, longitude, month, year) {
           isha: day.timings.Isha,
         };
 
-        if (globalOffset !== 0 || perPrayerOffsets) {
-          timings = applyOffset(timings, globalOffset, perPrayerOffsets);
+        if (globalOffsetsObj || legacyOffset !== 0 || perLocationOffsets) {
+          timings = applyOffset(
+            timings,
+            legacyOffset,
+            globalOffsetsObj,
+            perLocationOffsets
+          );
         }
 
         return {

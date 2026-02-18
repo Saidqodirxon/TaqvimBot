@@ -95,7 +95,8 @@ export const settings = {
     api.post("/settings/phone", phoneSettings),
   setInstruction: (instructionData) =>
     api.post("/settings/instruction", instructionData),
-  setPrayerOffset: (offset) => api.post("/settings/prayer-offset", { offset }),
+  setPrayerOffset: (offsets) =>
+    api.post("/settings/prayer-offset", { offsets }),
 };
 
 // Greetings

@@ -27,6 +27,7 @@ function Prayers() {
     order: 0,
     isActive: true,
   });
+  const [sectionText, setSectionText] = useState({ uz: "", cr: "", ru: "" });
 
   const formRef = useRef(null);
 
@@ -49,6 +50,42 @@ function Prayers() {
       setPrayers(data);
     }
   }, [data]);
+
+  // Fetch section text
+  useEffect(() => {
+    const fetchSectionText = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const response = await axios.get(`${API_URL}/settings`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const st = response.data.settings;
+        const pts = st.find(s => s.key === "prayers_text");
+        if (pts?.value) {
+          setSectionText(pts.value);
+        }
+      } catch (err) {
+        console.error("Fetch section text error:", err);
+      }
+    };
+    fetchSectionText();
+  }, []);
+
+  // Update section text mutation
+  const sectionTextMutation = useMutation({
+    mutationFn: async () => {
+      const token = localStorage.getItem("token");
+      await axios.post(`${API_URL}/settings/prayers`, { prayers: sectionText }, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+    },
+    onSuccess: () => {
+      alert("Bo'lim matni saqlandi!");
+    },
+    onError: (err) => {
+      alert("Xatolik: " + (err.response?.data?.error || err.message));
+    }
+  });
 
   // Create/Update prayer
   const saveMutation = useMutation({
@@ -166,6 +203,52 @@ function Prayers() {
           Duolar Boshqaruvi
         </h1>
         <p>Botdagi duolarni qo'shish, tahrirlash va boshqarish</p>
+      </div>
+
+      {/* Section Text Editor */}
+      <div className="card">
+        <div className="setting-header">
+          <FileText size={24} />
+          <div>
+            <h3>Duo Bo'limi Matni</h3>
+            <p>Botdagi "Duolar" bo'limining boshida chiqadigan matn</p>
+          </div>
+        </div>
+
+        <div className="form-group">
+          <label>🇺🇿 Uzbek (Lotin)</label>
+          <textarea
+            value={sectionText.uz}
+            onChange={(e) => setSectionText({ ...sectionText, uz: e.target.value })}
+            placeholder="Duolar bo'limi uchun matn..."
+          />
+        </div>
+        <div className="form-group" style={{ marginTop: '10px' }}>
+          <label>🇷🇺 Uzbek (Kirill)</label>
+          <textarea
+            value={sectionText.cr}
+            onChange={(e) => setSectionText({ ...sectionText, cr: e.target.value })}
+            placeholder="Дуолар бўлими учун матн..."
+          />
+        </div>
+        <div className="form-group" style={{ marginTop: '10px' }}>
+          <label>🇷🇺 Rus tili</label>
+          <textarea
+            value={sectionText.ru}
+            onChange={(e) => setSectionText({ ...sectionText, ru: e.target.value })}
+            placeholder="Текст для раздела молитв..."
+          />
+        </div>
+
+        <button
+          className="btn-primary"
+          style={{ marginTop: '15px' }}
+          onClick={() => sectionTextMutation.mutate()}
+          disabled={sectionTextMutation.isLoading}
+        >
+          <Save size={18} />
+          {sectionTextMutation.isLoading ? "Saqlanmoqda..." : "Bo'lim matnini saqlash"}
+        </button>
       </div>
 
       {/* Prayer Form */}
