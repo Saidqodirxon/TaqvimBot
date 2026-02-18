@@ -13,6 +13,7 @@ import {
   Eye,
   EyeOff,
   X,
+  FileText,
 } from "lucide-react";
 import "./Prayers.css";
 

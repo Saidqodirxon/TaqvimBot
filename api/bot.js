@@ -846,7 +846,19 @@ bot.hears(/🤲/, async (ctx) => {
       [Markup.button.callback(await t(lang, "btn_back"), "close_prayers")],
     ]);
 
-    await ctx.reply(await t(lang, "prayers_select"), keyboard);
+    // Get custom introductory text from settings
+    const customPrayers = await Settings.getSetting("prayers_text", null);
+    let messageText;
+    if (customPrayers && customPrayers[lang]) {
+      messageText = customPrayers[lang];
+    } else {
+      messageText = await t(lang, "prayers_select");
+    }
+
+    await ctx.reply(messageText, {
+      parse_mode: "HTML",
+      reply_markup: keyboard.reply_markup,
+    });
   } catch (error) {
     logger.error("Prayers handler error", error);
   }
@@ -1469,7 +1481,19 @@ bot.action("back_to_prayers_list", async (ctx) => {
       [Markup.button.callback(await t(lang, "btn_back"), "close_prayers")],
     ]);
 
-    await ctx.editMessageText(await t(lang, "prayers_select"), keyboard);
+    // Get custom introductory text from settings
+    const customPrayers = await Settings.getSetting("prayers_text", null);
+    let messageText;
+    if (customPrayers && customPrayers[lang]) {
+      messageText = customPrayers[lang];
+    } else {
+      messageText = await t(lang, "prayers_select");
+    }
+
+    await ctx.editMessageText(messageText, {
+      parse_mode: "HTML",
+      reply_markup: keyboard.reply_markup,
+    });
   } catch (error) {
     logger.error("Error in back_to_prayers_list:", error);
   }
