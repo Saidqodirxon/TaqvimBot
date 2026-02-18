@@ -2858,6 +2858,39 @@ async function startAdminAPI() {
   app.use("/api/v1/promo-codes", promoCodesRoutes);
   app.use("/api/advertisements", advertisementsRoutes);
 
+  // Fallback direct route for prayer-offset
+  const {
+    authMiddleware: auth,
+    superAdminOnly: superAdmin,
+  } = require("./middleware/adminAuth");
+  const SettingsModel = require("./models/Settings");
+  app.post(
+    "/api/settings/prayer-offset",
+    auth,
+    superAdmin,
+    async (req, res) => {
+      try {
+        const { offsets } = req.body;
+        if (!offsets || typeof offsets !== "object") {
+          return res
+            .status(400)
+            .json({ error: "offsets obyekt bo'lishi kerak" });
+        }
+        await SettingsModel.setSetting(
+          "global_prayer_offsets",
+          offsets,
+          "Global namoz vaqtlari offsetlari (daqiqalarda)"
+        );
+        res.json({
+          message: "Global namoz vaqtlari offsetlari saqlandi (direct)",
+          offsets,
+        });
+      } catch (error) {
+        res.status(500).json({ error: "Server xatosi (direct)" });
+      }
+    }
+  );
+
   // Health check
   app.get("/", (req, res) => {
     res.json({

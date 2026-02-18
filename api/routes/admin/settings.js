@@ -7,6 +7,46 @@ const {
 } = require("../../middleware/adminAuth");
 const Settings = require("../../models/Settings");
 
+console.log("REGISTERING PRAYER-OFFSET ROUTE");
+
+// Set prayer time offset
+router.post(
+  "/prayer-offset",
+  authMiddleware,
+  superAdminOnly,
+  async (req, res) => {
+    console.log("PRAYER-OFFSET ROUTE HIT");
+    try {
+      const { offsets } = req.body;
+      if (!offsets || typeof offsets !== "object") {
+        return res.status(400).json({ error: "offsets obyekt bo'lishi kerak" });
+      }
+
+      // Save new granular offsets
+      await Settings.setSetting(
+        "global_prayer_offsets",
+        offsets,
+        "Global namoz vaqtlari offsetlari (daqiqalarda)"
+      );
+
+      // Clear legacy single offset to avoid double counting
+      await Settings.setSetting(
+        "prayer_time_offset",
+        0,
+        "Eski global offset (o'chirildi)"
+      );
+
+      res.json({
+        message: "Global namoz vaqtlari offsetlari saqlandi",
+        offsets,
+      });
+    } catch (error) {
+      logger.error("Set prayer offset error:", error);
+      res.status(500).json({ error: "Server xatosi" });
+    }
+  }
+);
+
 // Get all settings
 router.get("/", authMiddleware, async (req, res) => {
   try {
@@ -249,35 +289,6 @@ router.post("/prayers", authMiddleware, superAdminOnly, async (req, res) => {
     res.status(500).json({ error: "Server xatosi" });
   }
 });
-
-// Set prayer time offset
-router.post(
-  "/prayer-offset",
-  authMiddleware,
-  superAdminOnly,
-  async (req, res) => {
-    try {
-      const { offsets } = req.body;
-      if (!offsets || typeof offsets !== "object") {
-        return res.status(400).json({ error: "offsets obyekt bo'lishi kerak" });
-      }
-
-      await Settings.setSetting(
-        "global_prayer_offsets",
-        offsets,
-        "Global namoz vaqtlari offsetlari (daqiqalarda)"
-      );
-
-      res.json({
-        message: "Global namoz vaqtlari offsetlari saqlandi",
-        offsets,
-      });
-    } catch (error) {
-      logger.error("Set prayer offset error:", error);
-      res.status(500).json({ error: "Server xatosi" });
-    }
-  }
-);
 
 // Set cache settings
 router.post(
